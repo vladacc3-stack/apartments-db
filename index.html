@@ -16,8 +16,8 @@
             --surface: #ffffff;
             --text: #0f172a;
             --text-light: #64748b;
-            --border: #e2e8f0;
-            --border-subtle: #f1f5f9;
+            --border: #cbd5e1;
+            --border-subtle: #e2e8f0;
             --danger: #f43f5e;
             --danger-hover: #e11d48;
             --radius-lg: 20px;
@@ -49,7 +49,6 @@
             margin: 0 auto;
         }
 
-        /* Шапка */
         header {
             display: flex;
             justify-content: space-between;
@@ -121,10 +120,6 @@
             box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3);
         }
 
-        button:active {
-            transform: translateY(0);
-        }
-
         button.secondary {
             background-color: #f8fafc;
             color: var(--text);
@@ -134,7 +129,7 @@
 
         button.secondary:hover {
             background-color: #f1f5f9;
-            border-color: #cbd5e1;
+            border-color: #94a3b8;
             box-shadow: var(--shadow-sm);
             transform: translateY(-1px);
         }
@@ -149,7 +144,6 @@
             box-shadow: 0 6px 16px rgba(244, 63, 94, 0.3);
         }
 
-        /* Навигация по вкладкам */
         .tabs-nav {
             display: flex;
             justify-content: space-between;
@@ -235,7 +229,6 @@
             border-color: #fecdd3;
         }
 
-        /* Панель фильтров */
         .filters-bar {
             display: flex;
             gap: 16px;
@@ -279,7 +272,6 @@
             box-shadow: 0 0 0 3px var(--primary-light);
         }
 
-        /* Карточки апартаментов */
         .grid-cards {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -301,7 +293,7 @@
         .card:hover {
             transform: translateY(-4px);
             box-shadow: var(--shadow-md);
-            border-color: #cbd5e1;
+            border-color: #94a3b8;
         }
 
         .card-img-container {
@@ -376,7 +368,7 @@
             display: flex;
             justify-content: space-between;
             padding: 5px 0;
-            border-bottom: 1px dashed var(--border);
+            border-bottom: 1px dashed var(--border-subtle);
             color: var(--text-light);
         }
 
@@ -410,10 +402,10 @@
             color: var(--text);
         }
 
-        /* Шахматка бронирования */
+        /* Жесткая сетка шахматки с четкими видимыми границами */
         .matrix-container {
             background: var(--surface);
-            border: 1px solid var(--border);
+            border: 2px solid var(--border);
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-sm);
             margin-bottom: 32px;
@@ -428,25 +420,23 @@
             text-align: center;
             font-size: 12px;
             table-layout: fixed;
-            min-width: 1100px;
+            min-width: 1200px;
         }
 
         .matrix-table th, .matrix-table td {
-            border-right: 1px solid var(--border-subtle);
-            border-bottom: 1px solid var(--border-subtle);
+            border: 1px solid var(--border);
             height: 48px;
             position: relative;
             padding: 0;
         }
 
         .matrix-table th {
-            background-color: #f8fafc;
+            background-color: #f1f5f9;
             font-weight: 700;
             font-size: 11px;
             color: var(--text-light);
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            border-bottom: 1px solid var(--border);
         }
 
         .matrix-table td.apt-name {
@@ -457,12 +447,12 @@
             position: sticky;
             left: 0;
             z-index: 4;
-            width: 180px;
+            width: 200px;
             font-size: 13px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            border-right: 2px solid var(--border);
+            border-right: 3px solid var(--border);
             color: var(--text);
         }
 
@@ -470,15 +460,14 @@
             position: sticky;
             left: 0;
             z-index: 5;
-            background-color: #f1f5f9;
-            width: 180px;
-            border-right: 2px solid var(--border);
+            background-color: #e2e8f0;
+            width: 200px;
+            border-right: 3px solid var(--border);
             text-align: left;
             padding-left: 16px;
             color: var(--text);
         }
 
-        /* Навигация по месяцам */
         .month-nav {
             display: flex;
             align-items: center;
@@ -496,7 +485,6 @@
             box-shadow: none;
         }
 
-        /* Абсолютный блок бронирования (используем CSS Grid для корректной стыковки по колонкам суток) */
         .booking-overlay {
             position: absolute;
             height: 38px;
@@ -523,17 +511,16 @@
 
         .booking-olga {
             background: linear-gradient(135deg, #ffedd5, #fed7aa);
-            border: 1px solid #f97316;
+            border: 1.5px solid #f97316;
             color: #9a3412;
         }
 
         .booking-stasya {
             background: linear-gradient(135deg, #ede9fe, #ddd6fe);
-            border: 1px solid #8b5cf6;
+            border: 1.5px solid #8b5cf6;
             color: #5b21b6;
         }
 
-        /* Блок наложения (пересечения выезда и заезда в один день) с полупрозрачным наложением цветов */
         .booking-overlap-container {
             position: absolute;
             height: 38px;
@@ -544,6 +531,7 @@
             overflow: hidden;
             cursor: pointer;
             box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            border: 1.5px solid #64748b;
         }
 
         .booking-overlap-half {
@@ -557,21 +545,19 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            mix-blend-mode: multiply;
         }
 
         .booking-overlap-half.olga {
-            background-color: rgba(255, 237, 213, 0.9);
+            background-color: rgba(255, 237, 213, 0.95);
             color: #9a3412;
             border-bottom: 1px solid #fdba74;
         }
 
         .booking-overlap-half.stasya {
-            background-color: rgba(237, 233, 254, 0.9);
+            background-color: rgba(237, 233, 254, 0.95);
             color: #5b21b6;
         }
 
-        /* Модальные окна */
         .modal {
             display: none;
             position: fixed;
@@ -610,10 +596,9 @@
         }
 
         .modal-content.large {
-            max-width: 1100px;
+            max-width: 1200px;
         }
 
-        /* Шапка модального окна с кнопкой закрытия сверху */
         .modal-header-top {
             display: flex;
             justify-content: space-between;
@@ -721,7 +706,6 @@
             border-top: 1px solid var(--border-subtle);
         }
 
-        /* Карточка просмотра бронирования (Read-only режим) */
         .booking-view-card {
             background: #f8fafc;
             border: 1px solid var(--border);
@@ -754,10 +738,10 @@
             text-align: right;
         }
 
-        /* Полугодовая шахматка в карточке апартамента */
+        /* Жесткая сетка полугодовой шахматки */
         .apt-matrix-container {
             background: var(--surface);
-            border: 1px solid var(--border);
+            border: 2px solid var(--border);
             border-radius: var(--radius-md);
             overflow-x: auto;
             box-shadow: var(--shadow-sm);
@@ -771,19 +755,18 @@
             text-align: center;
             font-size: 11px;
             table-layout: fixed;
-            min-width: 1100px;
+            min-width: 1200px;
         }
 
         .apt-matrix-table th, .apt-matrix-table td {
-            border-right: 1px solid var(--border-subtle);
-            border-bottom: 1px solid var(--border-subtle);
+            border: 1px solid var(--border);
             height: 40px;
             position: relative;
             padding: 0;
         }
 
         .apt-matrix-table th {
-            background-color: #f8fafc;
+            background-color: #f1f5f9;
             font-weight: 700;
             font-size: 10px;
             color: var(--text-light);
@@ -797,9 +780,9 @@
             position: sticky;
             left: 0;
             z-index: 4;
-            width: 130px;
+            width: 150px;
             font-size: 12px;
-            border-right: 2px solid var(--border);
+            border-right: 3px solid var(--border);
             color: var(--text);
         }
 
@@ -807,9 +790,9 @@
             position: sticky;
             left: 0;
             z-index: 5;
-            background-color: #f1f5f9;
-            width: 130px;
-            border-right: 2px solid var(--border);
+            background-color: #e2e8f0;
+            width: 150px;
+            border-right: 3px solid var(--border);
             text-align: left;
             padding-left: 12px;
         }
@@ -846,13 +829,6 @@
             margin-bottom: 20px;
             box-shadow: var(--shadow-sm);
         }
-
-        .apt-view-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
     </style>
 </head>
 <body>
@@ -872,7 +848,6 @@
         </div>
     </header>
 
-    <!-- Навигация по вкладкам -->
     <div class="tabs-nav">
         <div class="tabs-left">
             <button class="tab-btn active" onclick="switchTab('apartments', this)">Апартаменты</button>
@@ -1029,7 +1004,6 @@
             <button type="button" class="close-top-btn" onclick="closeModal('bookingModal')" title="Закрыть">✕</button>
         </div>
         
-        <!-- Режим просмотра (Read-only) -->
         <div id="bookingViewMode">
             <div class="booking-view-card">
                 <div class="booking-view-row">
@@ -1068,7 +1042,6 @@
             </div>
         </div>
 
-        <!-- Режим редактирования (скрыт по умолчанию) -->
         <form id="bookingEditForm" onsubmit="handleBookingSubmit(event)" style="display: none;">
             <input type="hidden" id="bookingId">
             
@@ -1393,7 +1366,6 @@
         });
     }
 
-    /* Рендер шахматки бронирования строго по дням и границам с наложением */
     function renderMatrix() {
         const table = document.getElementById('matrixTable');
         const container = document.getElementById('matrixContainer');
@@ -1432,9 +1404,9 @@
         table.innerHTML = headerHTML + bodyHTML;
 
         const totalWidth = container.clientWidth;
-        const nameColWidth = 180;
+        const nameColWidth = 200;
         const availableWidthForDays = totalWidth - nameColWidth;
-        const cellWidth = Math.max(36, Math.floor(availableWidthForDays / daysInMonth));
+        const cellWidth = Math.max(38, Math.floor(availableWidthForDays / daysInMonth));
 
         const colHeader = table.querySelector('.apt-header');
         if (colHeader) colHeader.style.width = nameColWidth + 'px';
@@ -1451,7 +1423,6 @@
             db.apartments.forEach((apt, aptIndex) => {
                 const aptBookings = db.bookings.filter(b => b.aptId === apt.id);
                 
-                // Проверка наложений (день выезда предыдущей равен дню заезда следующей)
                 for (let d = 1; d <= daysInMonth; d++) {
                     const checkDate = new Date(year, month, d);
                     
@@ -1582,8 +1553,8 @@
 
         table.innerHTML = headerHTML + bodyHTML;
 
-        const cellWidth = 32; 
-        const nameColWidth = 130;
+        const cellWidth = 34; 
+        const nameColWidth = 150;
 
         if (db.bookings) {
             db.bookings.forEach(b => {
@@ -1790,6 +1761,15 @@
 
     function handleBookingSubmit(e) {
         e.preventDefault();
+        
+        const startDate = document.getElementById('bookingStart').value;
+        const endDate = document.getElementById('bookingEnd').value;
+
+        if (new Date(startDate) >= new Date(endDate)) {
+            alert('Ошибка: Дата выезда должна быть строго позже даты заезда!');
+            return;
+        }
+
         const id = document.getElementById('bookingId').value;
         const bookingData = {
             id: id ? id : 'book_' + Date.now(),
@@ -1799,8 +1779,8 @@
             phone: document.getElementById('bookingPhone').value,
             price: document.getElementById('bookingPrice').value,
             periodType: document.getElementById('bookingPeriodType').value,
-            startDate: document.getElementById('bookingStart').value,
-            endDate: document.getElementById('bookingEnd').value
+            startDate: startDate,
+            endDate: endDate
         };
 
         if (!db.bookings) db.bookings = [];
