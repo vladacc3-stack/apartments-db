@@ -7,5 +7,14 @@
       "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuQbBJqW4chT7tdi9aPN7zvhG6lN0o511K4w_hpxiQsUj808JlnI-me2A&s=10"
     }
   ],
-  "bookings": []
+  "bookings": [
+    {
+      "id": "book_1786213869712",
+      "aptId": "apt_1786213835668",
+      "manager": "Стася",
+      "guest": "Иван Иванов",
+      "startDate": "2026-08-21",
+      "endDate": "2026-08-29"
+    }
+  ]
 }
