@@ -205,8 +205,7 @@
         /* Цельный блок бронирования на всю длину даты */
         .booking-overlay {
             position: absolute;
-            top: 4px;
-            bottom: 4px;
+            height: 32px; /* Чуть меньше высоты строки (40px), чтобы аккуратно помещаться внутри */
             z-index: 1;
             border-radius: 6px;
             display: flex;
@@ -661,7 +660,7 @@
         if (db.bookings) {
             db.bookings.forEach(b => {
                 const aptIndex = db.apartments.findIndex(a => a.id === b.aptId);
-                if (aptIndex === -1) return;
+                if (aptIndex === -1) return; // Если квартира не найдена или удалена — пропускаем
 
                 const startObj = new Date(b.startDate);
                 const endObj = new Date(b.endDate);
@@ -675,10 +674,10 @@
                 const div = document.createElement('div');
                 div.className = `booking-overlay ${b.manager === 'Стася' ? 'booking-stasya' : 'booking-olga'}`;
                 div.style.left = (offsetLeft + (startDay - 1) * cellWidth + 2) + 'px';
+                // Строго привязываем вертикальное положение (top) к конкретному индексу строки этой квартиры
                 div.style.top = (41 + (aptIndex * 41) + 4) + 'px';
                 div.style.width = (duration * cellWidth - 4) + 'px';
                 
-                // На самой плашке теперь только имя гостя
                 div.innerText = b.guest;
                 div.title = `${b.guest} | Менеджер: ${b.manager} | Тел: ${b.phone} | Цена: ${b.price}€ (${b.periodType})`;
                 div.onclick = () => openEditBooking(b.id);
