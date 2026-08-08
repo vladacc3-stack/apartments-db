@@ -402,7 +402,6 @@
             color: var(--text);
         }
 
-        /* Контейнеры таблиц и шахматки */
         .matrix-container, .apt-matrix-container {
             background: var(--surface);
             border: 2px solid var(--border);
@@ -489,7 +488,6 @@
             box-shadow: none;
         }
 
-        /* Единая сплошная полоса бронирования */
         .booking-bar {
             position: absolute;
             top: 5px;
@@ -943,7 +941,7 @@
 
             <div class="form-group">
                 <label>Апартамент</label>
-                <select id="bookingApt" required></select>
+                <select id="bookingApt" required onchange="validateBookingDates()"></select>
             </div>
 
             <div class="form-row">
@@ -982,9 +980,7 @@
                     <input type="date" id="bookingEnd" required onchange="validateBookingDates()">
                 </div>
             </div>
-            <div id="bookingDateError" style="color: var(--danger); font-size: 12px; font-weight: 700; margin-top: -12px; margin-bottom: 16px; display: none;">
-                ⚠️ Дата некорректная, измените выбор! Дата выезда должна быть строго позже даты заезда.
-            </div>
+            <div id="bookingDateError" style="color: var(--danger); font-size: 12px; font-weight: 700; margin-top: -12px; margin-bottom: 16px; display: none;"></div>
 
             <div class="modal-actions">
                 <button type="button" class="secondary" onclick="switchToViewBooking()">Отмена</button>
@@ -1164,7 +1160,7 @@
         renderMatrix();
     }
 
-    function isApartmentAvailable(aptId, startDateStr, endDateStr) {
+    function isApartmentAvailable(aptId, startDateStr, endDateStr, currentBookingId = null) {
         if (!startDateStr || !endDateStr) return true;
         
         const filterStart = new Date(startDateStr);
@@ -1172,12 +1168,14 @@
         
         if (filterStart >= filterEnd) return true;
 
-        const aptBookings = db.bookings.filter(b => b.aptId === aptId);
+        const aptBookings = db.bookings.filter(b => b.aptId === aptId && b.id !== currentBookingId);
         
         for (let b of aptBookings) {
             const bStart = new Date(b.startDate);
             const bEnd = new Date(b.endDate);
             
+            // Заезд равен выезду или выезд равен заезду - разрешено (пересменка в один день)
+            // Но если периоды перекрываются внутри -> бронь недопустима
             if (filterStart < bEnd && filterEnd > bStart) {
                 return false;
             }
@@ -1251,77 +1249,6 @@
         });
     }
 
-    /**
-     * Отрисовка сплошной непрерывной полосы бронирования с привязкой по процентам/пикселям.
-     */
-    function renderBookingBarUnified(rowElement, booking, year, month, totalDaysInMonth, isHalfYear = false) {
-        const startObj = new Date(booking.startDate);
-        const endObj = new Date(booking.endDate);
-
-        const monthStart = new Date(year, month, 1);
-        const monthEnd = new Date(year, month, totalDaysInMonth, 23, 59, 59);
-
-        // Пропускаем брони, не попадающие в этот месяц
-        if (endObj < monthStart || startObj > monthEnd) return;
-
-        const isStartThisMonth = (startObj.getFullYear() === year && startObj.getMonth() === month);
-        const isEndThisMonth = (endObj.getFullYear() === year && endObj.getMonth() === month);
-
-        const startDayVal = isStartThisMonth ? startObj.getDate() : 1;
-        const endDayVal = isEndThisMonth ? endObj.getDate() : totalDaysInMonth;
-
-        // Позиционирование:
-        // Если заезд в этом месяце -> с середины ячейки (startDayVal - 0.5)
-        // Если заезд был раньше -> с самого начала дня (startDayVal - 1)
-        const leftOffsetDays = isStartThisMonth ? (startDayVal - 0.5) : (startDayVal - 1);
-
-        // Если выезд в этом месяце -> до середины ячейки (endDayVal - 0.5)
-        // Если выезд позже -> до самого конца дня (endDayVal)
-        const rightOffsetDays = isEndThisMonth ? (endDayVal - 0.5) : endDayVal;
-
-        const spanDays = rightOffsetDays - leftOffsetDays;
-        if (spanDays <= 0) return;
-
-        // Расчет позиции в % внутри блока с днями (без учета колонки названия)
-        const leftPercent = (leftOffsetDays / totalDaysInMonth) * 100;
-        const widthPercent = (spanDays / totalDaysInMonth) * 100;
-
-        // Ищем ячейки этой строки
-        const cells = rowElement.querySelectorAll('td.day-cell');
-        if (!cells || cells.length === 0) return;
-
-        const firstCell = cells[0];
-        const lastCell = cells[cells.length - 1];
-
-        const bar = document.createElement('div');
-        bar.className = `booking-bar ${booking.manager === 'Стася' ? 'booking-stasya' : 'booking-olga'}`;
-        
-        // Показываем ТОЛЬКО ИМЯ в самом элементе
-        bar.innerText = booking.guest;
-        
-        // Всплывающая подсказка с подробностями
-        const totalNights = Math.round((endObj - startObj) / (1000 * 60 * 60 * 24));
-        bar.title = `${booking.guest} | Менеджер: ${booking.manager} | Заезд: ${booking.startDate} — Выезд: ${booking.endDate} (${totalNights} ночевки)`;
-
-        // Точное наложение от первой ячейки месяца до последней
-        bar.style.left = `calc(${leftPercent}% * (1 - var(--first-col-ratio, 0)))`; 
-        bar.style.width = `calc(${widthPercent}% * (1 - var(--first-col-ratio, 0)))`;
-
-        bar.onclick = (e) => {
-            e.stopPropagation();
-            if (isHalfYear) closeModal('viewAptModal');
-            openBookingModalView(booking.id);
-        };
-
-        // Задаем логику размещения полосы поверх ячеек
-        let containerCell = rowElement.querySelector('td.day-cell-container');
-        if (!containerCell) {
-            containerCell = firstCell;
-        }
-        containerCell.appendChild(bar);
-    }
-
-    /* Функция позиционирования для двух типов таблиц */
     function applyUnifiedBookingToRow(rowElement, booking, year, month, totalDaysInMonth, isHalfYear = false) {
         const startObj = new Date(booking.startDate);
         const endObj = new Date(booking.endDate);
@@ -1343,8 +1270,6 @@
         const dayCells = Array.from(rowElement.querySelectorAll('td.day-cell'));
         if (!dayCells[startCellIdx] || !dayCells[endCellIdx]) return;
 
-        const targetCell = dayCells[startCellIdx];
-
         const startCellLeft = dayCells[startCellIdx].offsetLeft;
         const endCellLeft = dayCells[endCellIdx].offsetLeft;
         const cellWidth = dayCells[endCellIdx].offsetWidth;
@@ -1364,7 +1289,6 @@
         const bar = document.createElement('div');
         bar.className = `booking-bar ${booking.manager === 'Стася' ? 'booking-stasya' : 'booking-olga'}`;
         
-        // ТОЛЬКО ИМЯ ГОСТЯ
         bar.innerText = booking.guest;
 
         const totalNights = Math.round((endObj - startObj) / (1000 * 60 * 60 * 24));
@@ -1417,7 +1341,6 @@
 
         table.innerHTML = headerHTML + bodyHTML;
 
-        // Позиционируем брони после полной прорисовки таблицы
         setTimeout(() => {
             if (!db.bookings) return;
             db.apartments.forEach(apt => {
@@ -1665,8 +1588,10 @@
     }
 
     function validateBookingDates() {
+        const aptId = document.getElementById('bookingApt').value;
         const startVal = document.getElementById('bookingStart').value;
         const endVal = document.getElementById('bookingEnd').value;
+        const bookingId = document.getElementById('bookingId').value;
         const errorDiv = document.getElementById('bookingDateError');
         const submitBtn = document.getElementById('bookingSubmitBtn');
 
@@ -1675,6 +1600,17 @@
             const endDate = new Date(endVal);
 
             if (startDate >= endDate) {
+                errorDiv.innerText = '⚠️ Дата выезда должна быть строго позже даты заезда!';
+                errorDiv.style.display = 'block';
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = '0.5';
+                submitBtn.style.cursor = 'not-allowed';
+                return false;
+            }
+
+            // Проверка на пересечение с другими бронями
+            if (!isApartmentAvailable(aptId, startVal, endVal, bookingId)) {
+                errorDiv.innerText = '⚠️ Извините, на эти даты квартира забронирована! Сначала удалите или измените существующую бронь.';
                 errorDiv.style.display = 'block';
                 submitBtn.disabled = true;
                 submitBtn.style.opacity = '0.5';
@@ -1693,6 +1629,7 @@
         document.getElementById('bookingModalTitle').innerText = 'Редактирование брони';
         document.getElementById('bookingViewMode').style.display = 'none';
         document.getElementById('bookingEditForm').style.display = 'block';
+        validateBookingDates();
     }
 
     function switchToViewBooking() {
@@ -1706,18 +1643,19 @@
     function handleBookingSubmit(e) {
         e.preventDefault();
         
-        if (!validateBookingDates()) {
-            alert('⚠️ Дата некорректная, измените выбор!');
-            return;
-        }
-
+        const aptId = document.getElementById('bookingApt').value;
         const startDate = document.getElementById('bookingStart').value;
         const endDate = document.getElementById('bookingEnd').value;
         const id = document.getElementById('bookingId').value;
 
+        if (!validateBookingDates()) {
+            alert('Извините, на эти даты квартира забронирована!');
+            return;
+        }
+
         const bookingData = {
             id: id ? id : 'book_' + Date.now(),
-            aptId: document.getElementById('bookingApt').value,
+            aptId: aptId,
             manager: document.getElementById('bookingManager').value,
             guest: document.getElementById('bookingGuest').value,
             phone: document.getElementById('bookingPhone').value,
