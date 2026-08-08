@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Управление апартаментами</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -246,6 +246,8 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
+            flex: 1;
+            min-width: 140px;
         }
 
         .filters-bar label {
@@ -400,6 +402,8 @@
             justify-content: space-between;
             align-items: center;
             color: var(--text);
+            flex-wrap: wrap;
+            gap: 12px;
         }
 
         .matrix-container, .apt-matrix-container {
@@ -410,6 +414,7 @@
             margin-bottom: 32px;
             overflow-x: auto;
             position: relative;
+            -webkit-overflow-scrolling: touch;
         }
 
         .matrix-table, .apt-matrix-table {
@@ -608,6 +613,7 @@
 
         .form-group {
             margin-bottom: 20px;
+            width: 100%;
         }
 
         .form-group label {
@@ -714,6 +720,133 @@
             border-radius: var(--radius-md);
             margin-bottom: 20px;
             box-shadow: var(--shadow-sm);
+        }
+
+        /* МЕДИАЗАПРОСЫ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ */
+        @media (max-width: 768px) {
+            body {
+                padding: 16px 10px;
+            }
+
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 16px;
+            }
+
+            .header-title-wrapper h1 {
+                font-size: 18px;
+            }
+
+            .actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .tabs-nav {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .tabs-left {
+                width: 100%;
+                display: flex;
+            }
+
+            .tab-btn {
+                flex: 1;
+                text-align: center;
+                padding: 10px 8px;
+                font-size: 13px;
+            }
+
+            #tabActionContainer button {
+                width: 100%;
+            }
+
+            .filters-bar {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 16px;
+            }
+
+            .filters-bar button {
+                width: 100%;
+            }
+
+            .grid-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .month-nav {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            /* Адаптация модальных окон и форм */
+            .modal-content {
+                padding: 20px;
+                max-height: 95vh;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            /* Увеличение шрифта инпутов для предотвращения зума на iOS */
+            .form-group input, .form-group select, .price-row-item input {
+                font-size: 16px;
+                padding: 14px 12px;
+            }
+
+            .price-row-item {
+                grid-template-columns: 1fr 100px 44px;
+            }
+
+            .price-row-item button {
+                height: 100%;
+                padding: 0;
+            }
+
+            .modal-actions {
+                flex-direction: column-reverse;
+                gap: 10px;
+            }
+
+            .modal-actions button {
+                width: 100%;
+                margin: 0 !important;
+                padding: 14px;
+                font-size: 15px;
+            }
+
+            /* Адаптация шахматки для мобильных */
+            .matrix-table, .apt-matrix-table {
+                min-width: 1000px; /* Уменьшена минимальная ширина */
+            }
+
+            .matrix-table th.col-apt, .apt-matrix-table th.col-month,
+            .matrix-table td.col-apt, .apt-matrix-table td.col-month {
+                width: 100px;
+                min-width: 100px;
+                max-width: 100px;
+                font-size: 11px;
+                padding-left: 8px;
+                white-space: normal; /* Разрешить перенос текста */
+                line-height: 1.2;
+            }
+            
+            .matrix-table th, .apt-matrix-table th {
+                width: 32px !important;
+                min-width: 32px !important;
+                font-size: 10px;
+            }
+            
+            .booking-bar {
+                font-size: 10px;
+                padding: 0 4px;
+            }
         }
     </style>
 </head>
@@ -870,7 +1003,7 @@
             <div class="prices-container">
                 <h4>Цены по периодам</h4>
                 <div id="priceRowsContainer"></div>
-                <button type="button" class="secondary" style="width: 100%; padding: 8px; font-size: 13px;" onclick="addPriceRow()">+ Добавить цену</button>
+                <button type="button" class="secondary" style="width: 100%; padding: 12px; font-size: 14px;" onclick="addPriceRow()">+ Добавить цену</button>
             </div>
 
             <div class="modal-actions">
@@ -893,7 +1026,7 @@
         <div id="bookingViewMode">
             <div class="booking-view-card">
                 <div class="booking-view-row">
-                    <span class="booking-view-label">Чья Бронь</span>
+                    <span class="booking-view-label">Менеджер</span>
                     <span class="booking-view-value" id="viewManager">-</span>
                 </div>
                 <div class="booking-view-row">
@@ -932,7 +1065,7 @@
             <input type="hidden" id="bookingId">
             
             <div class="form-group">
-                <label>Чья Бронь (цвет брони)</label>
+                <label>Менеджер (цвет брони)</label>
                 <select id="bookingManager" required>
                     <option value="Ольга">Ольга (Оранжевый)</option>
                     <option value="Стася">Стася (Фиолетовый)</option>
@@ -980,7 +1113,7 @@
                     <input type="date" id="bookingEnd" required onchange="validateBookingDates()">
                 </div>
             </div>
-            <div id="bookingDateError" style="color: var(--danger); font-size: 12px; font-weight: 700; margin-top: -12px; margin-bottom: 16px; display: none;"></div>
+            <div id="bookingDateError" style="color: var(--danger); font-size: 13px; font-weight: 700; margin-top: -8px; margin-bottom: 16px; display: none;"></div>
 
             <div class="modal-actions">
                 <button type="button" class="secondary" onclick="switchToViewBooking()">Отмена</button>
@@ -1292,7 +1425,7 @@
         bar.innerText = booking.guest;
 
         const totalNights = Math.round((endObj - startObj) / (1000 * 60 * 60 * 24));
-        bar.title = `${booking.guest} | Чья Бронь: ${booking.manager} | Заезд: ${booking.startDate} — Выезд: ${booking.endDate} (${totalNights} н.)`;
+        bar.title = `${booking.guest} | Менеджер: ${booking.manager} | Заезд: ${booking.startDate} — Выезд: ${booking.endDate} (${totalNights} н.)`;
 
         bar.style.left = `${leftPos}px`;
         bar.style.width = `${barWidth}px`;
@@ -1321,7 +1454,7 @@
 
         let headerHTML = `<tr><th class="col-apt">Апартаменты</th>`;
         for (let d = 1; d <= daysInMonth; d++) {
-            headerHTML += `<th style="width: 42px; min-width: 42px;">${d}</th>`;
+            headerHTML += `<th>${d}</th>`;
         }
         headerHTML += `</tr>`;
 
@@ -1392,7 +1525,7 @@
 
         let headerHTML = `<tr><th class="col-month">Месяц / Число</th>`;
         for (let d = 1; d <= 31; d++) {
-            headerHTML += `<th style="width: 35px; min-width: 35px;">${d}</th>`;
+            headerHTML += `<th>${d}</th>`;
         }
         headerHTML += `</tr>`;
 
@@ -1478,7 +1611,7 @@
         div.innerHTML = `
             <input type="text" placeholder="Период (напр. Июль)" value="${periodVal}" class="price-period" required>
             <input type="number" placeholder="Цена (€)" value="${priceVal}" class="price-val" required>
-            <button type="button" class="danger" style="padding: 10px;" onclick="this.parentElement.remove()">✕</button>
+            <button type="button" class="danger" onclick="this.parentElement.remove()">✕</button>
         `;
         container.appendChild(div);
     }
