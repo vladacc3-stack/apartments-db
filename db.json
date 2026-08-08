@@ -1,21 +1,4 @@
 {
-  "apartments": [
-    {
-      "id": "apt_1786208507203",
-      "complex": "Harmony Suite",
-      "number": "B-32",
-      "image": "https://hoff.ru/upload/medialibrary/1eb/1eb7a839f384c60c77781e0cf73352b4.jpg",
-      "priceDay": "70",
-      "priceMonth": "70"
-    }
-  ],
-  "bookings": [
-    {
-      "id": "book_1786213372657",
-      "aptId": "apt_1786208507203",
-      "guest": "ава",
-      "startDate": "2026-08-19",
-      "endDate": "2026-08-22"
-    }
-  ]
+  "apartments": [],
+  "bookings": []
 }
