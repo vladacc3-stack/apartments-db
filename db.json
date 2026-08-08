@@ -37,6 +37,19 @@
           "price": "70"
         }
       ]
+    },
+    {
+      "id": "apt_1786224889016",
+      "complex": "Свит Хом 4",
+      "number": "88",
+      "type": "1+1",
+      "image": "https://i.ibb.co/1G6dZTfb/photo-2026-08-07-11-34-05.jpg",
+      "prices": [
+        {
+          "period": "Август посуточно",
+          "price": "70"
+        }
+      ]
     }
   ],
   "bookings": [
