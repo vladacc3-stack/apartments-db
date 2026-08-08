@@ -437,6 +437,7 @@
             vertical-align: middle;
             text-align: center;
             box-sizing: border-box;
+            position: relative;
         }
 
         /* Фиксированная ширина колонок с днями */
@@ -505,46 +506,74 @@
             box-shadow: none;
         }
 
-        /* Абсолютное позиционирование полосы брони относительно всей таблицы */
-        .booking-bar {
+        /* ПОРАЗДЕЛЬНЫЕ СЕГМЕНТЫ ПЛАШЕК ВНУТРИ ЯЧЕЕК */
+        .booking-segment {
             position: absolute;
             top: 4px;
-            height: calc(100% - 8px);
+            bottom: 4px;
             z-index: 5;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 11px;
             cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.12);
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            padding: 0 4px;
-            transition: transform 0.15s ease, filter 0.15s ease;
-            user-select: none;
             box-sizing: border-box;
+            transition: filter 0.15s ease;
         }
 
-        .booking-bar:hover {
-            filter: brightness(0.95);
-            transform: translateY(-1px);
+        .booking-segment:hover {
+            filter: brightness(0.93);
             z-index: 8;
         }
 
+        /* Цвет менеджеров */
         .booking-olga {
-            background: linear-gradient(135deg, #ffedd5, #fed7aa);
-            border: 1.5px solid #f97316;
-            color: #9a3412;
+            background: #fed7aa;
+            border-top: 1.5px solid #f97316;
+            border-bottom: 1.5px solid #f97316;
         }
 
         .booking-stasya {
-            background: linear-gradient(135deg, #ede9fe, #ddd6fe);
-            border: 1.5px solid #8b5cf6;
-            color: #5b21b6;
+            background: #ddd6fe;
+            border-top: 1.5px solid #8b5cf6;
+            border-bottom: 1.5px solid #8b5cf6;
         }
+
+        /* Форма скруглений и боковых границ сегментов */
+        .booking-segment.start-seg {
+            border-left: 1.5px solid currentColor;
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+        }
+
+        .booking-segment.end-seg {
+            border-right: 1.5px solid currentColor;
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+
+        .booking-olga.start-seg { border-left-color: #f97316; }
+        .booking-olga.end-seg { border-right-color: #f97316; }
+        .booking-stasya.start-seg { border-left-color: #8b5cf6; }
+        .booking-stasya.end-seg { border-right-color: #8b5cf6; }
+
+        /* ТЕКСТ С ИМЕНЕМ ПОВЕРХ РАЗДЕЛЕННОЙ ПЛАШКИ */
+        .booking-label-overlay {
+            position: absolute;
+            top: 4px;
+            height: calc(100% - 8px);
+            z-index: 9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 11px;
+            pointer-events: none; /* Пропускаем клик на сегменты снизу */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 0 4px;
+            box-sizing: border-box;
+        }
+
+        .booking-olga-label { color: #9a3412; }
+        .booking-stasya-label { color: #5b21b6; }
 
         /* МОДАЛЬНЫЕ ОКНА */
         .modal {
@@ -1422,72 +1451,107 @@
 
         const tableRect = table.getBoundingClientRect();
 
-        const isStartThisMonth = (startObj.getFullYear() === year && startObj.getMonth() === month);
-        const isEndThisMonth = (endObj.getFullYear() === year && endObj.getMonth() === month);
+        let startDayNum = (startObj.getFullYear() === year && startObj.getMonth() === month) ? startObj.getDate() : 1;
+        let endDayNum = (endObj.getFullYear() === year && endObj.getMonth() === month) ? endObj.getDate() : totalDaysInMonth;
 
-        let leftPos = 0;
-        let rightPos = 0;
+        const isStartReal = (startObj.getFullYear() === year && startObj.getMonth() === month);
+        const isEndReal = (endObj.getFullYear() === year && endObj.getMonth() === month);
 
-        if (isStartThisMonth) {
-            const startDay = startObj.getDate();
-            const cellSelector = isHalfYear ? `td[data-month-day="${startDay}"]` : `td[data-day="${startDay}"]`;
-            const startCell = rowElement.querySelector(cellSelector);
-            if (!startCell) return;
-            const startRect = startCell.getBoundingClientRect();
-            // Ровно середина ячейки заезда
-            leftPos = (startRect.left - tableRect.left) + (startRect.width / 2);
-        } else {
-            const firstCellSelector = isHalfYear ? `td[data-month-day="1"]` : `td[data-day="1"]`;
-            const firstCell = rowElement.querySelector(firstCellSelector);
-            if (!firstCell) return;
-            const firstRect = firstCell.getBoundingClientRect();
-            leftPos = firstRect.left - tableRect.left;
-        }
-
-        if (isEndThisMonth) {
-            const endDay = endObj.getDate();
-            const cellSelector = isHalfYear ? `td[data-month-day="${endDay}"]` : `td[data-day="${endDay}"]`;
-            const endCell = rowElement.querySelector(cellSelector);
-            if (!endCell) return;
-            const endRect = endCell.getBoundingClientRect();
-            // Ровно середина ячейки выезда
-            rightPos = (endRect.left - tableRect.left) + (endRect.width / 2);
-        } else {
-            const lastCellSelector = isHalfYear ? `td[data-month-day="${totalDaysInMonth}"]` : `td[data-day="${totalDaysInMonth}"]`;
-            const lastCell = rowElement.querySelector(lastCellSelector);
-            if (!lastCell) return;
-            const lastRect = lastCell.getBoundingClientRect();
-            rightPos = lastRect.right - tableRect.left;
-        }
-
-        const barWidth = rightPos - leftPos;
-        if (barWidth <= 0) return;
-
-        const bar = document.createElement('div');
-        bar.className = `booking-bar ${booking.manager === 'Стася' ? 'booking-stasya' : 'booking-olga'}`;
-        
-        bar.innerText = booking.guest;
-
+        const managerClass = booking.manager === 'Стася' ? 'booking-stasya' : 'booking-olga';
+        const labelClass = booking.manager === 'Стася' ? 'booking-stasya-label' : 'booking-olga-label';
         const totalNights = Math.round((endObj - startObj) / (1000 * 60 * 60 * 24));
-        bar.title = `${booking.guest} | Менеджер: ${booking.manager} | Заезд: ${booking.startDate} — Выезд: ${booking.endDate} (${totalNights} н.)`;
+        const tooltipText = `${booking.guest} | Менеджер: ${booking.manager} | Заезд: ${booking.startDate} — Выезд: ${booking.endDate} (${totalNights} н.)`;
 
-        bar.style.left = `${leftPos}px`;
-        bar.style.width = `${barWidth}px`;
+        let firstCellEl = null;
+        let lastCellEl = null;
 
-        bar.onclick = (e) => {
-            e.stopPropagation();
-            if (isHalfYear) closeModal('viewAptModal');
-            openBookingModalView(booking.id);
-        };
+        // Создаем сегменты плашки внутри каждой ячейки дня
+        for (let d = startDayNum; d <= endDayNum; d++) {
+            const selector = isHalfYear ? `td[data-month-day="${d}"]` : `td[data-day="${d}"]`;
+            const cell = rowElement.querySelector(selector);
+            if (!cell) continue;
 
-        rowElement.appendChild(bar);
+            if (d === startDayNum) firstCellEl = cell;
+            if (d === endDayNum) lastCellEl = cell;
+
+            const seg = document.createElement('div');
+            seg.className = `booking-segment ${managerClass}`;
+            seg.title = tooltipText;
+
+            const isFirstDay = (d === startDayNum);
+            const isLastDay = (d === endDayNum);
+
+            if (isFirstDay && isStartReal) {
+                seg.style.left = '50%';
+                seg.style.width = '50%';
+                seg.classList.add('start-seg');
+            } else if (isFirstDay && !isStartReal) {
+                seg.style.left = '0%';
+                seg.style.width = '100%';
+            }
+
+            if (isLastDay && isEndReal) {
+                if (!isFirstDay) {
+                    seg.style.left = '0%';
+                    seg.style.width = '50%';
+                } else {
+                    seg.style.width = '0%'; // Если заезд и выезд один день (крайний случай)
+                }
+                seg.classList.add('end-seg');
+            } else if (isLastDay && !isEndReal) {
+                seg.style.width = '100%';
+            }
+
+            if (!isFirstDay && !isLastDay) {
+                seg.style.left = '0%';
+                seg.style.width = '100%';
+            }
+
+            seg.onclick = (e) => {
+                e.stopPropagation();
+                if (isHalfYear) closeModal('viewAptModal');
+                openBookingModalView(booking.id);
+            };
+
+            cell.appendChild(seg);
+        }
+
+        // Вычисляем общую ширину для единой надписи с именем гостя поверх сегментов
+        if (firstCellEl && lastCellEl) {
+            const firstRect = firstCellEl.getBoundingClientRect();
+            const lastRect = lastCellEl.getBoundingClientRect();
+
+            let leftPos = (firstRect.left - tableRect.left);
+            if (isStartReal) {
+                leftPos += (firstRect.width / 2);
+            }
+
+            let rightPos = (lastRect.left - tableRect.left);
+            if (isEndReal) {
+                rightPos += (lastRect.width / 2);
+            } else {
+                rightPos += lastRect.width;
+            }
+
+            const labelWidth = rightPos - leftPos;
+
+            if (labelWidth > 10) {
+                const labelOverlay = document.createElement('span');
+                labelOverlay.className = `booking-label-overlay ${labelClass}`;
+                labelOverlay.innerText = booking.guest;
+                labelOverlay.style.left = `${leftPos}px`;
+                labelOverlay.style.width = `${labelWidth}px`;
+                
+                rowElement.appendChild(labelOverlay);
+            }
+        }
     }
 
     function renderMatrixBarsOnly() {
         const table = document.getElementById('matrixTable');
         if (!table || !db.apartments) return;
 
-        table.querySelectorAll('.booking-bar').forEach(bar => bar.remove());
+        table.querySelectorAll('.booking-segment, .booking-label-overlay').forEach(el => el.remove());
 
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth();
@@ -1615,7 +1679,7 @@
 
         requestAnimationFrame(() => {
             if (!db.bookings) return;
-            table.querySelectorAll('.booking-bar').forEach(bar => bar.remove());
+            table.querySelectorAll('.booking-segment, .booking-label-overlay').forEach(el => el.remove());
 
             db.bookings.forEach(b => {
                 if (b.aptId !== aptId) return;
