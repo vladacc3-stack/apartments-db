@@ -556,12 +556,13 @@
         /* ТЕКСТ С ИМЕНЕМ ПОВЕРХ РАЗДЕЛЕННОЙ ПЛАШКИ */
         .booking-label-overlay {
             position: absolute;
-            top: 4px;
-            height: calc(100% - 8px);
+            top: 50%;
+            transform: translateY(-50%);
+            height: 40px;
+            line-height: 40px;
             z-index: 9;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: block;
+            text-align: center;
             font-weight: 700;
             font-size: 11px;
             pointer-events: none; /* Пропускаем клик на сегменты снизу */
@@ -893,6 +894,10 @@
                 white-space: normal;
                 word-wrap: break-word;
                 line-height: 1.25;
+            }
+
+            .booking-label-overlay {
+                font-size: 10px;
             }
         }
     </style>
