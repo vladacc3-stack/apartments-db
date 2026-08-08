@@ -160,14 +160,20 @@
         /* Панель фильтров */
         .filters-bar {
             display: flex;
-            gap: 12px;
+            gap: 16px;
             margin-bottom: 20px;
-            align-items: center;
+            align-items: flex-end;
             flex-wrap: wrap;
             background: var(--surface);
-            padding: 12px 16px;
+            padding: 16px;
             border-radius: 12px;
             border: 1px solid var(--border);
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
 
         .filters-bar label {
@@ -176,7 +182,7 @@
             color: var(--text-light);
         }
 
-        .filters-bar select {
+        .filters-bar select, .filters-bar input {
             padding: 8px 12px;
             border: 1px solid var(--border);
             border-radius: 8px;
@@ -560,7 +566,6 @@
             pointer-events: none;
         }
 
-        /* Просмотр карточки квартиры */
         .apt-view-details img {
             width: 100%;
             height: 200px;
@@ -588,7 +593,7 @@
         </div>
     </header>
 
-    <!-- Панель вкладок и динамическая кнопка действия -->
+    <!-- Навигация по вкладкам и кнопка действия -->
     <div class="tabs-nav">
         <div class="tabs-left">
             <button class="tab-btn active" onclick="switchTab('apartments', this)">Апартаменты</button>
@@ -602,13 +607,26 @@
     <!-- Вкладка: Апартаменты -->
     <div id="tab-apartments" class="tab-content active">
         <div class="filters-bar">
-            <label for="typeFilter">Фильтр по типу:</label>
-            <select id="typeFilter" onchange="renderApartments()">
-                <option value="all">Все типы</option>
-                <option value="Студия">Студия</option>
-                <option value="1+1">1+1</option>
-                <option value="2+1">2+1</option>
-            </select>
+            <div class="filter-group">
+                <label for="typeFilter">Тип апартаментов:</label>
+                <select id="typeFilter" onchange="renderApartments()">
+                    <option value="all">Все типы</option>
+                    <option value="Студия">Студия</option>
+                    <option value="1+1">1+1</option>
+                    <option value="2+1">2+1</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="filterStartDate">Свободны с:</label>
+                <input type="date" id="filterStartDate" onchange="renderApartments()">
+            </div>
+            <div class="filter-group">
+                <label for="filterEndDate">Свободны по:</label>
+                <input type="date" id="filterEndDate" onchange="renderApartments()">
+            </div>
+            <div class="filter-group">
+                <button class="secondary" onclick="clearFilters()" style="padding: 8px 12px; font-size: 13px;">Сбросить даты</button>
+            </div>
         </div>
 
         <div class="section-title">Список апартаментов</div>
@@ -650,7 +668,7 @@
     </div>
 </div>
 
-<!-- Модальное окно: Просмотр квартиры и полугодовой шахматки (открывается при клике на фото/название) -->
+<!-- Модальное окно: Просмотр квартиры и полугодовой шахматки -->
 <div id="viewAptModal" class="modal">
     <div class="modal-content large">
         <div class="apt-view-info">
@@ -704,7 +722,6 @@
                 </div>
             </div>
 
-            <!-- Настройка цен по периодам -->
             <div class="prices-container">
                 <h4>Цены по периодам</h4>
                 <div id="priceRowsContainer"></div>
@@ -833,6 +850,13 @@
         renderMatrix();
     }
 
+    function clearFilters() {
+        document.getElementById('typeFilter').value = 'all';
+        document.getElementById('filterStartDate').value = '';
+        document.getElementById('filterEndDate').value = '';
+        renderApartments();
+    }
+
     function saveSettings(e) {
         e.preventDefault();
         const token = document.getElementById('settingToken').value.trim();
@@ -954,18 +978,53 @@
         renderMatrix();
     }
 
+    // Проверка свободна ли квартира в выбранный период
+    function isApartmentAvailable(aptId, startDateStr, endDateStr) {
+        if (!startDateStr || !endDateStr) return true;
+        
+        const filterStart = new Date(startDateStr);
+        const filterEnd = new Date(endDateStr);
+        
+        if (filterStart > filterEnd) return true; // некорректный диапазон дат
+
+        const aptBookings = db.bookings.filter(b => b.aptId === aptId);
+        
+        for (let b of aptBookings) {
+            const bStart = new Date(b.startDate);
+            const bEnd = new Date(b.endDate);
+            
+            // Проверка пересечения периодов: (StartA <= EndB) and (EndA >= StartB)
+            if (filterStart <= bEnd && filterEnd >= bStart) {
+                return false; // пересекается, значит занята
+            }
+        }
+        return true; // свободна
+    }
+
     function renderApartments() {
         const grid = document.getElementById('apartmentsGrid');
         grid.innerHTML = '';
 
         const filterType = document.getElementById('typeFilter').value;
+        const startDateVal = document.getElementById('filterStartDate').value;
+        const endDateVal = document.getElementById('filterEndDate').value;
+
         const filteredApts = db.apartments.filter(apt => {
-            if (filterType === 'all') return true;
-            return apt.type === filterType;
+            // Фильтр по типу
+            if (filterType !== 'all' && apt.type !== filterType) {
+                return false;
+            }
+            // Фильтр по доступности на даты
+            if (startDateVal && endDateVal) {
+                if (!isApartmentAvailable(apt.id, startDateVal, endDateVal)) {
+                    return false;
+                }
+            }
+            return true;
         });
 
         if (!filteredApts || filteredApts.length === 0) {
-            grid.innerHTML = '<p style="color: var(--text-light); grid-column: 1/-1;">Нет апартаментов по выбранному фильтру.</p>';
+            grid.innerHTML = '<p style="color: var(--text-light); grid-column: 1/-1;">Нет доступных апартаментов по заданным параметрам и датам.</p>';
             return;
         }
 
@@ -1097,7 +1156,6 @@
         }
     }
 
-    // Открытие окна просмотра квартиры и полугодовой шахматки
     function openViewAptModal(aptId) {
         const apt = db.apartments.find(a => a.id === aptId);
         if (!apt) return;
@@ -1122,7 +1180,6 @@
         renderViewAptHalfYearMatrix(apt.id);
     }
 
-    // Рендер полугодовой шахматки в модалке просмотра
     function renderViewAptHalfYearMatrix(aptId) {
         const table = document.getElementById('viewAptMatrixTable');
         const container = document.getElementById('viewAptMatrixContainer');
@@ -1200,7 +1257,6 @@
         document.getElementById(modalId).classList.remove('active');
     }
 
-    // Управление модалкой добавления/редактирования апартаментов
     function openAptModal() {
         document.getElementById('aptForm').reset();
         document.getElementById('aptId').value = '';
@@ -1293,7 +1349,6 @@
         }
     }
 
-    // Управление модалкой бронирования
     function openBookingModal() {
         if (!db.apartments || db.apartments.length === 0) {
             alert('Сначала добавьте хотя бы один апартамент на вкладке "Апартаменты"!');
