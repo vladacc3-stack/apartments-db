@@ -119,6 +119,7 @@
       "phone": "65464645",
       "price": "45",
       "periodType": "За день",
+      "commission": "50",
       "startDate": "2026-08-13",
       "endDate": "2026-08-25"
     }
