@@ -157,6 +157,34 @@
             color: #991b1b;
         }
 
+        /* Панель фильтров */
+        .filters-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+            background: var(--surface);
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .filters-bar label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .filters-bar select {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--surface);
+            color: var(--text);
+        }
+
         .grid-cards {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -188,10 +216,27 @@
             flex-grow: 1;
         }
 
+        .card-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+            gap: 8px;
+        }
+
         .card-title {
             font-size: 16px;
             font-weight: 700;
-            margin-bottom: 12px;
+        }
+
+        .apt-type-tag {
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            background: #e2e8f0;
+            color: var(--text);
+            font-weight: 600;
+            white-space: nowrap;
         }
 
         .prices-list {
@@ -370,6 +415,10 @@
             overflow-y: auto;
         }
 
+        .modal-content.large {
+            max-width: 900px;
+        }
+
         .modal-content h3 {
             margin-bottom: 16px;
         }
@@ -427,6 +476,78 @@
             gap: 8px;
             margin-top: 24px;
         }
+
+        /* Полугодовая шахматка по конкретной квартире */
+        .apt-matrix-container {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow-x: auto;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            margin-top: 16px;
+            position: relative;
+        }
+
+        .apt-matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+            font-size: 11px;
+            table-layout: fixed;
+            min-width: 900px;
+        }
+
+        .apt-matrix-table th, .apt-matrix-table td {
+            border: 1px solid var(--border);
+            height: 38px;
+            white-space: nowrap;
+            overflow: hidden;
+            padding: 0;
+        }
+
+        .apt-matrix-table th {
+            background-color: #f1f5f9;
+            font-weight: 600;
+            font-size: 10px;
+        }
+
+        .apt-matrix-table td.month-name {
+            text-align: left;
+            padding-left: 8px;
+            font-weight: 600;
+            background-color: #f8fafc;
+            position: sticky;
+            left: 0;
+            z-index: 2;
+            width: 110px;
+            font-size: 11px;
+        }
+
+        .apt-matrix-table th.month-header {
+            position: sticky;
+            left: 0;
+            z-index: 3;
+            background-color: #e2e8f0;
+            width: 110px;
+        }
+
+        .apt-booking-overlay {
+            position: absolute;
+            height: 30px;
+            z-index: 1;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 0 4px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -453,6 +574,16 @@
 
     <!-- Вкладка: Апартаменты -->
     <div id="tab-apartments" class="tab-content active">
+        <div class="filters-bar">
+            <label for="typeFilter">Фильтр по типу:</label>
+            <select id="typeFilter" onchange="renderApartments()">
+                <option value="all">Все типы</option>
+                <option value="Студия">Студия</option>
+                <option value="1+1">1+1</option>
+                <option value="2+1">2+1</option>
+            </select>
+        </div>
+
         <div class="section-title">Список апартаментов</div>
         <div id="apartmentsGrid" class="grid-cards"></div>
     </div>
@@ -492,23 +623,36 @@
     </div>
 </div>
 
-<!-- Модальное окно: Добавление/Редактирование апартаментов -->
+<!-- Модальное окно: Добавление/Редактирование апартаментов и полугодовая шахматка -->
 <div id="aptModal" class="modal">
-    <div class="modal-content">
+    <div class="modal-content large">
         <h3 id="aptModalTitle">Добавить апартаменты</h3>
         <form id="aptForm" onsubmit="handleAptSubmit(event)">
             <input type="hidden" id="aptId">
-            <div class="form-group">
-                <label>Название комплекса</label>
-                <input type="text" id="aptComplex" required placeholder="Royal Beach">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Название комплекса</label>
+                    <input type="text" id="aptComplex" required placeholder="Royal Beach">
+                </div>
+                <div class="form-group">
+                    <label>Номер апартамента</label>
+                    <input type="text" id="aptNumber" required placeholder="кв. 42">
+                </div>
             </div>
-            <div class="form-group">
-                <label>Номер апартамента</label>
-                <input type="text" id="aptNumber" required placeholder="кв. 42">
-            </div>
-            <div class="form-group">
-                <label>Ссылка на изображение</label>
-                <input type="url" id="aptImage" required placeholder="https://example.com/image.jpg">
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Тип апартаментов</label>
+                    <select id="aptType" required>
+                        <option value="Студия">Студия</option>
+                        <option value="1+1">1+1</option>
+                        <option value="2+1">2+1</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Ссылка на изображение</label>
+                    <input type="url" id="aptImage" required placeholder="https://example.com/image.jpg">
+                </div>
             </div>
 
             <!-- Настройка цен по периодам -->
@@ -516,6 +660,14 @@
                 <h4>Цены по периодам</h4>
                 <div id="priceRowsContainer"></div>
                 <button type="button" class="secondary" style="width: 100%; padding: 6px; font-size: 13px;" onclick="addPriceRow()">+ Добавить цену</button>
+            </div>
+
+            <!-- Полугодовая шахматка для конкретных апартаментов (только при редактировании) -->
+            <div id="aptHalfYearSection" style="display: none; margin-top: 24px;">
+                <h4 style="font-size: 14px; font-weight: 600; color: var(--text-light); margin-bottom: 8px;">График бронирования на полгода вперед</h4>
+                <div class="apt-matrix-container" id="aptMatrixContainer">
+                    <table class="apt-matrix-table" id="aptMatrixTable"></table>
+                </div>
             </div>
 
             <div class="modal-actions">
@@ -765,12 +917,18 @@
         const grid = document.getElementById('apartmentsGrid');
         grid.innerHTML = '';
 
-        if (!db.apartments || db.apartments.length === 0) {
-            grid.innerHTML = '<p style="color: var(--text-light); grid-column: 1/-1;">Пока нет добавленных апартаментов.</p>';
+        const filterType = document.getElementById('typeFilter').value;
+        const filteredApts = db.apartments.filter(apt => {
+            if (filterType === 'all') return true;
+            return apt.type === filterType;
+        });
+
+        if (!filteredApts || filteredApts.length === 0) {
+            grid.innerHTML = '<p style="color: var(--text-light); grid-column: 1/-1;">Нет апартаментов по выбранному фильтру.</p>';
             return;
         }
 
-        db.apartments.forEach(apt => {
+        filteredApts.forEach(apt => {
             let pricesHTML = '';
             if (apt.prices && apt.prices.length > 0) {
                 pricesHTML = '<div class="prices-list">';
@@ -786,7 +944,10 @@
                 <div class="card">
                     <img src="${apt.image}" alt="${apt.complex}" onerror="this.src='https://via.placeholder.com/300x160?text=No+Image'">
                     <div class="card-body">
-                        <div class="card-title">${apt.complex}, ${apt.number}</div>
+                        <div class="card-header-row">
+                            <div class="card-title">${apt.complex}, ${apt.number}</div>
+                            <span class="apt-type-tag">${apt.type || 'Студия'}</span>
+                        </div>
                         ${pricesHTML}
                         <div class="card-actions">
                             <button class="secondary" onclick="openEditAptModal('${apt.id}')">Редактировать</button>
@@ -802,7 +963,7 @@
         select.innerHTML = '';
         if (!db.apartments) return;
         db.apartments.forEach(apt => {
-            select.innerHTML += `<option value="${apt.id}">${apt.complex} - ${apt.number}</option>`;
+            select.innerHTML += `<option value="${apt.id}">${apt.complex} - ${apt.number} (${apt.type || 'Студия'})</option>`;
         });
     }
 
@@ -843,13 +1004,11 @@
 
         table.innerHTML = headerHTML + bodyHTML;
 
-        // Автоматический расчет ширины столбцов под контейнер без скролла
         const totalWidth = container.clientWidth;
         const nameColWidth = 140;
         const availableWidthForDays = totalWidth - nameColWidth;
         const cellWidth = Math.floor(availableWidthForDays / daysInMonth);
 
-        // Применяем ширину к шапке и колонкам
         const colHeader = table.querySelector('.apt-header');
         if (colHeader) colHeader.style.width = nameColWidth + 'px';
 
@@ -857,7 +1016,7 @@
             th.style.width = cellWidth + 'px';
         });
 
-        table.querySelectorAll('.apt-name').tdElement || table.querySelectorAll('.apt-name').forEach(td => {
+        table.querySelectorAll('.apt-name').forEach(td => {
             td.style.width = nameColWidth + 'px';
         });
 
@@ -897,6 +1056,80 @@
         }
     }
 
+    // Рендер полугодовой шахматки конкретной квартиры в модалке редактирования
+    function renderAptHalfYearMatrix(aptId) {
+        const table = document.getElementById('aptMatrixTable');
+        const container = document.getElementById('aptMatrixContainer');
+        container.querySelectorAll('.apt-booking-overlay').forEach(el => el.remove());
+
+        const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+        const now = new Date();
+        
+        let monthsToDisplay = [];
+        for (let i = 0; i < 6; i++) {
+            let d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+            monthsToDisplay.push({ year: d.getFullYear(), month: d.getMonth() });
+        }
+
+        let headerHTML = `<tr><th class="month-header">Месяц</th>`;
+        for (let d = 1; d <= 31; d++) {
+            headerHTML += `<th>${d}</th>`;
+        }
+        headerHTML += `</tr>`;
+
+        let bodyHTML = '';
+        monthsToDisplay.forEach((mObj, index) => {
+            let mName = `${monthNames[mObj.month]} ${mObj.year}`;
+            bodyHTML += `<tr><td class="month-name">${mName}</td>`;
+            for (let d = 1; d <= 31; d++) {
+                bodyHTML += `<td></td>`;
+            }
+            bodyHTML += `</tr>`;
+        });
+
+        table.innerHTML = headerHTML + bodyHTML;
+
+        const cellWidth = 24; 
+        const nameColWidth = 110;
+
+        if (db.bookings) {
+            db.bookings.forEach(b => {
+                if (b.aptId !== aptId) return;
+
+                const startObj = new Date(b.startDate);
+                const endObj = new Date(b.endDate);
+
+                monthsToDisplay.forEach((mObj, mIndex) => {
+                    const year = mObj.year;
+                    const month = mObj.month;
+                    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+                    const monthStart = new Date(year, month, 1);
+                    const monthEnd = new Date(year, month, daysInMonth);
+
+                    if (endObj < monthStart || startObj > monthEnd) return;
+
+                    const visibleStart = startObj < monthStart ? 1 : startObj.getDate();
+                    const visibleEnd = endObj > monthEnd ? daysInMonth : endObj.getDate();
+
+                    const duration = visibleEnd - visibleStart + 1;
+                    if (duration < 1) return;
+
+                    const div = document.createElement('div');
+                    div.className = `apt-booking-overlay ${b.manager === 'Стася' ? 'booking-stasya' : 'booking-olga'}`;
+                    div.style.left = (nameColWidth + (visibleStart - 1) * cellWidth + 2) + 'px';
+                    div.style.top = (39 + (mIndex * 39) + 4) + 'px';
+                    div.style.width = (duration * cellWidth - 4) + 'px';
+                    
+                    div.innerText = b.guest;
+                    div.title = `${b.guest} (${b.manager}) | ${b.startDate} — ${b.endDate}`;
+                    
+                    container.appendChild(div);
+                });
+            });
+        }
+    }
+
     function closeModal(modalId) {
         document.getElementById(modalId).classList.remove('active');
     }
@@ -907,6 +1140,7 @@
         document.getElementById('aptId').value = '';
         document.getElementById('aptModalTitle').innerText = 'Добавить апартаменты';
         document.getElementById('deleteAptBtn').style.display = 'none';
+        document.getElementById('aptHalfYearSection').style.display = 'none';
         document.getElementById('priceRowsContainer').innerHTML = '';
         addPriceRow('Посуточно (за ночь)', '');
         addPriceRow('За месяц', '');
@@ -920,9 +1154,11 @@
         document.getElementById('aptId').value = apt.id;
         document.getElementById('aptComplex').value = apt.complex;
         document.getElementById('aptNumber').value = apt.number;
+        document.getElementById('aptType').value = apt.type || 'Студия';
         document.getElementById('aptImage').value = apt.image;
         document.getElementById('aptModalTitle').innerText = 'Редактировать апартаменты';
         document.getElementById('deleteAptBtn').style.display = 'inline-block';
+        document.getElementById('aptHalfYearSection').style.display = 'block';
 
         const container = document.getElementById('priceRowsContainer');
         container.innerHTML = '';
@@ -934,6 +1170,7 @@
         }
 
         document.getElementById('aptModal').classList.add('active');
+        renderAptHalfYearMatrix(apt.id);
     }
 
     function addPriceRow(periodVal = '', priceVal = '') {
@@ -966,6 +1203,7 @@
             id: id ? id : 'apt_' + Date.now(),
             complex: document.getElementById('aptComplex').value,
             number: document.getElementById('aptNumber').value,
+            type: document.getElementById('aptType').value,
             image: document.getElementById('aptImage').value,
             prices: prices
         };
@@ -1036,7 +1274,7 @@
             phone: document.getElementById('bookingPhone').value,
             price: document.getElementById('bookingPrice').value,
             periodType: document.getElementById('bookingPeriodType').value,
-            startDate: document.getElementById('bookingStart'].value,
+            startDate: document.getElementById('bookingStart').value,
             endDate: document.getElementById('bookingEnd').value
         };
 
