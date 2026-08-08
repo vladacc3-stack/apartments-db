@@ -54,6 +54,19 @@
           "price": "5600"
         }
       ]
+    },
+    {
+      "id": "apt_1786228588223",
+      "complex": "Бахами",
+      "number": "55",
+      "type": "Студия",
+      "image": "https://i.ibb.co/RT54B2X2/photo-2026-08-06-19-24-40.jpg",
+      "prices": [
+        {
+          "period": "Посуточно  август",
+          "price": "45"
+        }
+      ]
     }
   ],
   "bookings": [
