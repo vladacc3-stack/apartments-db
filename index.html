@@ -893,7 +893,7 @@
         <div id="bookingViewMode">
             <div class="booking-view-card">
                 <div class="booking-view-row">
-                    <span class="booking-view-label">Менеджер</span>
+                    <span class="booking-view-label">Чья Бронь</span>
                     <span class="booking-view-value" id="viewManager">-</span>
                 </div>
                 <div class="booking-view-row">
@@ -932,7 +932,7 @@
             <input type="hidden" id="bookingId">
             
             <div class="form-group">
-                <label>Менеджер (цвет брони)</label>
+                <label>Чья Бронь (цвет брони)</label>
                 <select id="bookingManager" required>
                     <option value="Ольга">Ольга (Оранжевый)</option>
                     <option value="Стася">Стася (Фиолетовый)</option>
@@ -1292,7 +1292,7 @@
         bar.innerText = booking.guest;
 
         const totalNights = Math.round((endObj - startObj) / (1000 * 60 * 60 * 24));
-        bar.title = `${booking.guest} | Менеджер: ${booking.manager} | Заезд: ${booking.startDate} — Выезд: ${booking.endDate} (${totalNights} н.)`;
+        bar.title = `${booking.guest} | Чья Бронь: ${booking.manager} | Заезд: ${booking.startDate} — Выезд: ${booking.endDate} (${totalNights} н.)`;
 
         bar.style.left = `${leftPos}px`;
         bar.style.width = `${barWidth}px`;
