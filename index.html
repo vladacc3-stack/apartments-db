@@ -402,7 +402,6 @@
             color: var(--text);
         }
 
-        /* Абсолютно надежная сетка таблицы без рассинхрона колонок */
         .matrix-container {
             background: var(--surface);
             border: 2px solid var(--border);
@@ -470,10 +469,10 @@
             color: var(--text);
         }
 
-        /* Ячейка дня — позиционируем бронирования прямо внутри неё через абсолют относительно td */
         .matrix-table td.day-cell {
             position: relative;
             padding: 0;
+            overflow: hidden;
         }
 
         .month-nav {
@@ -493,25 +492,38 @@
             box-shadow: none;
         }
 
-        /* Идеально встроенные плашки бронирований, растягивающиеся по ячейкам */
+        /* Полосы бронирования */
         .booking-span {
             position: absolute;
-            top: 5px;
-            bottom: 5px;
-            left: -1px; /* Заходит на границу для монолитности */
+            top: 4px;
+            bottom: 4px;
+            left: 0;
+            right: 0;
             z-index: 2;
-            border-radius: 6px;
+            border-radius: 4px;
             display: flex;
             align-items: center;
-            padding: 0 8px;
+            padding: 0 6px;
             font-weight: 600;
             font-size: 11px;
             cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.06);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
             transition: filter 0.2s;
+        }
+
+        .booking-span.start-day {
+            left: 50%;
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+        }
+
+        .booking-span.end-day {
+            right: 50%;
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
         }
 
         .booking-span:hover {
@@ -528,46 +540,6 @@
         .booking-stasya {
             background: linear-gradient(135deg, #ede9fe, #ddd6fe);
             border: 1.5px solid #8b5cf6;
-            color: #5b21b6;
-        }
-
-        /* Контейнер для стыка/пересменки в один день (выезд одних, заезд других) */
-        .booking-split {
-            position: absolute;
-            top: 4px;
-            bottom: 4px;
-            left: -1px;
-            z-index: 2;
-            border-radius: 6px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
-            border: 1.5px solid #64748b;
-        }
-
-        .booking-split-half {
-            height: 50%;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            padding: 0 4px;
-            font-size: 9px;
-            font-weight: 700;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .booking-split-half.olga {
-            background-color: rgba(255, 237, 213, 0.98);
-            color: #9a3412;
-            border-bottom: 1px solid #fdba74;
-        }
-
-        .booking-split-half.stasya {
-            background-color: rgba(237, 233, 254, 0.98);
             color: #5b21b6;
         }
 
@@ -751,7 +723,6 @@
             text-align: right;
         }
 
-        /* Полугодовая шахматка в карточке апартамента */
         .apt-matrix-container {
             background: var(--surface);
             border: 2px solid var(--border);
@@ -816,6 +787,7 @@
 
         .apt-matrix-table td.day-cell {
             position: relative;
+            overflow: hidden;
         }
 
         .apt-view-details img {
@@ -1092,7 +1064,7 @@
                 </div>
             </div>
             <div id="bookingDateError" style="color: var(--danger); font-size: 12px; font-weight: 700; margin-top: -12px; margin-bottom: 16px; display: none;">
-                ⚠️ Дата выезда должна быть строго позже даты заезда!
+                ⚠️ Дата некорректная, измените выбор! Дата выезда должна быть строго позже даты заезда.
             </div>
 
             <div class="modal-actions">
@@ -1122,10 +1094,6 @@
         } else {
             loadFromGitHub();
         }
-    });
-
-    window.addEventListener('resize', () => {
-        // Таблица построена на чистом HTML/CSS внутри ячеек td, поэтому ей не страшны ресайзы
     });
 
     function switchTab(tabId, btnElement) {
@@ -1364,7 +1332,63 @@
         });
     }
 
-    /* Рендер главной шахматки через табличные ячейки с абсолютным позиционированием плашек внутри */
+    /* Рендер броней с точным заполнением дней от заезда до выезда включительно */
+    function renderBookingInTable(table, aptId, b, year, month, daysInMonth, isHalfYear = false, rowIndex = null) {
+        const startObj = new Date(b.startDate);
+        const endObj = new Date(b.endDate);
+
+        const monthStart = new Date(year, month, 1);
+        const monthEnd = new Date(year, month, daysInMonth, 23, 59, 59);
+
+        if (endObj < monthStart || startObj > monthEnd) return;
+
+        const startDayVal = (startObj.getFullYear() === year && startObj.getMonth() === month) ? startObj.getDate() : 1;
+        const endDayVal = (endObj.getFullYear() === year && endObj.getMonth() === month) ? endObj.getDate() : daysInMonth;
+
+        const isStartThisMonth = (startObj.getFullYear() === year && startObj.getMonth() === month);
+        const isEndThisMonth = (endObj.getFullYear() === year && endObj.getMonth() === month);
+
+        const totalNights = Math.round((endObj - startObj) / (1000 * 60 * 60 * 24));
+
+        for (let d = startDayVal; d <= endDayVal; d++) {
+            let cell;
+            if (isHalfYear) {
+                cell = table.querySelector(`tr[data-row-idx="${rowIndex}"] td.day-cell[data-month-day="${d}"]`);
+            } else {
+                cell = table.querySelector(`tr[data-apt-id="${aptId}"] td.day-cell[data-day="${d}"]`);
+            }
+            if (!cell) continue;
+
+            const isStartDay = isStartThisMonth && (d === startDayVal);
+            const isEndDay = isEndThisMonth && (d === endDayVal);
+
+            const div = document.createElement('div');
+            div.className = `booking-span ${b.manager === 'Стася' ? 'booking-stasya' : 'booking-olga'}`;
+            
+            if (isStartDay && isEndDay) {
+                div.classList.add('start-day', 'end-day');
+            } else if (isStartDay) {
+                div.classList.add('start-day');
+            } else if (isEndDay) {
+                div.classList.add('end-day');
+            }
+
+            // Текст и описание на первой ячейке диапазона или в начале месяца
+            if (d === startDayVal || d === 1) {
+                div.innerText = b.guest;
+            }
+
+            div.title = `${b.guest} | Менеджер: ${b.manager} | Заезд: ${b.startDate} — Выезд: ${b.endDate} (${totalNights} ночей)`;
+            div.onclick = (e) => {
+                e.stopPropagation();
+                if (isHalfYear) closeModal('viewAptModal');
+                openBookingModalView(b.id);
+            };
+
+            cell.appendChild(div);
+        }
+    }
+
     function renderMatrix() {
         const table = document.getElementById('matrixTable');
         const label = document.getElementById('currentMonthLabel');
@@ -1377,7 +1401,6 @@
 
         const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-        // Формирование шапки таблицы
         let headerHTML = `<tr><th class="col-apt">Апартаменты</th>`;
         for (let d = 1; d <= daysInMonth; d++) {
             headerHTML += `<th style="width: 42px; min-width: 42px;">${d}</th>`;
@@ -1390,7 +1413,7 @@
         }
 
         let bodyHTML = '';
-        db.apartments.forEach((apt, aptIndex) => {
+        db.apartments.forEach((apt) => {
             bodyHTML += `<tr data-apt-id="${apt.id}"><td class="col-apt">${apt.complex}, ${apt.number}</td>`;
             for (let d = 1; d <= daysInMonth; d++) {
                 bodyHTML += `<td class="day-cell" data-day="${d}" data-apt-id="${apt.id}"></td>`;
@@ -1400,99 +1423,14 @@
 
         table.innerHTML = headerHTML + bodyHTML;
 
-        // Расстановка броней по ячейкам
         if (db.bookings) {
             db.apartments.forEach(apt => {
                 const aptBookings = db.bookings.filter(b => b.aptId === apt.id);
-                
                 aptBookings.forEach(b => {
-                    const startObj = new Date(b.startDate);
-                    const endObj = new Date(b.endDate);
-                    
-                    const monthStart = new Date(year, month, 1);
-                    const monthEnd = new Date(year, month, daysInMonth, 23, 59, 59);
-
-                    if (endObj <= monthStart || startObj > monthEnd) return;
-
-                    // Определяем видимый диапазон бронирования в текущем месяце
-                    const effectiveStart = startObj < monthStart ? 1 : startObj.getDate();
-                    const effectiveEnd = endObj > monthEnd ? daysInMonth : endObj.getDate();
-
-                    const startCell = table.querySelector(`tr[data-apt-id="${apt.id}"] td.day-cell[data-day="${effectiveStart}"]`);
-                    if (!startCell) return;
-
-                    const totalNights = Math.round((endObj - startObj) / (1000 * 60 * 60 * 24));
-
-                    // Проверяем, есть ли в день начала стыковка (выезд кого-то и заезд текущего)
-                    const isStartingOnBorder = (startObj.getFullYear() === year && startObj.getMonth() === month);
-                    
-                    // Проверяем, есть ли на ячейке старта уже существующее перекрытие (стык)
-                    // Если заезд совпадает с выездом другого гостя, обрабатываем красиво через split-half
-                    if (isStartingOnBorder && effectiveStart >= 1 && effectiveStart <= daysInMonth) {
-                        const prevBookingEnding = aptBookings.find(pb => {
-                            const pbEnd = new Date(pb.endDate);
-                            return pb.id !== b.id && pbEnd.getFullYear() === year && pbEnd.getMonth() === month && pbEnd.getDate() === effectiveStart;
-                        });
-
-                        if (prevBookingEnding) {
-                            // Отрисовываем половинку для первого дня (стык) в ячейке старта
-                            renderSplitCell(startCell, prevBookingEnding, b);
-                            
-                            // Рисуем оставшуюся часть брони со следующего дня до конца
-                            if (effectiveStart + 1 <= effectiveEnd) {
-                                renderSpanCells(apt.id, effectiveStart + 1, effectiveEnd, b, totalNights);
-                            }
-                            return;
-                        }
-                    }
-
-                    renderSpanCells(apt.id, effectiveStart, effectiveEnd, b, totalNights);
+                    renderBookingInTable(table, apt.id, b, year, month, daysInMonth, false);
                 });
             });
         }
-    }
-
-    function renderSpanCells(aptId, fromDay, toDay, booking, totalNights) {
-        const table = document.getElementById('matrixTable');
-        const startCell = table.querySelector(`tr[data-apt-id="${aptId}"] td.day-cell[data-day="${fromDay}"]`);
-        if (!startCell) return;
-
-        let spanCount = (toDay - fromDay) + 1;
-        if (spanCount < 1) spanCount = 1;
-
-        const div = document.createElement('div');
-        div.className = `booking-span ${booking.manager === 'Стася' ? 'booking-stasya' : 'booking-olga'}`;
-        div.style.width = `calc(${spanCount * 100}% + ${(spanCount - 1)}px)`;
-        div.innerText = booking.guest;
-        div.title = `${booking.guest} | Менеджер: ${booking.manager} | Заезд: ${booking.startDate} — Выезд: ${booking.endDate} (${totalNights} ночей)`;
-        div.onclick = (e) => {
-            e.stopPropagation();
-            openBookingModalView(booking.id);
-        };
-
-        startCell.appendChild(div);
-    }
-
-    function renderSplitCell(cell, prevBooking, nextBooking) {
-        const div = document.createElement('div');
-        div.className = 'booking-split';
-        div.style.width = 'calc(100% + 2px)';
-        div.style.left = '-1px';
-        div.style.top = '2px';
-        div.style.bottom = '2px';
-
-        const topClass = prevBooking.manager === 'Стася' ? 'stasya' : 'olga';
-        const bottomClass = nextBooking.manager === 'Стася' ? 'stasya' : 'olga';
-
-        div.innerHTML = `
-            <div class="booking-split-half ${topClass}" title="Выезд: ${prevBooking.guest}">⬆ ${prevBooking.guest}</div>
-            <div class="booking-split-half ${bottomClass}" title="Заезд: ${nextBooking.guest}">⬇ ${nextBooking.guest}</div>
-        `;
-        div.onclick = (e) => {
-            e.stopPropagation();
-            openBookingModalView(nextBooking.id);
-        };
-        cell.appendChild(div);
     }
 
     function openViewAptModal(aptId) {
@@ -1557,42 +1495,12 @@
             db.bookings.forEach(b => {
                 if (b.aptId !== aptId) return;
 
-                const startObj = new Date(b.startDate);
-                const endObj = new Date(b.endDate);
-
                 monthsToDisplay.forEach((mObj, mIndex) => {
                     const year = mObj.year;
                     const month = mObj.month;
                     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-                    const monthStart = new Date(year, month, 1);
-                    const monthEnd = new Date(year, month, daysInMonth, 23, 59, 59);
-
-                    if (endObj <= monthStart || startObj > monthEnd) return;
-
-                    const effectiveStart = startObj < monthStart ? 1 : startObj.getDate();
-                    const effectiveEnd = endObj > monthEnd ? daysInMonth : endObj.getDate();
-
-                    const startCell = table.querySelector(`tr[data-row-idx="${mIndex}"] td.day-cell[data-month-day="${effectiveStart}"]`);
-                    if (!startCell) return;
-
-                    let spanCount = (effectiveEnd - effectiveStart) + 1;
-                    if (spanCount < 1) spanCount = 1;
-
-                    const totalNights = Math.round((endObj - startObj) / (1000 * 60 * 60 * 24));
-
-                    const div = document.createElement('div');
-                    div.className = `booking-span ${b.manager === 'Стася' ? 'booking-stasya' : 'booking-olga'}`;
-                    div.style.width = `calc(${spanCount * 100}% + ${(spanCount - 1)}px)`;
-                    div.innerText = b.guest;
-                    div.title = `${b.guest} (${b.manager}) | Заезд: ${b.startDate} — Выезд: ${b.endDate} (${totalNights} ночей)`;
-                    div.onclick = (e) => {
-                        e.stopPropagation();
-                        closeModal('viewAptModal');
-                        openBookingModalView(b.id);
-                    };
-
-                    startCell.appendChild(div);
+                    renderBookingInTable(table, aptId, b, year, month, daysInMonth, true, mIndex);
                 });
             });
         }
@@ -1703,7 +1611,11 @@
         document.getElementById('bookingId').value = '';
         document.getElementById('bookingModalTitle').innerText = 'Новое бронирование';
         document.getElementById('bookingDateError').style.display = 'none';
-        document.getElementById('bookingSubmitBtn').disabled = false;
+        
+        const submitBtn = document.getElementById('bookingSubmitBtn');
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+        submitBtn.style.cursor = 'pointer';
         
         document.getElementById('bookingViewMode').style.display = 'none';
         document.getElementById('bookingEditForm').style.display = 'block';
@@ -1737,7 +1649,11 @@
         document.getElementById('bookingEnd').value = booking.endDate;
 
         document.getElementById('bookingDateError').style.display = 'none';
-        document.getElementById('bookingSubmitBtn').disabled = false;
+        
+        const submitBtn = document.getElementById('bookingSubmitBtn');
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+        submitBtn.style.cursor = 'pointer';
 
         document.getElementById('bookingViewMode').style.display = 'block';
         document.getElementById('bookingEditForm').style.display = 'none';
@@ -1788,7 +1704,7 @@
         e.preventDefault();
         
         if (!validateBookingDates()) {
-            alert('Ошибка: Дата выезда должна быть строго позже даты заезда!');
+            alert('⚠️ Дата некорректная, измените выбор!');
             return;
         }
 
