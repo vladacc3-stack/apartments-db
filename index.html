@@ -202,10 +202,22 @@
             width: 180px;
         }
 
-        /* Цельный блок бронирования на всю длину даты */
+        /* Навигация по месяцам */
+        .month-nav {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .month-nav button {
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+
+        /* Цельный блок бронирования */
         .booking-overlay {
             position: absolute;
-            height: 32px; /* Чуть меньше высоты строки (40px), чтобы аккуратно помещаться внутри */
+            height: 32px;
             z-index: 1;
             border-radius: 6px;
             display: flex;
@@ -221,7 +233,6 @@
             text-overflow: ellipsis;
         }
 
-        /* Ольга — оранжевый */
         .booking-olga {
             background-color: #ffedd5;
             border: 1px solid #fdba74;
@@ -231,7 +242,6 @@
             background-color: #fed7aa;
         }
 
-        /* Стася — фиолетовый */
         .booking-stasya {
             background-color: #ede9fe;
             border: 1px solid #c4b5fd;
@@ -293,7 +303,6 @@
             font-size: 14px;
         }
 
-        /* Двухколоночная сетка для модалки брони */
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -327,15 +336,19 @@
 
     <!-- Шахматка бронирования -->
     <div class="section-title">
-        <span>Шахматка бронирования (Текущий месяц)</span>
-        <span id="currentMonthLabel" style="font-size: 14px; color: var(--text-light);"></span>
+        <span>Шахматка бронирования</span>
+        <div class="month-nav">
+            <button class="secondary" onclick="changeMonth(-1)">‹ Прошлый</button>
+            <span id="currentMonthLabel" style="font-size: 15px; font-weight: 600; min-width: 140px; text-align: center;"></span>
+            <button class="secondary" onclick="changeMonth(1)">Следующий ›</button>
+        </div>
     </div>
     <div class="matrix-container" id="matrixContainer">
         <table class="matrix-table" id="matrixTable"></table>
     </div>
 </div>
 
-<!-- Модальное окно: Запрос токена (если еще не введен) -->
+<!-- Модальное окно: Запрос токена -->
 <div id="settingsModal" class="modal">
     <div class="modal-content">
         <h3>Введите GitHub Токен</h3>
@@ -386,6 +399,16 @@
         <form id="bookingForm" onsubmit="handleBookingSubmit(event)">
             <input type="hidden" id="bookingId">
             
+            <!-- Менеджер (для выбора цвета) -->
+            <div class="form-group">
+                <label>Менеджер (цвет брони)</label>
+                <select id="bookingManager" required>
+                    <option value="Ольга">Ольга (Оранжевый)</option>
+                    <option value="Стася">Стася (Фиолетовый)</option>
+                </select>
+            </div>
+
+            <!-- Верхняя строка: Апартамент, Имя, Телефон -->
             <div class="form-group">
                 <label>Апартамент</label>
                 <select id="bookingApt" required></select>
@@ -393,36 +416,29 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label>Менеджер</label>
-                    <select id="bookingManager" required>
-                        <option value="Ольга">Ольга</option>
-                        <option value="Стася">Стася</option>
-                    </select>
-                </div>
-                <div class="form-group">
                     <label>Имя гостя</label>
                     <input type="text" id="bookingGuest" required placeholder="Иван Иванов">
                 </div>
-            </div>
-
-            <div class="form-row">
                 <div class="form-group">
                     <label>Телефон для связи</label>
                     <input type="text" id="bookingPhone" required placeholder="+359 ...">
                 </div>
+            </div>
+
+            <!-- Нижняя строка: Цена, Период, Даты -->
+            <div class="form-row">
                 <div class="form-group">
                     <label>Цена (€)</label>
                     <input type="number" id="bookingPrice" required placeholder="150">
                 </div>
-            </div>
-
-            <div class="form-group">
-                <label>Период расчета</label>
-                <select id="bookingPeriodType" required>
-                    <option value="День">День</option>
-                    <option value="Месяц">Месяц</option>
-                    <option value="Весь период">Весь период</option>
-                </select>
+                <div class="form-group">
+                    <label>Период расчета</label>
+                    <select id="bookingPeriodType" required>
+                        <option value="За день">За день</option>
+                        <option value="За месяц">За месяц</option>
+                        <option value="За весь период">За весь период</option>
+                    </select>
+                </div>
             </div>
 
             <div class="form-row">
@@ -455,6 +471,9 @@
     let db = { apartments: [], bookings: [] };
     let fileSha = null;
 
+    // Управление отображаемым месяцем календаря
+    let currentDate = new Date();
+
     document.addEventListener('DOMContentLoaded', () => {
         const token = localStorage.getItem('gh_token');
         if (!token) {
@@ -463,6 +482,11 @@
             loadFromGitHub();
         }
     });
+
+    function changeMonth(direction) {
+        currentDate.setMonth(currentDate.getMonth() + direction);
+        renderMatrix();
+    }
 
     function saveSettings(e) {
         e.preventDefault();
@@ -623,9 +647,8 @@
         
         container.querySelectorAll('.booking-overlay').forEach(el => el.remove());
 
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = now.getMonth();
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
         
         const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
         label.innerText = `${monthNames[month]} ${year}`;
@@ -660,26 +683,34 @@
         if (db.bookings) {
             db.bookings.forEach(b => {
                 const aptIndex = db.apartments.findIndex(a => a.id === b.aptId);
-                if (aptIndex === -1) return; // Если квартира не найдена или удалена — пропускаем
+                if (aptIndex === -1) return;
 
                 const startObj = new Date(b.startDate);
                 const endObj = new Date(b.endDate);
                 
-                const startDay = startObj.getDate();
-                const endDay = endObj.getDate();
-                
-                let duration = endDay - startDay + 1;
-                if (duration < 1) duration = 1;
+                // Проверяем, пересекается ли бронь с текущим отображаемым месяцем
+                const monthStart = new Date(year, month, 1);
+                const monthEnd = new Date(year, month, daysInMonth);
+
+                if (endObj < monthStart || startObj > monthEnd) {
+                    return; // Бронь не попадает в этот месяц
+                }
+
+                // Вычисляем видимые границы брони в текущем месяце
+                const visibleStart = startObj < monthStart ? 1 : startObj.getDate();
+                const visibleEnd = endObj > monthEnd ? daysInMonth : endObj.getDate();
+
+                const duration = visibleEnd - visibleStart + 1;
+                if (duration < 1) return;
 
                 const div = document.createElement('div');
                 div.className = `booking-overlay ${b.manager === 'Стася' ? 'booking-stasya' : 'booking-olga'}`;
-                div.style.left = (offsetLeft + (startDay - 1) * cellWidth + 2) + 'px';
-                // Строго привязываем вертикальное положение (top) к конкретному индексу строки этой квартиры
+                div.style.left = (offsetLeft + (visibleStart - 1) * cellWidth + 2) + 'px';
                 div.style.top = (41 + (aptIndex * 41) + 4) + 'px';
                 div.style.width = (duration * cellWidth - 4) + 'px';
                 
                 div.innerText = b.guest;
-                div.title = `${b.guest} | Менеджер: ${b.manager} | Тел: ${b.phone} | Цена: ${b.price}€ (${b.periodType})`;
+                div.title = `${b.guest} | Тел: ${b.phone} | Менеджер: ${b.manager} | Цена: ${b.price}€ (${b.periodType})`;
                 div.onclick = () => openEditBooking(b.id);
                 
                 container.appendChild(div);
@@ -757,7 +788,7 @@
         document.getElementById('bookingGuest').value = booking.guest;
         document.getElementById('bookingPhone').value = booking.phone || '';
         document.getElementById('bookingPrice').value = booking.price || '';
-        document.getElementById('bookingPeriodType').value = booking.periodType || 'День';
+        document.getElementById('bookingPeriodType').value = booking.periodType || 'За день';
         document.getElementById('bookingStart').value = booking.startDate;
         document.getElementById('bookingEnd').value = booking.endDate;
 
