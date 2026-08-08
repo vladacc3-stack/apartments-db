@@ -505,11 +505,10 @@
             box-shadow: none;
         }
 
-        /* Абсолютное позиционирование полосы брони строго поверх строки TR */
+        /* Абсолютное позиционирование полосы брони относительно всей таблицы */
         .booking-bar {
             position: absolute;
             top: 4px;
-            bottom: 4px;
             height: calc(100% - 8px);
             z-index: 5;
             border-radius: 4px;
@@ -1167,6 +1166,10 @@
         } else {
             loadFromGitHub();
         }
+
+        window.addEventListener('resize', () => {
+            renderMatrixBarsOnly();
+        });
     });
 
     function switchTab(tabId, btnElement) {
@@ -1414,34 +1417,47 @@
 
         if (endObj <= monthStart || startObj >= monthEnd) return;
 
-        const firstCell = rowElement.querySelector('.col-apt') || rowElement.querySelector('.col-month');
-        const dayCell = rowElement.querySelector('td.day-cell');
-        if (!firstCell || !dayCell) return;
+        const table = rowElement.closest('table');
+        if (!table) return;
 
-        const firstColWidth = firstCell.getBoundingClientRect().width;
-        const dayWidth = dayCell.getBoundingClientRect().width;
+        const tableRect = table.getBoundingClientRect();
 
         const isStartThisMonth = (startObj.getFullYear() === year && startObj.getMonth() === month);
         const isEndThisMonth = (endObj.getFullYear() === year && endObj.getMonth() === month);
 
         let leftPos = 0;
+        let rightPos = 0;
+
         if (isStartThisMonth) {
             const startDay = startObj.getDate();
-            // Ровно центр дня заезда (12:00)
-            leftPos = firstColWidth + (startDay - 0.5) * dayWidth;
+            const cellSelector = isHalfYear ? `td[data-month-day="${startDay}"]` : `td[data-day="${startDay}"]`;
+            const startCell = rowElement.querySelector(cellSelector);
+            if (!startCell) return;
+            const startRect = startCell.getBoundingClientRect();
+            // Ровно середина ячейки заезда
+            leftPos = (startRect.left - tableRect.left) + (startRect.width / 2);
         } else {
-            // Заезд был до начала этого месяца - плашка с самого края сетки дней
-            leftPos = firstColWidth;
+            const firstCellSelector = isHalfYear ? `td[data-month-day="1"]` : `td[data-day="1"]`;
+            const firstCell = rowElement.querySelector(firstCellSelector);
+            if (!firstCell) return;
+            const firstRect = firstCell.getBoundingClientRect();
+            leftPos = firstRect.left - tableRect.left;
         }
 
-        let rightPos = 0;
         if (isEndThisMonth) {
             const endDay = endObj.getDate();
-            // Ровно центр дня выезда (12:00)
-            rightPos = firstColWidth + (endDay - 0.5) * dayWidth;
+            const cellSelector = isHalfYear ? `td[data-month-day="${endDay}"]` : `td[data-day="${endDay}"]`;
+            const endCell = rowElement.querySelector(cellSelector);
+            if (!endCell) return;
+            const endRect = endCell.getBoundingClientRect();
+            // Ровно середина ячейки выезда
+            rightPos = (endRect.left - tableRect.left) + (endRect.width / 2);
         } else {
-            // Выезд в следующих месяцах - плашка идет до конца месяца
-            rightPos = firstColWidth + totalDaysInMonth * dayWidth;
+            const lastCellSelector = isHalfYear ? `td[data-month-day="${totalDaysInMonth}"]` : `td[data-day="${totalDaysInMonth}"]`;
+            const lastCell = rowElement.querySelector(lastCellSelector);
+            if (!lastCell) return;
+            const lastRect = lastCell.getBoundingClientRect();
+            rightPos = lastRect.right - tableRect.left;
         }
 
         const barWidth = rightPos - leftPos;
@@ -1465,6 +1481,35 @@
         };
 
         rowElement.appendChild(bar);
+    }
+
+    function renderMatrixBarsOnly() {
+        const table = document.getElementById('matrixTable');
+        if (!table || !db.apartments) return;
+
+        table.querySelectorAll('.booking-bar').forEach(bar => bar.remove());
+
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        db.apartments.forEach(apt => {
+            const row = table.querySelector(`tr[data-apt-id="${apt.id}"]`);
+            if (!row) return;
+
+            const aptBookings = db.bookings.filter(b => b.aptId === apt.id);
+            aptBookings.forEach(b => {
+                applyUnifiedBookingToRow(row, b, year, month, daysInMonth, false);
+            });
+        });
+
+        const halfTable = document.getElementById('viewAptMatrixTable');
+        if (halfTable && document.getElementById('viewAptModal').classList.contains('active')) {
+            const activeAptId = halfTable.getAttribute('data-apt-id');
+            if (activeAptId) {
+                renderViewAptHalfYearMatrix(activeAptId);
+            }
+        }
     }
 
     function renderMatrix() {
@@ -1502,18 +1547,9 @@
 
         table.innerHTML = headerHTML + bodyHTML;
 
-        setTimeout(() => {
-            if (!db.bookings) return;
-            db.apartments.forEach(apt => {
-                const row = table.querySelector(`tr[data-apt-id="${apt.id}"]`);
-                if (!row) return;
-
-                const aptBookings = db.bookings.filter(b => b.aptId === apt.id);
-                aptBookings.forEach(b => {
-                    applyUnifiedBookingToRow(row, b, year, month, daysInMonth, false);
-                });
-            });
-        }, 50);
+        requestAnimationFrame(() => {
+            renderMatrixBarsOnly();
+        });
     }
 
     function openViewAptModal(aptId) {
@@ -1542,6 +1578,8 @@
 
     function renderViewAptHalfYearMatrix(aptId) {
         const table = document.getElementById('viewAptMatrixTable');
+        table.setAttribute('data-apt-id', aptId);
+
         const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
         const now = new Date();
         
@@ -1575,8 +1613,10 @@
 
         table.innerHTML = headerHTML + bodyHTML;
 
-        setTimeout(() => {
+        requestAnimationFrame(() => {
             if (!db.bookings) return;
+            table.querySelectorAll('.booking-bar').forEach(bar => bar.remove());
+
             db.bookings.forEach(b => {
                 if (b.aptId !== aptId) return;
 
@@ -1591,7 +1631,7 @@
                     }
                 });
             });
-        }, 50);
+        });
     }
 
     function closeModal(modalId) {
@@ -1684,7 +1724,7 @@
         const id = document.getElementById('aptId').value;
         if (confirm('Удалить апартамент и все связанные с ним брони?')) {
             db.apartments = db.apartments.filter(a => a.id !== id);
-            db.bookings = db.bookings.filter(b => b.id !== id);
+            db.bookings = db.bookings.filter(b => b.aptId !== id);
             saveToGitHub();
             closeModal('aptModal');
         }
