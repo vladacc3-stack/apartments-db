@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Общая база: Управление апартаментами</title>
+    <title>Управление апартаментами</title>
     <style>
         :root {
             --primary: #4f46e5;
@@ -298,7 +298,7 @@
     <header>
         <h1>Управление апартаментами</h1>
         <div class="actions">
-            <span id="syncStatus" class="status-badge">Подключение к GitHub...</span>
+            <span id="syncStatus" class="status-badge">Подключение...</span>
             <button class="secondary" onclick="loadFromGitHub()">Обновить</button>
             <button onclick="openModal('aptModal')">+ Добавить апартаменты</button>
             <button onclick="openModal('bookingModal')">+ Добавить бронь</button>
@@ -384,16 +384,16 @@
 </div>
 
 <script>
-    // НАСТРОЙКИ GITHUB (Укажи свои данные репозитория)
+    // НАСТРОЙКИ GITHUB (Укажи свои данные репозитория и токен)
     const GITHUB_CONFIG = {
-        owner: 'vladacc3-stack', 
-        repo: 'apartments-db',     
+        owner: 'ТВОЙ_НИК_НА_GITHUB', 
+        repo: 'ИМЯ_РЕПОЗИТОРИЯ',     
         path: 'db.json',              
-        token: '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'   
+        token: 'ТВОЙ_GITHUB_TOKEN'   
     };
 
     let db = { apartments: [], bookings: [] };
-    let fileSha = null; // Требуется для обновления файла в GitHub API
+    let fileSha = null;
 
     document.addEventListener('DOMContentLoaded', () => {
         loadFromGitHub();
@@ -401,30 +401,38 @@
 
     // Функция загрузки JSON с GitHub
     async function loadFromGitHub() {
-        setSyncStatus('Загрузка с GitHub...', '');
+        setSyncStatus('Загрузка...', '');
         try {
             const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
             const response = await fetch(url, {
-                headers: { 'Authorization': `token ${GITHUB_CONFIG.token}` }
+                headers: { 
+                    'Authorization': `token ${GITHUB_CONFIG.token}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
             });
 
             if (!response.ok) throw new Error('Не удалось загрузить файл с GitHub');
 
             const data = await response.json();
-            fileSha = data.sha; // Сохраняем SHA файла
+            fileSha = data.sha;
             
-            // Расшифровываем контент из base64
             const decodedContent = decodeURIComponent(escape(atob(data.content)));
-            db = JSON.parse(decodedContent);
+            const parsedData = JSON.parse(decodedContent);
+            
+            db = {
+                apartments: parsedData.apartments || [],
+                bookings: parsedData.bookings || []
+            };
 
             setSyncStatus('Синхронизировано', 'synced');
             render();
         } catch (error) {
             console.error(error);
             setSyncStatus('Ошибка синхронизации', 'error');
-            // Если не вышло загрузить из сети, пробуем взять из локального кэша
             let localFallback = localStorage.getItem('db_fallback');
-            if (localFallback) db = JSON.parse(localFallback);
+            if (localFallback) {
+                db = JSON.parse(localFallback);
+            }
             render();
         }
     }
@@ -435,7 +443,6 @@
         try {
             const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
             
-            // Кодируем JSON в base64
             const contentEncoded = btoa(unescape(encodeURIComponent(JSON.stringify(db, null, 2))));
 
             const bodyData = {
@@ -448,15 +455,19 @@
                 method: 'PUT',
                 headers: {
                     'Authorization': `token ${GITHUB_CONFIG.token}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/vnd.github.v3+json'
                 },
                 body: JSON.stringify(bodyData)
             });
 
-            if (!response.ok) throw new Error('Ошибка при сохранении на GitHub');
+            if (!response.ok) {
+                const errJson = await response.json();
+                throw new Error(errJson.message || 'Ошибка сохранения');
+            }
 
             const result = await response.json();
-            fileSha = result.content.sha; // Обновляем SHA для следующих правок
+            fileSha = result.content.sha;
 
             localStorage.setItem('db_fallback', JSON.stringify(db));
             setSyncStatus('Синхронизировано', 'synced');
@@ -464,7 +475,7 @@
         } catch (error) {
             console.error(error);
             setSyncStatus('Ошибка сохранения', 'error');
-            alert('Не удалось сохранить данные на GitHub. Проверь токен и интернет.');
+            alert('Не удалось сохранить данные на GitHub: ' + error.message);
         }
     }
 
