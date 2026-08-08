@@ -207,6 +207,12 @@
             height: 160px;
             object-fit: cover;
             background-color: #cbd5e1;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .card img:hover {
+            opacity: 0.9;
         }
 
         .card-body {
@@ -227,6 +233,11 @@
         .card-title {
             font-size: 16px;
             font-weight: 700;
+            cursor: pointer;
+        }
+
+        .card-title:hover {
+            color: var(--primary);
         }
 
         .apt-type-tag {
@@ -548,6 +559,22 @@
             text-overflow: ellipsis;
             pointer-events: none;
         }
+
+        /* Просмотр карточки квартиры */
+        .apt-view-details img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .apt-view-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
     </style>
 </head>
 <body>
@@ -623,9 +650,31 @@
     </div>
 </div>
 
-<!-- Модальное окно: Добавление/Редактирование апартаментов и полугодовая шахматка -->
-<div id="aptModal" class="modal">
+<!-- Модальное окно: Просмотр квартиры и полугодовой шахматки (открывается при клике на фото/название) -->
+<div id="viewAptModal" class="modal">
     <div class="modal-content large">
+        <div class="apt-view-info">
+            <h3 id="viewAptTitle" style="margin:0;">Апартаменты</h3>
+            <span id="viewAptTypeTag" class="apt-type-tag"></span>
+        </div>
+        <div class="apt-view-details">
+            <img id="viewAptImage" src="" alt="" onerror="this.src='https://via.placeholder.com/600x200?text=No+Image'">
+            <div id="viewAptPrices" class="prices-list" style="margin-bottom: 20px;"></div>
+            
+            <h4 style="font-size: 14px; font-weight: 600; color: var(--text-light); margin-bottom: 8px;">График бронирования на полгода вперед</h4>
+            <div class="apt-matrix-container" id="viewAptMatrixContainer">
+                <table class="apt-matrix-table" id="viewAptMatrixTable"></table>
+            </div>
+        </div>
+        <div class="modal-actions" style="margin-top: 20px;">
+            <button type="button" class="secondary" onclick="closeModal('viewAptModal')">Закрыть</button>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно: Редактирование апартаментов -->
+<div id="aptModal" class="modal">
+    <div class="modal-content">
         <h3 id="aptModalTitle">Добавить апартаменты</h3>
         <form id="aptForm" onsubmit="handleAptSubmit(event)">
             <input type="hidden" id="aptId">
@@ -660,14 +709,6 @@
                 <h4>Цены по периодам</h4>
                 <div id="priceRowsContainer"></div>
                 <button type="button" class="secondary" style="width: 100%; padding: 6px; font-size: 13px;" onclick="addPriceRow()">+ Добавить цену</button>
-            </div>
-
-            <!-- Полугодовая шахматка для конкретных апартаментов (только при редактировании) -->
-            <div id="aptHalfYearSection" style="display: none; margin-top: 24px;">
-                <h4 style="font-size: 14px; font-weight: 600; color: var(--text-light); margin-bottom: 8px;">График бронирования на полгода вперед</h4>
-                <div class="apt-matrix-container" id="aptMatrixContainer">
-                    <table class="apt-matrix-table" id="aptMatrixTable"></table>
-                </div>
             </div>
 
             <div class="modal-actions">
@@ -942,10 +983,10 @@
 
             grid.innerHTML += `
                 <div class="card">
-                    <img src="${apt.image}" alt="${apt.complex}" onerror="this.src='https://via.placeholder.com/300x160?text=No+Image'">
+                    <img src="${apt.image}" alt="${apt.complex}" onclick="openViewAptModal('${apt.id}')" onerror="this.src='https://via.placeholder.com/300x160?text=No+Image'" title="Нажмите, чтобы открыть квартиру и шахматку">
                     <div class="card-body">
                         <div class="card-header-row">
-                            <div class="card-title">${apt.complex}, ${apt.number}</div>
+                            <div class="card-title" onclick="openViewAptModal('${apt.id}')" title="Нажмите, чтобы открыть квартиру">${apt.complex}, ${apt.number}</div>
                             <span class="apt-type-tag">${apt.type || 'Студия'}</span>
                         </div>
                         ${pricesHTML}
@@ -1056,10 +1097,35 @@
         }
     }
 
-    // Рендер полугодовой шахматки конкретной квартиры в модалке редактирования
-    function renderAptHalfYearMatrix(aptId) {
-        const table = document.getElementById('aptMatrixTable');
-        const container = document.getElementById('aptMatrixContainer');
+    // Открытие окна просмотра квартиры и полугодовой шахматки
+    function openViewAptModal(aptId) {
+        const apt = db.apartments.find(a => a.id === aptId);
+        if (!apt) return;
+
+        document.getElementById('viewAptTitle').innerText = `${apt.complex}, ${apt.number}`;
+        const typeTag = document.getElementById('viewAptTypeTag');
+        typeTag.innerText = apt.type || 'Студия';
+        
+        document.getElementById('viewAptImage').src = apt.image;
+
+        let pricesHTML = '';
+        if (apt.prices && apt.prices.length > 0) {
+            apt.prices.forEach(p => {
+                pricesHTML += `<div><span>${p.period}:</span> <strong>${p.price} €</strong></div>`;
+            });
+        } else {
+            pricesHTML = '<div style="color: var(--text-light); text-align: center;">Цены не указаны</div>';
+        }
+        document.getElementById('viewAptPrices').innerHTML = pricesHTML;
+
+        document.getElementById('viewAptModal').classList.add('active');
+        renderViewAptHalfYearMatrix(apt.id);
+    }
+
+    // Рендер полугодовой шахматки в модалке просмотра
+    function renderViewAptHalfYearMatrix(aptId) {
+        const table = document.getElementById('viewAptMatrixTable');
+        const container = document.getElementById('viewAptMatrixContainer');
         container.querySelectorAll('.apt-booking-overlay').forEach(el => el.remove());
 
         const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
@@ -1134,13 +1200,12 @@
         document.getElementById(modalId).classList.remove('active');
     }
 
-    // Управление модалкой апартаментов
+    // Управление модалкой добавления/редактирования апартаментов
     function openAptModal() {
         document.getElementById('aptForm').reset();
         document.getElementById('aptId').value = '';
         document.getElementById('aptModalTitle').innerText = 'Добавить апартаменты';
         document.getElementById('deleteAptBtn').style.display = 'none';
-        document.getElementById('aptHalfYearSection').style.display = 'none';
         document.getElementById('priceRowsContainer').innerHTML = '';
         addPriceRow('Посуточно (за ночь)', '');
         addPriceRow('За месяц', '');
@@ -1158,7 +1223,6 @@
         document.getElementById('aptImage').value = apt.image;
         document.getElementById('aptModalTitle').innerText = 'Редактировать апартаменты';
         document.getElementById('deleteAptBtn').style.display = 'inline-block';
-        document.getElementById('aptHalfYearSection').style.display = 'block';
 
         const container = document.getElementById('priceRowsContainer');
         container.innerHTML = '';
@@ -1170,7 +1234,6 @@
         }
 
         document.getElementById('aptModal').classList.add('active');
-        renderAptHalfYearMatrix(apt.id);
     }
 
     function addPriceRow(periodVal = '', priceVal = '') {
