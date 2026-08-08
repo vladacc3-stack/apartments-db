@@ -15,9 +15,9 @@
       "guest": "ддд",
       "phone": "дд",
       "price": "77",
-      "periodType": "Месяц",
-      "startDate": "2026-08-21",
-      "endDate": "2026-08-30"
+      "periodType": "За весь период",
+      "startDate": "2026-08-01",
+      "endDate": "2026-10-31"
     }
   ]
 }
