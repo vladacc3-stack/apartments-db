@@ -2,22 +2,26 @@
   "apartments": [
     {
       "id": "apt_1786213835668",
-      "complex": "Pacific 3",
+      "complex": "Санни дей 2",
       "number": "51",
-      "type": "Студия",
+      "type": "2+1",
       "image": "https://i.ibb.co/G45yqPRL/photo-2026-08-04-10-50-41.jpg",
       "prices": [
         {
-          "period": "Авусст посуточно",
-          "price": "75"
+          "period": "Август",
+          "price": "950"
         },
         {
-          "period": "Сентябрт",
-          "price": "555"
+          "period": "Август посуточно",
+          "price": "65"
         },
         {
-          "period": "Октябрт",
-          "price": "444"
+          "period": "Сентябрь",
+          "price": "700"
+        },
+        {
+          "period": "Аренда на год",
+          "price": "5100"
         }
       ]
     }
