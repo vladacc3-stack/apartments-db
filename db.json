@@ -26,17 +26,5 @@
       ]
     }
   ],
-  "bookings": [
-    {
-      "id": "book_1786218586834",
-      "aptId": "apt_1786213835668",
-      "manager": "Ольга",
-      "guest": "Иван Иванов",
-      "phone": "уке",
-      "price": "24",
-      "periodType": "За день",
-      "startDate": "2026-11-11",
-      "endDate": "2026-11-09"
-    }
-  ]
+  "bookings": []
 }
