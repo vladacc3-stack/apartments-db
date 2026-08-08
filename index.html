@@ -96,6 +96,10 @@
             font-weight: 600;
             background: #e2e8f0;
             color: var(--text-light);
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .status-badge.synced {
@@ -399,7 +403,7 @@
         loadFromGitHub();
     });
 
-    // Функция загрузки JSON с GitHub
+    // Функция загрузки JSON с GitHub с выводом точной ошибки
     async function loadFromGitHub() {
         setSyncStatus('Загрузка...', '');
         try {
@@ -411,7 +415,10 @@
                 }
             });
 
-            if (!response.ok) throw new Error('Не удалось загрузить файл с GitHub');
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.message || `HTTP status: ${response.status}`);
+            }
 
             const data = await response.json();
             fileSha = data.sha;
@@ -428,7 +435,8 @@
             render();
         } catch (error) {
             console.error(error);
-            setSyncStatus('Ошибка синхронизации', 'error');
+            setSyncStatus('Ошибка: ' + error.message, 'error');
+            
             let localFallback = localStorage.getItem('db_fallback');
             if (localFallback) {
                 db = JSON.parse(localFallback);
@@ -474,7 +482,7 @@
             render();
         } catch (error) {
             console.error(error);
-            setSyncStatus('Ошибка сохранения', 'error');
+            setSyncStatus('Ошибка: ' + error.message, 'error');
             alert('Не удалось сохранить данные на GitHub: ' + error.message);
         }
     }
