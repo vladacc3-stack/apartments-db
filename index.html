@@ -402,7 +402,8 @@
             color: var(--text);
         }
 
-        .matrix-container {
+        /* Контейнеры таблиц и шахматки */
+        .matrix-container, .apt-matrix-container {
             background: var(--surface);
             border: 2px solid var(--border);
             border-radius: var(--radius-lg);
@@ -412,23 +413,25 @@
             position: relative;
         }
 
-        .matrix-table {
+        .matrix-table, .apt-matrix-table {
             width: 100%;
             border-collapse: collapse;
             table-layout: fixed;
             min-width: 1250px;
         }
 
-        .matrix-table th, .matrix-table td {
+        .matrix-table th, .matrix-table td,
+        .apt-matrix-table th, .apt-matrix-table td {
             border: 1px solid var(--border);
             height: 48px;
             padding: 0;
             margin: 0;
             vertical-align: middle;
             text-align: center;
+            position: relative;
         }
 
-        .matrix-table th {
+        .matrix-table th, .apt-matrix-table th {
             background-color: #f1f5f9;
             font-weight: 700;
             font-size: 11px;
@@ -437,26 +440,26 @@
             letter-spacing: 0.05em;
         }
 
-        .matrix-table th.col-apt {
+        .matrix-table th.col-apt, .apt-matrix-table th.col-month {
             width: 210px;
             min-width: 210px;
             max-width: 210px;
             position: sticky;
             left: 0;
-            z-index: 5;
+            z-index: 10;
             background-color: #e2e8f0;
             text-align: left;
             padding-left: 16px;
             border-right: 3px solid var(--border);
         }
 
-        .matrix-table td.col-apt {
+        .matrix-table td.col-apt, .apt-matrix-table td.col-month {
             width: 210px;
             min-width: 210px;
             max-width: 210px;
             position: sticky;
             left: 0;
-            z-index: 4;
+            z-index: 9;
             background-color: var(--surface);
             text-align: left;
             padding-left: 16px;
@@ -467,12 +470,6 @@
             overflow: hidden;
             text-overflow: ellipsis;
             color: var(--text);
-        }
-
-        .matrix-table td.day-cell {
-            position: relative;
-            padding: 0;
-            overflow: hidden;
         }
 
         .month-nav {
@@ -492,43 +489,32 @@
             box-shadow: none;
         }
 
-        /* Полосы бронирования */
-        .booking-span {
+        /* Единая сплошная полоса бронирования */
+        .booking-bar {
             position: absolute;
-            top: 4px;
-            bottom: 4px;
-            left: 0;
-            right: 0;
-            z-index: 2;
-            border-radius: 4px;
+            top: 5px;
+            bottom: 5px;
+            z-index: 5;
+            border-radius: 6px;
             display: flex;
             align-items: center;
-            padding: 0 6px;
+            justify-content: center;
             font-weight: 600;
-            font-size: 11px;
+            font-size: 12px;
             cursor: pointer;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.12);
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
-            transition: filter 0.2s;
+            padding: 0 8px;
+            transition: transform 0.15s ease, filter 0.15s ease;
+            user-select: none;
         }
 
-        .booking-span.start-day {
-            left: 50%;
-            border-top-left-radius: 4px;
-            border-bottom-left-radius: 4px;
-        }
-
-        .booking-span.end-day {
-            right: 50%;
-            border-top-right-radius: 4px;
-            border-bottom-right-radius: 4px;
-        }
-
-        .booking-span:hover {
+        .booking-bar:hover {
             filter: brightness(0.95);
-            z-index: 3;
+            transform: translateY(-1px);
+            z-index: 8;
         }
 
         .booking-olga {
@@ -721,73 +707,6 @@
             color: var(--text);
             font-weight: 600;
             text-align: right;
-        }
-
-        .apt-matrix-container {
-            background: var(--surface);
-            border: 2px solid var(--border);
-            border-radius: var(--radius-md);
-            overflow-x: auto;
-            box-shadow: var(--shadow-sm);
-            margin-top: 16px;
-            position: relative;
-        }
-
-        .apt-matrix-table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
-            min-width: 1250px;
-        }
-
-        .apt-matrix-table th, .apt-matrix-table td {
-            border: 1px solid var(--border);
-            height: 40px;
-            padding: 0;
-            margin: 0;
-            vertical-align: middle;
-            text-align: center;
-        }
-
-        .apt-matrix-table th {
-            background-color: #f1f5f9;
-            font-weight: 700;
-            font-size: 10px;
-            color: var(--text-light);
-        }
-
-        .apt-matrix-table th.col-month {
-            width: 150px;
-            min-width: 150px;
-            max-width: 150px;
-            position: sticky;
-            left: 0;
-            z-index: 5;
-            background-color: #e2e8f0;
-            text-align: left;
-            padding-left: 12px;
-            border-right: 3px solid var(--border);
-        }
-
-        .apt-matrix-table td.col-month {
-            width: 150px;
-            min-width: 150px;
-            max-width: 150px;
-            position: sticky;
-            left: 0;
-            z-index: 4;
-            background-color: var(--surface);
-            text-align: left;
-            padding-left: 12px;
-            font-weight: 600;
-            font-size: 12px;
-            border-right: 3px solid var(--border);
-            color: var(--text);
-        }
-
-        .apt-matrix-table td.day-cell {
-            position: relative;
-            overflow: hidden;
         }
 
         .apt-view-details img {
@@ -1332,61 +1251,136 @@
         });
     }
 
-    /* Рендер броней с точным заполнением дней от заезда до выезда включительно */
-    function renderBookingInTable(table, aptId, b, year, month, daysInMonth, isHalfYear = false, rowIndex = null) {
-        const startObj = new Date(b.startDate);
-        const endObj = new Date(b.endDate);
+    /**
+     * Отрисовка сплошной непрерывной полосы бронирования с привязкой по процентам/пикселям.
+     */
+    function renderBookingBarUnified(rowElement, booking, year, month, totalDaysInMonth, isHalfYear = false) {
+        const startObj = new Date(booking.startDate);
+        const endObj = new Date(booking.endDate);
 
         const monthStart = new Date(year, month, 1);
-        const monthEnd = new Date(year, month, daysInMonth, 23, 59, 59);
+        const monthEnd = new Date(year, month, totalDaysInMonth, 23, 59, 59);
 
+        // Пропускаем брони, не попадающие в этот месяц
         if (endObj < monthStart || startObj > monthEnd) return;
-
-        const startDayVal = (startObj.getFullYear() === year && startObj.getMonth() === month) ? startObj.getDate() : 1;
-        const endDayVal = (endObj.getFullYear() === year && endObj.getMonth() === month) ? endObj.getDate() : daysInMonth;
 
         const isStartThisMonth = (startObj.getFullYear() === year && startObj.getMonth() === month);
         const isEndThisMonth = (endObj.getFullYear() === year && endObj.getMonth() === month);
 
+        const startDayVal = isStartThisMonth ? startObj.getDate() : 1;
+        const endDayVal = isEndThisMonth ? endObj.getDate() : totalDaysInMonth;
+
+        // Позиционирование:
+        // Если заезд в этом месяце -> с середины ячейки (startDayVal - 0.5)
+        // Если заезд был раньше -> с самого начала дня (startDayVal - 1)
+        const leftOffsetDays = isStartThisMonth ? (startDayVal - 0.5) : (startDayVal - 1);
+
+        // Если выезд в этом месяце -> до середины ячейки (endDayVal - 0.5)
+        // Если выезд позже -> до самого конца дня (endDayVal)
+        const rightOffsetDays = isEndThisMonth ? (endDayVal - 0.5) : endDayVal;
+
+        const spanDays = rightOffsetDays - leftOffsetDays;
+        if (spanDays <= 0) return;
+
+        // Расчет позиции в % внутри блока с днями (без учета колонки названия)
+        const leftPercent = (leftOffsetDays / totalDaysInMonth) * 100;
+        const widthPercent = (spanDays / totalDaysInMonth) * 100;
+
+        // Ищем ячейки этой строки
+        const cells = rowElement.querySelectorAll('td.day-cell');
+        if (!cells || cells.length === 0) return;
+
+        const firstCell = cells[0];
+        const lastCell = cells[cells.length - 1];
+
+        const bar = document.createElement('div');
+        bar.className = `booking-bar ${booking.manager === 'Стася' ? 'booking-stasya' : 'booking-olga'}`;
+        
+        // Показываем ТОЛЬКО ИМЯ в самом элементе
+        bar.innerText = booking.guest;
+        
+        // Всплывающая подсказка с подробностями
         const totalNights = Math.round((endObj - startObj) / (1000 * 60 * 60 * 24));
+        bar.title = `${booking.guest} | Менеджер: ${booking.manager} | Заезд: ${booking.startDate} — Выезд: ${booking.endDate} (${totalNights} ночевки)`;
 
-        for (let d = startDayVal; d <= endDayVal; d++) {
-            let cell;
-            if (isHalfYear) {
-                cell = table.querySelector(`tr[data-row-idx="${rowIndex}"] td.day-cell[data-month-day="${d}"]`);
-            } else {
-                cell = table.querySelector(`tr[data-apt-id="${aptId}"] td.day-cell[data-day="${d}"]`);
-            }
-            if (!cell) continue;
+        // Точное наложение от первой ячейки месяца до последней
+        bar.style.left = `calc(${leftPercent}% * (1 - var(--first-col-ratio, 0)))`; 
+        bar.style.width = `calc(${widthPercent}% * (1 - var(--first-col-ratio, 0)))`;
 
-            const isStartDay = isStartThisMonth && (d === startDayVal);
-            const isEndDay = isEndThisMonth && (d === endDayVal);
+        bar.onclick = (e) => {
+            e.stopPropagation();
+            if (isHalfYear) closeModal('viewAptModal');
+            openBookingModalView(booking.id);
+        };
 
-            const div = document.createElement('div');
-            div.className = `booking-span ${b.manager === 'Стася' ? 'booking-stasya' : 'booking-olga'}`;
-            
-            if (isStartDay && isEndDay) {
-                div.classList.add('start-day', 'end-day');
-            } else if (isStartDay) {
-                div.classList.add('start-day');
-            } else if (isEndDay) {
-                div.classList.add('end-day');
-            }
-
-            // Текст и описание на первой ячейке диапазона или в начале месяца
-            if (d === startDayVal || d === 1) {
-                div.innerText = b.guest;
-            }
-
-            div.title = `${b.guest} | Менеджер: ${b.manager} | Заезд: ${b.startDate} — Выезд: ${b.endDate} (${totalNights} ночей)`;
-            div.onclick = (e) => {
-                e.stopPropagation();
-                if (isHalfYear) closeModal('viewAptModal');
-                openBookingModalView(b.id);
-            };
-
-            cell.appendChild(div);
+        // Задаем логику размещения полосы поверх ячеек
+        let containerCell = rowElement.querySelector('td.day-cell-container');
+        if (!containerCell) {
+            containerCell = firstCell;
         }
+        containerCell.appendChild(bar);
+    }
+
+    /* Функция позиционирования для двух типов таблиц */
+    function applyUnifiedBookingToRow(rowElement, booking, year, month, totalDaysInMonth, isHalfYear = false) {
+        const startObj = new Date(booking.startDate);
+        const endObj = new Date(booking.endDate);
+
+        const monthStart = new Date(year, month, 1);
+        const monthEnd = new Date(year, month, totalDaysInMonth, 23, 59, 59);
+
+        if (endObj < monthStart || startObj > monthEnd) return;
+
+        const isStartThisMonth = (startObj.getFullYear() === year && startObj.getMonth() === month);
+        const isEndThisMonth = (endObj.getFullYear() === year && endObj.getMonth() === month);
+
+        const startDayVal = isStartThisMonth ? startObj.getDate() : 1;
+        const endDayVal = isEndThisMonth ? endObj.getDate() : totalDaysInMonth;
+
+        const startCellIdx = startDayVal - 1;
+        const endCellIdx = endDayVal - 1;
+
+        const dayCells = Array.from(rowElement.querySelectorAll('td.day-cell'));
+        if (!dayCells[startCellIdx] || !dayCells[endCellIdx]) return;
+
+        const targetCell = dayCells[startCellIdx];
+
+        const startCellLeft = dayCells[startCellIdx].offsetLeft;
+        const endCellLeft = dayCells[endCellIdx].offsetLeft;
+        const cellWidth = dayCells[endCellIdx].offsetWidth;
+
+        let leftPos = startCellLeft;
+        if (isStartThisMonth) {
+            leftPos += cellWidth / 2;
+        }
+
+        let rightPos = endCellLeft + cellWidth;
+        if (isEndThisMonth) {
+            rightPos -= cellWidth / 2;
+        }
+
+        const barWidth = Math.max(rightPos - leftPos, 10);
+
+        const bar = document.createElement('div');
+        bar.className = `booking-bar ${booking.manager === 'Стася' ? 'booking-stasya' : 'booking-olga'}`;
+        
+        // ТОЛЬКО ИМЯ ГОСТЯ
+        bar.innerText = booking.guest;
+
+        const totalNights = Math.round((endObj - startObj) / (1000 * 60 * 60 * 24));
+        bar.title = `${booking.guest} | Менеджер: ${booking.manager} | Заезд: ${booking.startDate} — Выезд: ${booking.endDate} (${totalNights} н.)`;
+
+        bar.style.left = `${leftPos}px`;
+        bar.style.width = `${barWidth}px`;
+
+        bar.onclick = (e) => {
+            e.stopPropagation();
+            if (isHalfYear) closeModal('viewAptModal');
+            openBookingModalView(booking.id);
+        };
+
+        rowElement.style.position = 'relative';
+        rowElement.appendChild(bar);
     }
 
     function renderMatrix() {
@@ -1416,21 +1410,26 @@
         db.apartments.forEach((apt) => {
             bodyHTML += `<tr data-apt-id="${apt.id}"><td class="col-apt">${apt.complex}, ${apt.number}</td>`;
             for (let d = 1; d <= daysInMonth; d++) {
-                bodyHTML += `<td class="day-cell" data-day="${d}" data-apt-id="${apt.id}"></td>`;
+                bodyHTML += `<td class="day-cell" data-day="${d}"></td>`;
             }
             bodyHTML += `</tr>`;
         });
 
         table.innerHTML = headerHTML + bodyHTML;
 
-        if (db.bookings) {
+        // Позиционируем брони после полной прорисовки таблицы
+        setTimeout(() => {
+            if (!db.bookings) return;
             db.apartments.forEach(apt => {
+                const row = table.querySelector(`tr[data-apt-id="${apt.id}"]`);
+                if (!row) return;
+
                 const aptBookings = db.bookings.filter(b => b.aptId === apt.id);
                 aptBookings.forEach(b => {
-                    renderBookingInTable(table, apt.id, b, year, month, daysInMonth, false);
+                    applyUnifiedBookingToRow(row, b, year, month, daysInMonth, false);
                 });
             });
-        }
+        }, 50);
     }
 
     function openViewAptModal(aptId) {
@@ -1481,7 +1480,7 @@
             for (let d = 1; d <= 31; d++) {
                 let daysInCurrMonth = new Date(mObj.year, mObj.month + 1, 0).getDate();
                 if (d <= daysInCurrMonth) {
-                    bodyHTML += `<td class="day-cell" data-month-day="${d}" data-month-idx="${index}"></td>`;
+                    bodyHTML += `<td class="day-cell" data-month-day="${d}"></td>`;
                 } else {
                     bodyHTML += `<td style="background: #f8fafc; border-color: #f1f5f9;"></td>`;
                 }
@@ -1491,7 +1490,8 @@
 
         table.innerHTML = headerHTML + bodyHTML;
 
-        if (db.bookings) {
+        setTimeout(() => {
+            if (!db.bookings) return;
             db.bookings.forEach(b => {
                 if (b.aptId !== aptId) return;
 
@@ -1500,10 +1500,13 @@
                     const month = mObj.month;
                     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-                    renderBookingInTable(table, aptId, b, year, month, daysInMonth, true, mIndex);
+                    const row = table.querySelector(`tr[data-row-idx="${mIndex}"]`);
+                    if (row) {
+                        applyUnifiedBookingToRow(row, b, year, month, daysInMonth, true);
+                    }
                 });
             });
-        }
+        }, 50);
     }
 
     function closeModal(modalId) {
