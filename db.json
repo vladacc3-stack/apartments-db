@@ -86,6 +86,7 @@
       "phone": "+9495996",
       "price": "500",
       "periodType": "За месяц",
+      "commission": "50",
       "startDate": "2026-08-06",
       "endDate": "2026-08-11"
     },
