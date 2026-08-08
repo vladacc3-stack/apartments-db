@@ -74,6 +74,17 @@
       "periodType": "За месяц",
       "startDate": "2026-08-14",
       "endDate": "2026-08-20"
+    },
+    {
+      "id": "book_1786224961088",
+      "aptId": "apt_1786224889016",
+      "manager": "Ольга",
+      "guest": "Маша",
+      "phone": "756757",
+      "price": "80",
+      "periodType": "За день",
+      "startDate": "2026-08-01",
+      "endDate": "2026-08-09"
     }
   ]
 }
