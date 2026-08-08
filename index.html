@@ -424,8 +424,10 @@
             min-width: 1250px;
         }
 
+        /* Относительное позиционирование для строки, чтобы плашка вставала точно на свои даты относительно всей строки */
         .matrix-table tr, .apt-matrix-table tr {
             height: 48px;
+            position: relative;
         }
 
         .matrix-table th, .matrix-table td,
@@ -436,7 +438,6 @@
             margin: 0;
             vertical-align: middle;
             text-align: center;
-            position: relative; /* Позиционирование полосы относительно конкретной ячейки td */
         }
 
         .matrix-table th, .apt-matrix-table th {
@@ -497,7 +498,7 @@
             box-shadow: none;
         }
 
-        /* Позиционирование плашки бронирования строго внутри своей ячейки высотой 1 строки */
+        /* Абсолютное позиционирование полосы внутри всей строки TR */
         .booking-bar {
             position: absolute;
             top: 4px;
@@ -575,7 +576,7 @@
             display: flex;
             flex-direction: column;
             border: 1px solid var(--border);
-            overflow: hidden; /* Важно: прокрутка у формы, а не у окна */
+            overflow: hidden;
         }
 
         .modal-content.large {
@@ -1059,7 +1060,7 @@
             <div id="bookingViewMode">
                 <div class="booking-view-card">
                     <div class="booking-view-row">
-                        <span class="booking-view-label">Чья Бронь</span>
+                        <span class="booking-view-label">Менеджер</span>
                         <span class="booking-view-value" id="viewManager">-</span>
                     </div>
                     <div class="booking-view-row">
@@ -1093,7 +1094,7 @@
                 <input type="hidden" id="bookingId">
                 
                 <div class="form-group">
-                    <label>Чья Бронь (цвет брони)</label>
+                    <label>Менеджер (цвет брони)</label>
                     <select id="bookingManager" required>
                         <option value="Ольга">Ольга (Оранжевый)</option>
                         <option value="Стася">Стася (Фиолетовый)</option>
@@ -1436,18 +1437,19 @@
         const endCell = dayCells[endCellIdx];
         if (!startCell || !endCell) return;
 
+        // Координаты считаются строго относительно родительской строки TR
         const startCellLeft = startCell.offsetLeft;
         const endCellLeft = endCell.offsetLeft;
         const cellWidth = endCell.offsetWidth;
 
         let leftPos = startCellLeft;
         if (isStartThisMonth) {
-            leftPos += cellWidth / 2;
+            leftPos += cellWidth / 2; // Заезд в 12:00 (середина дня)
         }
 
         let rightPos = endCellLeft + cellWidth;
         if (isEndThisMonth) {
-            rightPos -= cellWidth / 2;
+            rightPos -= cellWidth / 2; // Выезд в 12:00 (середина дня)
         }
 
         const barWidth = Math.max(rightPos - leftPos, 10);
@@ -1458,7 +1460,7 @@
         bar.innerText = booking.guest;
 
         const totalNights = Math.round((endObj - startObj) / (1000 * 60 * 60 * 24));
-        bar.title = `${booking.guest} | Чья Бронь: ${booking.manager} | Заезд: ${booking.startDate} — Выезд: ${booking.endDate} (${totalNights} н.)`;
+        bar.title = `${booking.guest} | Менеджер: ${booking.manager} | Заезд: ${booking.startDate} — Выезд: ${booking.endDate} (${totalNights} н.)`;
 
         bar.style.left = `${leftPos}px`;
         bar.style.width = `${barWidth}px`;
@@ -1469,8 +1471,8 @@
             openBookingModalView(booking.id);
         };
 
-        // Вставляем полосу напрямую в начальную ячейку, сохраняя привязку по высоте к 1 строке
-        startCell.appendChild(bar);
+        // Вставляем плашку прямо в TR для точного позиционирования по всей ширине
+        rowElement.appendChild(bar);
     }
 
     function renderMatrix() {
@@ -1690,7 +1692,7 @@
         const id = document.getElementById('aptId').value;
         if (confirm('Удалить апартамент и все связанные с ним брони?')) {
             db.apartments = db.apartments.filter(a => a.id !== id);
-            db.bookings = db.bookings.filter(b => b.aptId !== id);
+            db.bookings = db.bookings.filter(b => b.id !== id);
             saveToGitHub();
             closeModal('aptModal');
         }
