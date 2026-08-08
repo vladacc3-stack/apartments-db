@@ -4,7 +4,21 @@
       "id": "apt_1786213835668",
       "complex": "Pacific 3",
       "number": "51",
-      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuQbBJqW4chT7tdi9aPN7zvhG6lN0o511K4w_hpxiQsUj808JlnI-me2A&s=10"
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuQbBJqW4chT7tdi9aPN7zvhG6lN0o511K4w_hpxiQsUj808JlnI-me2A&s=10",
+      "prices": [
+        {
+          "period": "Авусст посуточно",
+          "price": "75"
+        },
+        {
+          "period": "Сентябрт",
+          "price": "555"
+        },
+        {
+          "period": "Октябрт",
+          "price": "444"
+        }
+      ]
     }
   ],
   "bookings": [
