@@ -418,13 +418,11 @@
         }
 
         .matrix-table, .apt-matrix-table {
-            width: 100%;
             border-collapse: collapse;
             table-layout: fixed;
-            min-width: 1250px;
+            width: max-content;
         }
 
-        /* Относительное позиционирование для строки, чтобы плашка вставала точно на свои даты относительно всей строки */
         .matrix-table tr, .apt-matrix-table tr {
             height: 48px;
             position: relative;
@@ -438,6 +436,15 @@
             margin: 0;
             vertical-align: middle;
             text-align: center;
+            box-sizing: border-box;
+        }
+
+        /* Фиксированная ширина колонок с днями */
+        .matrix-table th:not(.col-apt), .matrix-table td:not(.col-apt),
+        .apt-matrix-table th:not(.col-month), .apt-matrix-table td:not(.col-month) {
+            width: 38px;
+            min-width: 38px;
+            max-width: 38px;
         }
 
         .matrix-table th, .apt-matrix-table th {
@@ -498,27 +505,28 @@
             box-shadow: none;
         }
 
-        /* Абсолютное позиционирование полосы внутри всей строки TR */
+        /* Абсолютное позиционирование полосы брони строго поверх строки TR */
         .booking-bar {
             position: absolute;
             top: 4px;
             bottom: 4px;
             height: calc(100% - 8px);
             z-index: 5;
-            border-radius: 6px;
+            border-radius: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 600;
-            font-size: 12px;
+            font-size: 11px;
             cursor: pointer;
             box-shadow: 0 2px 4px rgba(0,0,0,0.12);
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
-            padding: 0 8px;
+            padding: 0 4px;
             transition: transform 0.15s ease, filter 0.15s ease;
             user-select: none;
+            box-sizing: border-box;
         }
 
         .booking-bar:hover {
@@ -539,7 +547,7 @@
             color: #5b21b6;
         }
 
-        /* МОДАЛЬНЫЕ ОКНА: Фиксированный заголовок и независимая прокрутка */
+        /* МОДАЛЬНЫЕ ОКНА */
         .modal {
             display: none;
             position: fixed;
@@ -754,7 +762,6 @@
             box-shadow: var(--shadow-sm);
         }
 
-        /* МЕДИАЗАПРОСЫ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ */
         @media (max-width: 768px) {
             body {
                 padding: 16px 10px;
@@ -847,11 +854,6 @@
                 font-size: 15px;
             }
 
-            /* ИСПРАВЛЕНИЯ ШАХМАТКИ ДЛЯ МОБИЛЬНЫХ */
-            .matrix-table, .apt-matrix-table {
-                min-width: 1150px;
-            }
-
             .matrix-table th.col-apt, .apt-matrix-table th.col-month,
             .matrix-table td.col-apt, .apt-matrix-table td.col-month {
                 width: 140px !important;
@@ -863,17 +865,6 @@
                 white-space: normal;
                 word-wrap: break-word;
                 line-height: 1.25;
-            }
-            
-            .matrix-table th, .apt-matrix-table th {
-                width: 32px;
-                min-width: 32px;
-                font-size: 10px;
-            }
-            
-            .booking-bar {
-                font-size: 10px;
-                padding: 0 2px;
             }
         }
     </style>
@@ -1048,7 +1039,7 @@
     </div>
 </div>
 
-<!-- Модальное окно: Карточка бронирования (Просмотр / Редактирование) -->
+<!-- Модальное окно: Карточка бронирования -->
 <div id="bookingModal" class="modal">
     <div class="modal-content">
         <div class="modal-header-top">
@@ -1421,38 +1412,40 @@
         const monthStart = new Date(year, month, 1);
         const monthEnd = new Date(year, month, totalDaysInMonth, 23, 59, 59);
 
-        if (endObj < monthStart || startObj > monthEnd) return;
+        if (endObj <= monthStart || startObj >= monthEnd) return;
+
+        const firstCell = rowElement.querySelector('.col-apt') || rowElement.querySelector('.col-month');
+        const dayCell = rowElement.querySelector('td.day-cell');
+        if (!firstCell || !dayCell) return;
+
+        const firstColWidth = firstCell.getBoundingClientRect().width;
+        const dayWidth = dayCell.getBoundingClientRect().width;
 
         const isStartThisMonth = (startObj.getFullYear() === year && startObj.getMonth() === month);
         const isEndThisMonth = (endObj.getFullYear() === year && endObj.getMonth() === month);
 
-        const startDayVal = isStartThisMonth ? startObj.getDate() : 1;
-        const endDayVal = isEndThisMonth ? endObj.getDate() : totalDaysInMonth;
-
-        const startCellIdx = startDayVal - 1;
-        const endCellIdx = endDayVal - 1;
-
-        const dayCells = Array.from(rowElement.querySelectorAll('td.day-cell'));
-        const startCell = dayCells[startCellIdx];
-        const endCell = dayCells[endCellIdx];
-        if (!startCell || !endCell) return;
-
-        // Координаты считаются строго относительно родительской строки TR
-        const startCellLeft = startCell.offsetLeft;
-        const endCellLeft = endCell.offsetLeft;
-        const cellWidth = endCell.offsetWidth;
-
-        let leftPos = startCellLeft;
+        let leftPos = 0;
         if (isStartThisMonth) {
-            leftPos += cellWidth / 2; // Заезд в 12:00 (середина дня)
+            const startDay = startObj.getDate();
+            // Ровно центр дня заезда (12:00)
+            leftPos = firstColWidth + (startDay - 0.5) * dayWidth;
+        } else {
+            // Заезд был до начала этого месяца - плашка с самого края сетки дней
+            leftPos = firstColWidth;
         }
 
-        let rightPos = endCellLeft + cellWidth;
+        let rightPos = 0;
         if (isEndThisMonth) {
-            rightPos -= cellWidth / 2; // Выезд в 12:00 (середина дня)
+            const endDay = endObj.getDate();
+            // Ровно центр дня выезда (12:00)
+            rightPos = firstColWidth + (endDay - 0.5) * dayWidth;
+        } else {
+            // Выезд в следующих месяцах - плашка идет до конца месяца
+            rightPos = firstColWidth + totalDaysInMonth * dayWidth;
         }
 
-        const barWidth = Math.max(rightPos - leftPos, 10);
+        const barWidth = rightPos - leftPos;
+        if (barWidth <= 0) return;
 
         const bar = document.createElement('div');
         bar.className = `booking-bar ${booking.manager === 'Стася' ? 'booking-stasya' : 'booking-olga'}`;
@@ -1471,7 +1464,6 @@
             openBookingModalView(booking.id);
         };
 
-        // Вставляем плашку прямо в TR для точного позиционирования по всей ширине
         rowElement.appendChild(bar);
     }
 
