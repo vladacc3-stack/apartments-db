@@ -15,7 +15,6 @@
             --border: #e2e8f0;
             --danger: #ef4444;
             --danger-hover: #dc2626;
-            --success: #10b981;
         }
 
         * {
@@ -266,7 +265,7 @@
             padding: 24px;
             border-radius: 12px;
             width: 100%;
-            max-width: 480px;
+            max-width: 540px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             max-height: 90vh;
             overflow-y: auto;
@@ -293,6 +292,13 @@
             border: 1px solid var(--border);
             border-radius: 8px;
             font-size: 14px;
+        }
+
+        /* Двухколоночная сетка для модалки брони */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
         }
 
         .modal-actions {
@@ -380,29 +386,37 @@
         <h3 id="bookingModalTitle">Добавить бронь</h3>
         <form id="bookingForm" onsubmit="handleBookingSubmit(event)">
             <input type="hidden" id="bookingId">
+            
             <div class="form-group">
                 <label>Апартамент</label>
                 <select id="bookingApt" required></select>
             </div>
-            <div class="form-group">
-                <label>Менеджер</label>
-                <select id="bookingManager" required>
-                    <option value="Ольга">Ольга</option>
-                    <option value="Стася">Стася</option>
-                </select>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Менеджер</label>
+                    <select id="bookingManager" required>
+                        <option value="Ольга">Ольга</option>
+                        <option value="Стася">Стася</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Имя гостя</label>
+                    <input type="text" id="bookingGuest" required placeholder="Иван Иванов">
+                </div>
             </div>
-            <div class="form-group">
-                <label>Имя гостя</label>
-                <input type="text" id="bookingGuest" required placeholder="Иван Иванов">
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Телефон для связи</label>
+                    <input type="text" id="bookingPhone" required placeholder="+359 ...">
+                </div>
+                <div class="form-group">
+                    <label>Цена (€)</label>
+                    <input type="number" id="bookingPrice" required placeholder="150">
+                </div>
             </div>
-            <div class="form-group">
-                <label>Телефон для связи</label>
-                <input type="text" id="bookingPhone" required placeholder="+359 ...">
-            </div>
-            <div class="form-group">
-                <label>Цена (€)</label>
-                <input type="number" id="bookingPrice" required placeholder="150">
-            </div>
+
             <div class="form-group">
                 <label>Период расчета</label>
                 <select id="bookingPeriodType" required>
@@ -411,14 +425,18 @@
                     <option value="Весь период">Весь период</option>
                 </select>
             </div>
-            <div class="form-group">
-                <label>Дата заезда</label>
-                <input type="date" id="bookingStart" required>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Дата заезда</label>
+                    <input type="date" id="bookingStart" required>
+                </div>
+                <div class="form-group">
+                    <label>Дата выезда</label>
+                    <input type="date" id="bookingEnd" required>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Дата выезда</label>
-                <input type="date" id="bookingEnd" required>
-            </div>
+
             <div class="modal-actions">
                 <button type="button" id="deleteBookingBtn" class="danger" style="display: none; margin-right: auto;" onclick="deleteCurrentBooking()">Удалить</button>
                 <button type="button" class="secondary" onclick="closeModal('bookingModal')">Отмена</button>
@@ -604,7 +622,6 @@
         const container = document.getElementById('matrixContainer');
         const label = document.getElementById('currentMonthLabel');
         
-        // Удаляем старые оверлейные плавающие блоки перед перерисовкой
         container.querySelectorAll('.booking-overlay').forEach(el => el.remove());
 
         const now = new Date();
@@ -638,7 +655,6 @@
 
         table.innerHTML = headerHTML + bodyHTML;
 
-        // Отрисовка цельных блоков бронирования поверх ячеек
         const cellWidth = 40; 
         const offsetLeft = 180; 
 
@@ -650,21 +666,21 @@
                 const startObj = new Date(b.startDate);
                 const endObj = new Date(b.endDate);
                 
-                // Проверяем попадает ли бронь в текущий месяц
                 const startDay = startObj.getDate();
                 const endDay = endObj.getDate();
                 
-                // Упрощенный расчет длительности для текущего месяца
                 let duration = endDay - startDay + 1;
                 if (duration < 1) duration = 1;
 
                 const div = document.createElement('div');
                 div.className = `booking-overlay ${b.manager === 'Стася' ? 'booking-stasya' : 'booking-olga'}`;
                 div.style.left = (offsetLeft + (startDay - 1) * cellWidth + 2) + 'px';
-                div.style.top = (41 + (aptIndex * 41) + 4) + 'px'; // 41px высота шапки/строки
+                div.style.top = (41 + (aptIndex * 41) + 4) + 'px';
                 div.style.width = (duration * cellWidth - 4) + 'px';
-                div.innerText = `${b.guest} (${b.manager}) — ${b.price}€`;
-                div.title = `${b.guest} | Тел: ${b.phone} | Менеджер: ${b.manager} | Цена: ${b.price}€ (${b.periodType})`;
+                
+                // На самой плашке теперь только имя гостя
+                div.innerText = b.guest;
+                div.title = `${b.guest} | Менеджер: ${b.manager} | Тел: ${b.phone} | Цена: ${b.price}€ (${b.periodType})`;
                 div.onclick = () => openEditBooking(b.id);
                 
                 container.appendChild(div);
