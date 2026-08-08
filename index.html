@@ -403,6 +403,11 @@
         loadFromGitHub();
     });
 
+    // Очистка токена от возможных случайных не-ASCII символов
+    function getCleanToken() {
+        return GITHUB_CONFIG.token.replace(/[^\x00-\x7F]/g, "").trim();
+    }
+
     // Безопасное декодирование UTF-8 из Base64
     function base64ToUtf8(base64) {
         const binString = atob(base64);
@@ -410,7 +415,7 @@
         return new TextDecoder().decode(bytes);
     }
 
-    // Безопасное кодирование UTF-8 в Base64 (исправляет ошибку non ISO-8859-1)
+    // Безопасное кодирование UTF-8 в Base64
     function utf8ToBase64(str) {
         const bytes = new TextEncoder().encode(str);
         const binString = Array.from(bytes, (byte) => String.fromCodePoint(byte)).join("");
@@ -421,10 +426,12 @@
     async function loadFromGitHub() {
         setSyncStatus('Загрузка...', '');
         try {
+            const cleanToken = getCleanToken();
             const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
+            
             const response = await fetch(url, {
                 headers: { 
-                    'Authorization': `token ${GITHUB_CONFIG.token}`,
+                    'Authorization': `token ${cleanToken}`,
                     'Accept': 'application/vnd.github.v3+json'
                 }
             });
@@ -463,6 +470,7 @@
     async function saveToGitHub() {
         setSyncStatus('Сохранение...', '');
         try {
+            const cleanToken = getCleanToken();
             const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
             
             const jsonString = JSON.stringify(db, null, 2);
@@ -477,7 +485,7 @@
             const response = await fetch(url, {
                 method: 'PUT',
                 headers: {
-                    'Authorization': `token ${GITHUB_CONFIG.token}`,
+                    'Authorization': `token ${cleanToken}`,
                     'Content-Type': 'application/json',
                     'Accept': 'application/vnd.github.v3+json'
                 },
