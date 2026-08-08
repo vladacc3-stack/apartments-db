@@ -55,6 +55,17 @@
       "periodType": "За день",
       "startDate": "2026-08-13",
       "endDate": "2026-08-10"
+    },
+    {
+      "id": "book_1786223196150",
+      "aptId": "apt_1786213835668",
+      "manager": "Ольга",
+      "guest": "vcxcv",
+      "phone": "cvvcv",
+      "price": "5",
+      "periodType": "За день",
+      "startDate": "2026-08-10",
+      "endDate": "2026-08-15"
     }
   ]
 }
