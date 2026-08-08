@@ -9,5 +9,13 @@
       "priceMonth": "70"
     }
   ],
-  "bookings": []
+  "bookings": [
+    {
+      "id": "book_1786208524726",
+      "aptId": "apt_1786208507203",
+      "guest": "fff",
+      "startDate": "2026-08-13",
+      "endDate": "2026-08-20"
+    }
+  ]
 }
