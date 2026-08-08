@@ -424,6 +424,12 @@
             min-width: 1250px;
         }
 
+        /* Строкам таблицы явно задается относительное позиционирование */
+        .matrix-table tr, .apt-matrix-table tr {
+            position: relative;
+            height: 48px;
+        }
+
         .matrix-table th, .matrix-table td,
         .apt-matrix-table th, .apt-matrix-table td {
             border: 1px solid var(--border);
@@ -493,10 +499,12 @@
             box-shadow: none;
         }
 
+        /* Позиционирование плашки внутри своей строки */
         .booking-bar {
             position: absolute;
-            top: 5px;
-            bottom: 5px;
+            top: 4px;
+            bottom: 4px;
+            height: calc(100% - 8px);
             z-index: 5;
             border-radius: 6px;
             display: flex;
@@ -783,7 +791,6 @@
                 justify-content: space-between;
             }
 
-            /* Адаптация модальных окон и форм */
             .modal-content {
                 padding: 20px;
                 max-height: 95vh;
@@ -794,7 +801,6 @@
                 gap: 0;
             }
 
-            /* Увеличение шрифта инпутов для предотвращения зума на iOS */
             .form-group input, .form-group select, .price-row-item input {
                 font-size: 16px;
                 padding: 14px 12px;
@@ -821,31 +827,34 @@
                 font-size: 15px;
             }
 
-            /* Адаптация шахматки для мобильных */
+            /* ИСПРАВЛЕНИЯ ШАХМАТКИ ДЛЯ МОБИЛЬНЫХ */
             .matrix-table, .apt-matrix-table {
-                min-width: 1000px; /* Уменьшена минимальная ширина */
+                min-width: 1150px;
             }
 
+            /* Задаем достаточную ширину для названий, чтобы текст вмещался */
             .matrix-table th.col-apt, .apt-matrix-table th.col-month,
             .matrix-table td.col-apt, .apt-matrix-table td.col-month {
-                width: 100px;
-                min-width: 100px;
-                max-width: 100px;
-                font-size: 11px;
+                width: 140px !important;
+                min-width: 140px !important;
+                max-width: 140px !important;
+                font-size: 12px;
                 padding-left: 8px;
-                white-space: normal; /* Разрешить перенос текста */
-                line-height: 1.2;
+                padding-right: 4px;
+                white-space: normal;
+                word-wrap: break-word;
+                line-height: 1.25;
             }
             
             .matrix-table th, .apt-matrix-table th {
-                width: 32px !important;
-                min-width: 32px !important;
+                width: 32px;
+                min-width: 32px;
                 font-size: 10px;
             }
             
             .booking-bar {
                 font-size: 10px;
-                padding: 0 4px;
+                padding: 0 2px;
             }
         }
     </style>
@@ -1307,8 +1316,6 @@
             const bStart = new Date(b.startDate);
             const bEnd = new Date(b.endDate);
             
-            // Заезд равен выезду или выезд равен заезду - разрешено (пересменка в один день)
-            // Но если периоды перекрываются внутри -> бронь недопустима
             if (filterStart < bEnd && filterEnd > bStart) {
                 return false;
             }
@@ -1436,7 +1443,6 @@
             openBookingModalView(booking.id);
         };
 
-        rowElement.style.position = 'relative';
         rowElement.appendChild(bar);
     }
 
@@ -1452,18 +1458,18 @@
 
         const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-        let headerHTML = `<tr><th class="col-apt">Апартаменты</th>`;
+        let headerHTML = `<thead><tr><th class="col-apt">Апартаменты</th>`;
         for (let d = 1; d <= daysInMonth; d++) {
             headerHTML += `<th>${d}</th>`;
         }
-        headerHTML += `</tr>`;
+        headerHTML += `</tr></thead>`;
 
         if (!db.apartments || db.apartments.length === 0) {
-            table.innerHTML = headerHTML + `<tr><td colspan="${daysInMonth + 1}" style="padding: 30px; color: var(--text-light); text-align: center;">Добавьте апартаменты для отображения шахматки</td></tr>`;
+            table.innerHTML = headerHTML + `<tbody><tr><td colspan="${daysInMonth + 1}" style="padding: 30px; color: var(--text-light); text-align: center;">Добавьте апартаменты для отображения шахматки</td></tr></tbody>`;
             return;
         }
 
-        let bodyHTML = '';
+        let bodyHTML = '<tbody>';
         db.apartments.forEach((apt) => {
             bodyHTML += `<tr data-apt-id="${apt.id}"><td class="col-apt">${apt.complex}, ${apt.number}</td>`;
             for (let d = 1; d <= daysInMonth; d++) {
@@ -1471,6 +1477,7 @@
             }
             bodyHTML += `</tr>`;
         });
+        bodyHTML += '</tbody>';
 
         table.innerHTML = headerHTML + bodyHTML;
 
@@ -1523,13 +1530,13 @@
             monthsToDisplay.push({ year: d.getFullYear(), month: d.getMonth() });
         }
 
-        let headerHTML = `<tr><th class="col-month">Месяц / Число</th>`;
+        let headerHTML = `<thead><tr><th class="col-month">Месяц</th>`;
         for (let d = 1; d <= 31; d++) {
             headerHTML += `<th>${d}</th>`;
         }
-        headerHTML += `</tr>`;
+        headerHTML += `</tr></thead>`;
 
-        let bodyHTML = '';
+        let bodyHTML = '<tbody>';
         monthsToDisplay.forEach((mObj, index) => {
             let mName = `${monthNames[mObj.month]} ${mObj.year}`;
             bodyHTML += `<tr data-row-idx="${index}"><td class="col-month">${mName}</td>`;
@@ -1543,6 +1550,7 @@
             }
             bodyHTML += `</tr>`;
         });
+        bodyHTML += '</tbody>';
 
         table.innerHTML = headerHTML + bodyHTML;
 
@@ -1741,7 +1749,6 @@
                 return false;
             }
 
-            // Проверка на пересечение с другими бронями
             if (!isApartmentAvailable(aptId, startVal, endVal, bookingId)) {
                 errorDiv.innerText = '⚠️ Извините, на эти даты квартира забронирована! Сначала удалите или измените существующую бронь.';
                 errorDiv.style.display = 'block';
