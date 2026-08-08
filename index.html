@@ -403,7 +403,21 @@
         loadFromGitHub();
     });
 
-    // Функция загрузки JSON с GitHub с выводом точной ошибки
+    // Безопасное декодирование UTF-8 из Base64
+    function base64ToUtf8(base64) {
+        const binString = atob(base64);
+        const bytes = Uint8Array.from(binString, (m) => m.codePointAt(0));
+        return new TextDecoder().decode(bytes);
+    }
+
+    // Безопасное кодирование UTF-8 в Base64 (исправляет ошибку non ISO-8859-1)
+    function utf8ToBase64(str) {
+        const bytes = new TextEncoder().encode(str);
+        const binString = Array.from(bytes, (byte) => String.fromCodePoint(byte)).join("");
+        return btoa(binString);
+    }
+
+    // Функция загрузки JSON с GitHub
     async function loadFromGitHub() {
         setSyncStatus('Загрузка...', '');
         try {
@@ -423,7 +437,7 @@
             const data = await response.json();
             fileSha = data.sha;
             
-            const decodedContent = decodeURIComponent(escape(atob(data.content)));
+            const decodedContent = base64ToUtf8(data.content);
             const parsedData = JSON.parse(decodedContent);
             
             db = {
@@ -451,7 +465,8 @@
         try {
             const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
             
-            const contentEncoded = btoa(unescape(encodeURIComponent(JSON.stringify(db, null, 2))));
+            const jsonString = JSON.stringify(db, null, 2);
+            const contentEncoded = utf8ToBase64(jsonString);
 
             const bodyData = {
                 message: "Update database via HTML client",
