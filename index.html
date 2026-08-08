@@ -424,9 +424,7 @@
             min-width: 1250px;
         }
 
-        /* Строкам таблицы явно задается относительное позиционирование */
         .matrix-table tr, .apt-matrix-table tr {
-            position: relative;
             height: 48px;
         }
 
@@ -438,7 +436,7 @@
             margin: 0;
             vertical-align: middle;
             text-align: center;
-            position: relative;
+            position: relative; /* Позиционирование полосы относительно конкретной ячейки td */
         }
 
         .matrix-table th, .apt-matrix-table th {
@@ -499,7 +497,7 @@
             box-shadow: none;
         }
 
-        /* Позиционирование плашки внутри своей строки */
+        /* Позиционирование плашки бронирования строго внутри своей ячейки высотой 1 строки */
         .booking-bar {
             position: absolute;
             top: 4px;
@@ -540,6 +538,7 @@
             color: #5b21b6;
         }
 
+        /* МОДАЛЬНЫЕ ОКНА: Фиксированный заголовок и независимая прокрутка */
         .modal {
             display: none;
             position: fixed;
@@ -567,14 +566,16 @@
 
         .modal-content {
             background: var(--surface);
-            padding: 32px;
+            padding: 28px;
             border-radius: var(--radius-lg);
             width: 100%;
             max-width: 560px;
             box-shadow: var(--shadow-lg);
-            max-height: 90vh;
-            overflow-y: auto;
+            max-height: 88vh;
+            display: flex;
+            flex-direction: column;
             border: 1px solid var(--border);
+            overflow: hidden; /* Важно: прокрутка у формы, а не у окна */
         }
 
         .modal-content.large {
@@ -586,6 +587,9 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-subtle);
+            flex-shrink: 0;
         }
 
         .modal-header-top h3 {
@@ -609,6 +613,7 @@
             cursor: pointer;
             box-shadow: none;
             padding: 0;
+            flex-shrink: 0;
             transition: var(--transition);
         }
 
@@ -617,6 +622,12 @@
             color: var(--text);
             transform: none;
             box-shadow: none;
+        }
+
+        .modal-body-scroll {
+            overflow-y: auto;
+            padding-right: 4px;
+            flex-grow: 1;
         }
 
         .form-group {
@@ -674,19 +685,31 @@
 
         .price-row-item {
             display: grid;
-            grid-template-columns: 1fr 130px 40px;
-            gap: 10px;
+            grid-template-columns: 1fr 110px 36px;
+            gap: 8px;
             margin-bottom: 10px;
             align-items: center;
+        }
+
+        .price-row-item button.danger {
+            width: 36px;
+            height: 38px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            box-shadow: none;
         }
 
         .modal-actions {
             display: flex;
             justify-content: flex-end;
             gap: 12px;
-            margin-top: 28px;
-            padding-top: 20px;
+            margin-top: 20px;
+            padding-top: 16px;
             border-top: 1px solid var(--border-subtle);
+            flex-shrink: 0;
         }
 
         .booking-view-card {
@@ -792,8 +815,8 @@
             }
 
             .modal-content {
-                padding: 20px;
-                max-height: 95vh;
+                padding: 18px;
+                max-height: 92vh;
             }
 
             .form-row {
@@ -802,17 +825,13 @@
             }
 
             .form-group input, .form-group select, .price-row-item input {
-                font-size: 16px;
-                padding: 14px 12px;
+                font-size: 15px;
+                padding: 10px 10px;
             }
 
             .price-row-item {
-                grid-template-columns: 1fr 100px 44px;
-            }
-
-            .price-row-item button {
-                height: 100%;
-                padding: 0;
+                grid-template-columns: 1fr 90px 36px;
+                gap: 6px;
             }
 
             .modal-actions {
@@ -823,7 +842,7 @@
             .modal-actions button {
                 width: 100%;
                 margin: 0 !important;
-                padding: 14px;
+                padding: 12px;
                 font-size: 15px;
             }
 
@@ -832,7 +851,6 @@
                 min-width: 1150px;
             }
 
-            /* Задаем достаточную ширину для названий, чтобы текст вмещался */
             .matrix-table th.col-apt, .apt-matrix-table th.col-month,
             .matrix-table td.col-apt, .apt-matrix-table td.col-month {
                 width: 140px !important;
@@ -937,18 +955,20 @@
         <div class="modal-header-top">
             <h3>Введите GitHub Токен</h3>
         </div>
-        <p style="font-size: 13px; color: var(--text-light); margin-bottom: 20px; line-height: 1.5;">
-            Укажите токен доступа один раз. Он безопасно сохранится в вашем браузере для синхронизации данных.
-        </p>
-        <form onsubmit="saveSettings(event)">
-            <div class="form-group">
-                <label>GitHub Токен (Token)</label>
-                <input type="password" id="settingToken" required placeholder="ghp_...">
-            </div>
-            <div class="modal-actions">
-                <button type="submit">Сохранить и войти</button>
-            </div>
-        </form>
+        <div class="modal-body-scroll">
+            <p style="font-size: 13px; color: var(--text-light); margin-bottom: 20px; line-height: 1.5;">
+                Укажите токен доступа один раз. Он безопасно сохранится в вашем браузере для синхронизации данных.
+            </p>
+            <form id="settingsForm" onsubmit="saveSettings(event)">
+                <div class="form-group">
+                    <label>GitHub Токен (Token)</label>
+                    <input type="password" id="settingToken" required placeholder="ghp_...">
+                </div>
+            </form>
+        </div>
+        <div class="modal-actions">
+            <button type="submit" form="settingsForm">Сохранить и войти</button>
+        </div>
     </div>
 </div>
 
@@ -962,13 +982,15 @@
             </div>
             <button type="button" class="close-top-btn" onclick="closeModal('viewAptModal')" title="Закрыть">✕</button>
         </div>
-        <div class="apt-view-details">
-            <img id="viewAptImage" src="" alt="" onerror="this.src='https://via.placeholder.com/800x200?text=No+Image'">
-            <div id="viewAptPrices" class="prices-list" style="margin-bottom: 24px;"></div>
-            
-            <h4 style="font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em;">График бронирования на полгода вперед</h4>
-            <div class="apt-matrix-container">
-                <table class="apt-matrix-table" id="viewAptMatrixTable"></table>
+        <div class="modal-body-scroll">
+            <div class="apt-view-details">
+                <img id="viewAptImage" src="" alt="" onerror="this.src='https://via.placeholder.com/800x200?text=No+Image'">
+                <div id="viewAptPrices" class="prices-list" style="margin-bottom: 24px;"></div>
+                
+                <h4 style="font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em;">График бронирования на полгода вперед</h4>
+                <div class="apt-matrix-container">
+                    <table class="apt-matrix-table" id="viewAptMatrixTable"></table>
+                </div>
             </div>
         </div>
     </div>
@@ -981,46 +1003,47 @@
             <h3 id="aptModalTitle">Добавить апартаменты</h3>
             <button type="button" class="close-top-btn" onclick="closeModal('aptModal')" title="Закрыть">✕</button>
         </div>
-        <form id="aptForm" onsubmit="handleAptSubmit(event)">
-            <input type="hidden" id="aptId">
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Название комплекса</label>
-                    <input type="text" id="aptComplex" required placeholder="Royal Beach">
+        <div class="modal-body-scroll">
+            <form id="aptForm" onsubmit="handleAptSubmit(event)">
+                <input type="hidden" id="aptId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Название комплекса</label>
+                        <input type="text" id="aptComplex" required placeholder="Royal Beach">
+                    </div>
+                    <div class="form-group">
+                        <label>Номер апартамента</label>
+                        <input type="text" id="aptNumber" required placeholder="кв. 42">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Номер апартамента</label>
-                    <input type="text" id="aptNumber" required placeholder="кв. 42">
-                </div>
-            </div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Тип апартаментов</label>
-                    <select id="aptType" required>
-                        <option value="Студия">Студия</option>
-                        <option value="1+1">1+1</option>
-                        <option value="2+1">2+1</option>
-                    </select>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Тип апартаментов</label>
+                        <select id="aptType" required>
+                            <option value="Студия">Студия</option>
+                            <option value="1+1">1+1</option>
+                            <option value="2+1">2+1</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Ссылка на изображение</label>
+                        <input type="url" id="aptImage" required placeholder="https://example.com/image.jpg">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Ссылка на изображение</label>
-                    <input type="url" id="aptImage" required placeholder="https://example.com/image.jpg">
+
+                <div class="prices-container">
+                    <h4>Цены по периодам</h4>
+                    <div id="priceRowsContainer"></div>
+                    <button type="button" class="secondary" style="width: 100%; padding: 12px; font-size: 14px;" onclick="addPriceRow()">+ Добавить цену</button>
                 </div>
-            </div>
-
-            <div class="prices-container">
-                <h4>Цены по периодам</h4>
-                <div id="priceRowsContainer"></div>
-                <button type="button" class="secondary" style="width: 100%; padding: 12px; font-size: 14px;" onclick="addPriceRow()">+ Добавить цену</button>
-            </div>
-
-            <div class="modal-actions">
-                <button type="button" id="deleteAptBtn" class="danger" style="display: none; margin-right: auto;" onclick="deleteCurrentApartment()">Удалить</button>
-                <button type="button" class="secondary" onclick="closeModal('aptModal')">Отмена</button>
-                <button type="submit">Сохранить</button>
-            </div>
-        </form>
+            </form>
+        </div>
+        <div class="modal-actions">
+            <button type="button" id="deleteAptBtn" class="danger" style="display: none; margin-right: auto;" onclick="deleteCurrentApartment()">Удалить</button>
+            <button type="button" class="secondary" onclick="closeModal('aptModal')">Отмена</button>
+            <button type="submit" form="aptForm">Сохранить</button>
+        </div>
     </div>
 </div>
 
@@ -1032,103 +1055,104 @@
             <button type="button" class="close-top-btn" onclick="closeModal('bookingModal')" title="Закрыть">✕</button>
         </div>
         
-        <div id="bookingViewMode">
-            <div class="booking-view-card">
-                <div class="booking-view-row">
-                    <span class="booking-view-label">Менеджер</span>
-                    <span class="booking-view-value" id="viewManager">-</span>
-                </div>
-                <div class="booking-view-row">
-                    <span class="booking-view-label">Апартамент</span>
-                    <span class="booking-view-value" id="viewAptName">-</span>
-                </div>
-                <div class="booking-view-row">
-                    <span class="booking-view-label">Гость</span>
-                    <span class="booking-view-value" id="viewGuest">-</span>
-                </div>
-                <div class="booking-view-row">
-                    <span class="booking-view-label">Телефон</span>
-                    <span class="booking-view-value" id="viewPhone">-</span>
-                </div>
-                <div class="booking-view-row">
-                    <span class="booking-view-label">Стоимость</span>
-                    <span class="booking-view-value" id="viewPrice">-</span>
-                </div>
-                <div class="booking-view-row">
-                    <span class="booking-view-label">Заезд</span>
-                    <span class="booking-view-value" id="viewStart">-</span>
-                </div>
-                <div class="booking-view-row">
-                    <span class="booking-view-label">Выезд</span>
-                    <span class="booking-view-value" id="viewEnd">-</span>
-                </div>
-            </div>
-            
-            <div class="modal-actions">
-                <button type="button" class="danger" onclick="deleteCurrentBooking()" style="margin-right: auto;">Удалить бронь</button>
-                <button type="button" onclick="switchToEditBooking()">Редактировать</button>
-            </div>
-        </div>
-
-        <form id="bookingEditForm" onsubmit="handleBookingSubmit(event)" style="display: none;">
-            <input type="hidden" id="bookingId">
-            
-            <div class="form-group">
-                <label>Менеджер (цвет брони)</label>
-                <select id="bookingManager" required>
-                    <option value="Ольга">Ольга (Оранжевый)</option>
-                    <option value="Стася">Стася (Фиолетовый)</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>Апартамент</label>
-                <select id="bookingApt" required onchange="validateBookingDates()"></select>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Имя гостя</label>
-                    <input type="text" id="bookingGuest" required placeholder="Иван Иванов">
-                </div>
-                <div class="form-group">
-                    <label>Телефон для связи</label>
-                    <input type="text" id="bookingPhone" required placeholder="+359 ...">
+        <div class="modal-body-scroll">
+            <div id="bookingViewMode">
+                <div class="booking-view-card">
+                    <div class="booking-view-row">
+                        <span class="booking-view-label">Менеджер</span>
+                        <span class="booking-view-value" id="viewManager">-</span>
+                    </div>
+                    <div class="booking-view-row">
+                        <span class="booking-view-label">Апартамент</span>
+                        <span class="booking-view-value" id="viewAptName">-</span>
+                    </div>
+                    <div class="booking-view-row">
+                        <span class="booking-view-label">Гость</span>
+                        <span class="booking-view-value" id="viewGuest">-</span>
+                    </div>
+                    <div class="booking-view-row">
+                        <span class="booking-view-label">Телефон</span>
+                        <span class="booking-view-value" id="viewPhone">-</span>
+                    </div>
+                    <div class="booking-view-row">
+                        <span class="booking-view-label">Стоимость</span>
+                        <span class="booking-view-value" id="viewPrice">-</span>
+                    </div>
+                    <div class="booking-view-row">
+                        <span class="booking-view-label">Заезд</span>
+                        <span class="booking-view-value" id="viewStart">-</span>
+                    </div>
+                    <div class="booking-view-row">
+                        <span class="booking-view-label">Выезд</span>
+                        <span class="booking-view-value" id="viewEnd">-</span>
+                    </div>
                 </div>
             </div>
 
-            <div class="form-row">
+            <form id="bookingEditForm" onsubmit="handleBookingSubmit(event)" style="display: none;">
+                <input type="hidden" id="bookingId">
+                
                 <div class="form-group">
-                    <label>Цена (€)</label>
-                    <input type="number" id="bookingPrice" required placeholder="150">
-                </div>
-                <div class="form-group">
-                    <label>Период расчета</label>
-                    <select id="bookingPeriodType" required>
-                        <option value="За день">За день</option>
-                        <option value="За месяц">За месяц</option>
-                        <option value="За весь период">За весь период</option>
+                    <label>Менеджер (цвет брони)</label>
+                    <select id="bookingManager" required>
+                        <option value="Ольга">Ольга (Оранжевый)</option>
+                        <option value="Стася">Стася (Фиолетовый)</option>
                     </select>
                 </div>
-            </div>
 
-            <div class="form-row">
                 <div class="form-group">
-                    <label>Дата заезда</label>
-                    <input type="date" id="bookingStart" required onchange="validateBookingDates()">
+                    <label>Апартамент</label>
+                    <select id="bookingApt" required onchange="validateBookingDates()"></select>
                 </div>
-                <div class="form-group">
-                    <label>Дата выезда</label>
-                    <input type="date" id="bookingEnd" required onchange="validateBookingDates()">
-                </div>
-            </div>
-            <div id="bookingDateError" style="color: var(--danger); font-size: 13px; font-weight: 700; margin-top: -8px; margin-bottom: 16px; display: none;"></div>
 
-            <div class="modal-actions">
-                <button type="button" class="secondary" onclick="switchToViewBooking()">Отмена</button>
-                <button type="submit" id="bookingSubmitBtn">Сохранить изменения</button>
-            </div>
-        </form>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Имя гостя</label>
+                        <input type="text" id="bookingGuest" required placeholder="Иван Иванов">
+                    </div>
+                    <div class="form-group">
+                        <label>Телефон для связи</label>
+                        <input type="text" id="bookingPhone" required placeholder="+359 ...">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Цена (€)</label>
+                        <input type="number" id="bookingPrice" required placeholder="150">
+                    </div>
+                    <div class="form-group">
+                        <label>Период расчета</label>
+                        <select id="bookingPeriodType" required>
+                            <option value="За день">За день</option>
+                            <option value="За месяц">За месяц</option>
+                            <option value="За весь период">За весь период</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Дата заезда</label>
+                        <input type="date" id="bookingStart" required onchange="validateBookingDates()">
+                    </div>
+                    <div class="form-group">
+                        <label>Дата выезда</label>
+                        <input type="date" id="bookingEnd" required onchange="validateBookingDates()">
+                    </div>
+                </div>
+                <div id="bookingDateError" style="color: var(--danger); font-size: 13px; font-weight: 700; margin-top: -8px; margin-bottom: 16px; display: none;"></div>
+            </form>
+        </div>
+
+        <div class="modal-actions" id="bookingActionsView">
+            <button type="button" class="danger" onclick="deleteCurrentBooking()" style="margin-right: auto;">Удалить бронь</button>
+            <button type="button" onclick="switchToEditBooking()">Редактировать</button>
+        </div>
+        <div class="modal-actions" id="bookingActionsEdit" style="display: none;">
+            <button type="button" class="secondary" onclick="switchToViewBooking()">Отмена</button>
+            <button type="submit" form="bookingEditForm" id="bookingSubmitBtn">Сохранить изменения</button>
+        </div>
     </div>
 </div>
 
@@ -1408,11 +1432,13 @@
         const endCellIdx = endDayVal - 1;
 
         const dayCells = Array.from(rowElement.querySelectorAll('td.day-cell'));
-        if (!dayCells[startCellIdx] || !dayCells[endCellIdx]) return;
+        const startCell = dayCells[startCellIdx];
+        const endCell = dayCells[endCellIdx];
+        if (!startCell || !endCell) return;
 
-        const startCellLeft = dayCells[startCellIdx].offsetLeft;
-        const endCellLeft = dayCells[endCellIdx].offsetLeft;
-        const cellWidth = dayCells[endCellIdx].offsetWidth;
+        const startCellLeft = startCell.offsetLeft;
+        const endCellLeft = endCell.offsetLeft;
+        const cellWidth = endCell.offsetWidth;
 
         let leftPos = startCellLeft;
         if (isStartThisMonth) {
@@ -1443,7 +1469,8 @@
             openBookingModalView(booking.id);
         };
 
-        rowElement.appendChild(bar);
+        // Вставляем полосу напрямую в начальную ячейку, сохраняя привязку по высоте к 1 строке
+        startCell.appendChild(bar);
     }
 
     function renderMatrix() {
@@ -1619,7 +1646,7 @@
         div.innerHTML = `
             <input type="text" placeholder="Период (напр. Июль)" value="${periodVal}" class="price-period" required>
             <input type="number" placeholder="Цена (€)" value="${priceVal}" class="price-val" required>
-            <button type="button" class="danger" onclick="this.parentElement.remove()">✕</button>
+            <button type="button" class="danger" onclick="this.parentElement.remove()" title="Удалить строку">✕</button>
         `;
         container.appendChild(div);
     }
@@ -1685,7 +1712,11 @@
         submitBtn.style.cursor = 'pointer';
         
         document.getElementById('bookingViewMode').style.display = 'none';
+        document.getElementById('bookingActionsView').style.display = 'none';
+        
         document.getElementById('bookingEditForm').style.display = 'block';
+        document.getElementById('bookingActionsEdit').style.display = 'flex';
+        
         document.getElementById('bookingModal').classList.add('active');
     }
 
@@ -1723,7 +1754,10 @@
         submitBtn.style.cursor = 'pointer';
 
         document.getElementById('bookingViewMode').style.display = 'block';
+        document.getElementById('bookingActionsView').style.display = 'flex';
+
         document.getElementById('bookingEditForm').style.display = 'none';
+        document.getElementById('bookingActionsEdit').style.display = 'none';
 
         document.getElementById('bookingModal').classList.add('active');
     }
@@ -1768,7 +1802,10 @@
     function switchToEditBooking() {
         document.getElementById('bookingModalTitle').innerText = 'Редактирование брони';
         document.getElementById('bookingViewMode').style.display = 'none';
+        document.getElementById('bookingActionsView').style.display = 'none';
+
         document.getElementById('bookingEditForm').style.display = 'block';
+        document.getElementById('bookingActionsEdit').style.display = 'flex';
         validateBookingDates();
     }
 
