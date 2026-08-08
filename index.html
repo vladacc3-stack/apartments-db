@@ -496,7 +496,7 @@
             box-shadow: none;
         }
 
-        /* Точный абсолютный блок бронирования по границам сетки ячеек */
+        /* Точный абсолютный блок бронирования */
         .booking-overlay {
             position: absolute;
             height: 38px;
@@ -521,7 +521,6 @@
             z-index: 3;
         }
 
-        /* Стили для броней менеджеров с градиентами */
         .booking-olga {
             background: linear-gradient(135deg, #ffedd5, #fed7aa);
             border: 1px solid #f97316;
@@ -534,7 +533,6 @@
             color: #5b21b6;
         }
 
-        /* Наложение броней друг на друга (стык выезда и заезда в один день) */
         .booking-overlap-container {
             position: absolute;
             height: 38px;
@@ -687,6 +685,39 @@
             margin-top: 28px;
             padding-top: 20px;
             border-top: 1px solid var(--border-subtle);
+        }
+
+        /* Карточка просмотра бронирования (Read-only режим) */
+        .booking-view-card {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .booking-view-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px dashed var(--border);
+            font-size: 14px;
+        }
+
+        .booking-view-row:last-child {
+            border-bottom: none;
+        }
+
+        .booking-view-label {
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .booking-view-value {
+            color: var(--text);
+            font-weight: 600;
+            text-align: right;
         }
 
         /* Полугодовая шахматка в карточке апартамента */
@@ -945,11 +976,53 @@
     </div>
 </div>
 
-<!-- Модальное окно: Добавление/Редактирование брони -->
+<!-- Модальное окно: Карточка бронирования (Просмотр / Редактирование) -->
 <div id="bookingModal" class="modal">
     <div class="modal-content">
-        <h3 id="bookingModalTitle">Добавить бронь</h3>
-        <form id="bookingForm" onsubmit="handleBookingSubmit(event)">
+        <h3 id="bookingModalTitle">Информация о бронировании</h3>
+        
+        <!-- Режим просмотра (Read-only) -->
+        <div id="bookingViewMode">
+            <div class="booking-view-card">
+                <div class="booking-view-row">
+                    <span class="booking-view-label">Менеджер</span>
+                    <span class="booking-view-value" id="viewManager">-</span>
+                </div>
+                <div class="booking-view-row">
+                    <span class="booking-view-label">Апартамент</span>
+                    <span class="booking-view-value" id="viewAptName">-</span>
+                </div>
+                <div class="booking-view-row">
+                    <span class="booking-view-label">Гость</span>
+                    <span class="booking-view-value" id="viewGuest">-</span>
+                </div>
+                <div class="booking-view-row">
+                    <span class="booking-view-label">Телефон</span>
+                    <span class="booking-view-value" id="viewPhone">-</span>
+                </div>
+                <div class="booking-view-row">
+                    <span class="booking-view-label">Стоимость</span>
+                    <span class="booking-view-value" id="viewPrice">-</span>
+                </div>
+                <div class="booking-view-row">
+                    <span class="booking-view-label">Заезд</span>
+                    <span class="booking-view-value" id="viewStart">-</span>
+                </div>
+                <div class="booking-view-row">
+                    <span class="booking-view-label">Выезд</span>
+                    <span class="booking-view-value" id="viewEnd">-</span>
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button type="button" class="danger" onclick="deleteCurrentBooking()" style="margin-right: auto;">Удалить бронь</button>
+                <button type="button" class="secondary" onclick="closeModal('bookingModal')">Закрыть</button>
+                <button type="button" onclick="switchToEditBooking()">Редактировать</button>
+            </div>
+        </div>
+
+        <!-- Режим редактирования (скрыт по умолчанию) -->
+        <form id="bookingEditForm" onsubmit="handleBookingSubmit(event)" style="display: none;">
             <input type="hidden" id="bookingId">
             
             <div class="form-group">
@@ -1003,9 +1076,8 @@
             </div>
 
             <div class="modal-actions">
-                <button type="button" id="deleteBookingBtn" class="danger" style="display: none; margin-right: auto;" onclick="deleteCurrentBooking()">Удалить</button>
-                <button type="button" class="secondary" onclick="closeModal('bookingModal')">Отмена</button>
-                <button type="submit">Сохранить</button>
+                <button type="button" class="secondary" onclick="switchToViewBooking()">Отмена</button>
+                <button type="submit">Сохранить изменения</button>
             </div>
         </form>
     </div>
@@ -1021,6 +1093,7 @@
     let db = { apartments: [], bookings: [] };
     let fileSha = null;
     let currentDate = new Date();
+    let currentSelectedBookingId = null;
 
     document.addEventListener('DOMContentLoaded', () => {
         const token = localStorage.getItem('gh_token');
@@ -1273,7 +1346,7 @@
         });
     }
 
-    /* Рендер основной шахматки с точным расчетом по координатам ячеек сетки */
+    /* Рендер шахматки бронирования */
     function renderMatrix() {
         const table = document.getElementById('matrixTable');
         const container = document.getElementById('matrixContainer');
@@ -1328,27 +1401,20 @@
         });
 
         if (db.bookings) {
-            // Группируем брони по апартаментам
             db.apartments.forEach((apt, aptIndex) => {
                 const aptBookings = db.bookings.filter(b => b.aptId === apt.id);
                 
-                // Проходим по каждому дню месяца, чтобы выявить совпадение дня выезда и заезда (например, 12-е число)
                 for (let d = 1; d <= daysInMonth; d++) {
-                    const currentDateObj = new Date(year, month, d);
-                    
-                    // Ищем бронь, которая заканчивается в этот день
                     const endingBooking = aptBookings.find(b => {
                         const bEnd = new Date(b.endDate);
                         return bEnd.getFullYear() === year && bEnd.getMonth() === month && bEnd.getDate() === d;
                     });
 
-                    // Ищем бронь, которая начинается в этот день
                     const startingBooking = aptBookings.find(b => {
                         const bStart = new Date(b.startDate);
                         return bStart.getFullYear() === year && bStart.getMonth() === month && bStart.getDate() === d;
                     });
 
-                    // Если в один день кто-то выезжает и кто-то заезжает
                     if (endingBooking && startingBooking && endingBooking.id !== startingBooking.id) {
                         const div = document.createElement('div');
                         div.className = 'booking-overlap-container';
@@ -1360,14 +1426,16 @@
                         const bottomClass = startingBooking.manager === 'Стася' ? 'stasya' : 'olga';
 
                         div.innerHTML = `
-                            <div class="booking-overlap-half ${topClass}" title="Выезд: ${endingBooking.guest} (${endingBooking.manager})">⬆ ${endingBooking.guest}</div>
-                            <div class="booking-overlap-half ${bottomClass}" title="Заезд: ${startingBooking.guest} (${startingBooking.manager})">⬇ ${startingBooking.guest}</div>
+                            <div class="booking-overlap-half ${topClass}" title="Выезд: ${endingBooking.guest}">⬆ ${endingBooking.guest}</div>
+                            <div class="booking-overlap-half ${bottomClass}" title="Заезд: ${startingBooking.guest}">⬇ ${startingBooking.guest}</div>
                         `;
+                        
+                        // Клик по наложению открывает модальное окно просмотра выезжающего или заезжающего (по умолчанию первый)
+                        div.onclick = () => openBookingModalView(endingBooking.id);
                         container.appendChild(div);
                     }
                 }
 
-                // Рендерим обычные многодневные бронирования
                 aptBookings.forEach(b => {
                     const startObj = new Date(b.startDate);
                     const endObj = new Date(b.endDate);
@@ -1379,12 +1447,10 @@
                         return;
                     }
 
-                    // Если это день с наложением (выезд/заезд), для него уже отрисован контейнер выше
-                    // Но чтобы не было пересечений блоков, исключаем чистые дни старта/окончания, если они обработаны.
                     const visibleStart = startObj < monthStart ? 1 : startObj.getDate();
                     const visibleEnd = endObj > monthEnd ? daysInMonth : endObj.getDate();
 
-                    const duration = visibleEnd - visibleStart; // Строго по размеру ячеек
+                    const duration = visibleEnd - visibleStart;
                     if (duration < 1) return;
 
                     const div = document.createElement('div');
@@ -1394,8 +1460,8 @@
                     div.style.width = (duration * cellWidth - 4) + 'px';
                     
                     div.innerText = b.guest;
-                    div.title = `${b.guest} | Тел: ${b.phone} | Менеджер: ${b.manager} | Цена: ${b.price}€ (${b.periodType}) | ${b.startDate} — ${b.endDate}`;
-                    div.onclick = () => openEditBooking(b.id);
+                    div.title = `${b.guest} | Менеджер: ${b.manager} | ${b.startDate} — ${b.endDate}`;
+                    div.onclick = () => openBookingModalView(b.id);
                     
                     container.appendChild(div);
                 });
@@ -1596,22 +1662,40 @@
         }
     }
 
+    /* Логика модального окна бронирования с режимом Просмотра / Редактирования */
     function openBookingModal() {
         if (!db.apartments || db.apartments.length === 0) {
             alert('Сначала добавьте хотя бы один апартамент на вкладке "Апартаменты"!');
             return;
         }
-        document.getElementById('bookingForm').reset();
+        // Открытие сразу формы создания новой брони
+        document.getElementById('bookingEditForm').reset();
         document.getElementById('bookingId').value = '';
-        document.getElementById('bookingModalTitle').innerText = 'Добавить бронь';
-        document.getElementById('deleteBookingBtn').style.display = 'none';
+        document.getElementById('bookingModalTitle').innerText = 'Новое бронирование';
+        
+        document.getElementById('bookingViewMode').style.display = 'none';
+        document.getElementById('bookingEditForm').style.display = 'block';
         document.getElementById('bookingModal').classList.add('active');
     }
 
-    function openEditBooking(bookingId) {
+    function openBookingModalView(bookingId) {
         const booking = db.bookings.find(b => b.id === bookingId);
         if (!booking) return;
 
+        currentSelectedBookingId = bookingId;
+        const apt = db.apartments.find(a => a.id === booking.aptId);
+
+        // Заполняем информационные поля режима просмотра
+        document.getElementById('bookingModalTitle').innerText = 'Информация о бронировании';
+        document.getElementById('viewManager').innerText = booking.manager || '-';
+        document.getElementById('viewAptName').innerText = apt ? `${apt.complex}, ${apt.number}` : 'Апартамент удален';
+        document.getElementById('viewGuest').innerText = booking.guest || '-';
+        document.getElementById('viewPhone').innerText = booking.phone || '-';
+        document.getElementById('viewPrice').innerText = `${booking.price || 0} € (${booking.periodType || 'За день'})`;
+        document.getElementById('viewStart').innerText = booking.startDate || '-';
+        document.getElementById('viewEnd').innerText = booking.endDate || '-';
+
+        // Заполняем скрытую форму на случай перехода в режим редактирования
         document.getElementById('bookingId').value = booking.id;
         document.getElementById('bookingApt').value = booking.aptId;
         document.getElementById('bookingManager').value = booking.manager || 'Ольга';
@@ -1622,10 +1706,25 @@
         document.getElementById('bookingStart').value = booking.startDate;
         document.getElementById('bookingEnd').value = booking.endDate;
 
-        document.getElementById('bookingModalTitle').innerText = 'Редактировать бронь';
-        document.getElementById('deleteBookingBtn').style.display = 'inline-block';
-        
+        // Показываем режим просмотра, скрываем форму
+        document.getElementById('bookingViewMode').style.display = 'block';
+        document.getElementById('bookingEditForm').style.display = 'none';
+
         document.getElementById('bookingModal').classList.add('active');
+    }
+
+    function switchToEditBooking() {
+        document.getElementById('bookingModalTitle').innerText = 'Редактирование брони';
+        document.getElementById('bookingViewMode').style.display = 'none';
+        document.getElementById('bookingEditForm').style.display = 'block';
+    }
+
+    function switchToViewBooking() {
+        if (currentSelectedBookingId) {
+            openBookingModalView(currentSelectedBookingId);
+        } else {
+            closeModal('bookingModal');
+        }
     }
 
     function handleBookingSubmit(e) {
@@ -1639,11 +1738,9 @@
             phone: document.getElementById('bookingPhone').value,
             price: document.getElementById('bookingPrice').value,
             periodType: document.getElementById('bookingPeriodType').value,
-            startDate: document.getElementById('bookingStart', 'startDate').value,
+            startDate: document.getElementById('bookingStart').value,
             endDate: document.getElementById('bookingEnd').value
         };
-        // Исправление доступа к дате заезда
-        bookingData.startDate = document.getElementById('bookingStart').value;
 
         if (!db.bookings) db.bookings = [];
         if (id) {
@@ -1658,7 +1755,7 @@
     }
 
     function deleteCurrentBooking() {
-        const id = document.getElementById('bookingId').value;
+        const id = document.getElementById('bookingId').value || currentSelectedBookingId;
         if (confirm('Удалить эту бронь?')) {
             db.bookings = db.bookings.filter(b => b.id !== id);
             saveToGitHub();
