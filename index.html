@@ -496,7 +496,7 @@
             box-shadow: none;
         }
 
-        /* Абсолютный блок бронирования */
+        /* Абсолютный блок бронирования (используем CSS Grid для корректной стыковки по колонкам суток) */
         .booking-overlay {
             position: absolute;
             height: 38px;
@@ -533,6 +533,7 @@
             color: #5b21b6;
         }
 
+        /* Блок наложения (пересечения выезда и заезда в один день) с полупрозрачным наложением цветов */
         .booking-overlap-container {
             position: absolute;
             height: 38px;
@@ -556,16 +557,17 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            mix-blend-mode: multiply;
         }
 
         .booking-overlap-half.olga {
-            background-color: #ffedd5;
+            background-color: rgba(255, 237, 213, 0.9);
             color: #9a3412;
             border-bottom: 1px solid #fdba74;
         }
 
         .booking-overlap-half.stasya {
-            background-color: #ede9fe;
+            background-color: rgba(237, 233, 254, 0.9);
             color: #5b21b6;
         }
 
@@ -1391,7 +1393,7 @@
         });
     }
 
-    /* Рендер шахматки бронирования строго по дням и границам */
+    /* Рендер шахматки бронирования строго по дням и границам с наложением */
     function renderMatrix() {
         const table = document.getElementById('matrixTable');
         const container = document.getElementById('matrixContainer');
@@ -1514,7 +1516,6 @@
                     div.style.top = (49 + (aptIndex * 49) + 5) + 'px';
                     div.style.width = (spanNights * cellWidth - 4) + 'px';
                     
-                    // Выводим только имя гостя
                     div.innerText = `${b.guest}`;
                     div.title = `${b.guest} | Менеджер: ${b.manager} | Заезд: ${b.startDate} — Выезд: ${b.endDate} (${totalNights} ночей)`;
                     div.onclick = () => openBookingModalView(b.id);
@@ -1617,7 +1618,6 @@
                     div.style.top = (41 + (mIndex * 41) + 4) + 'px';
                     div.style.width = (spanNights * cellWidth - 4) + 'px';
                     
-                    // Выводим только имя гостя в полугодовой шахматке
                     div.innerText = `${b.guest}`;
                     div.title = `${b.guest} (${b.manager}) | Заезд: ${b.startDate} — Выезд: ${b.endDate} (${totalNights} ночей)`;
                     
