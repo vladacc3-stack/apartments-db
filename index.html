@@ -1084,7 +1084,7 @@
             <div id="bookingViewMode">
                 <div class="booking-view-card">
                     <div class="booking-view-row">
-                        <span class="booking-view-label">Менеджер</span>
+                        <span class="booking-view-label">Чья бронь</span>
                         <span class="booking-view-value" id="viewManager">-</span>
                     </div>
                     <div class="booking-view-row">
@@ -1103,6 +1103,10 @@
                         <span class="booking-view-label">Стоимость</span>
                         <span class="booking-view-value" id="viewPrice">-</span>
                     </div>
+                    <div class="booking-view-row" id="viewCommissionRow" style="display: none;">
+                        <span class="booking-view-label">Комиссия</span>
+                        <span class="booking-view-value" id="viewCommission">-</span>
+                    </div>
                     <div class="booking-view-row">
                         <span class="booking-view-label">Заезд</span>
                         <span class="booking-view-value" id="viewStart">-</span>
@@ -1118,7 +1122,7 @@
                 <input type="hidden" id="bookingId">
                 
                 <div class="form-group">
-                    <label>Менеджер (цвет брони)</label>
+                    <label>Чья бронь</label>
                     <select id="bookingManager" required>
                         <option value="Ольга">Ольга (Оранжевый)</option>
                         <option value="Стася">Стася (Фиолетовый)</option>
@@ -1154,6 +1158,11 @@
                             <option value="За весь период">За весь период</option>
                         </select>
                     </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Комиссия (необязательно)</label>
+                    <input type="text" id="bookingCommission" placeholder="Напр. 10% или 50 €">
                 </div>
 
                 <div class="form-row">
@@ -1465,7 +1474,9 @@
         const managerClass = booking.manager === 'Стася' ? 'booking-stasya' : 'booking-olga';
         const labelClass = booking.manager === 'Стася' ? 'booking-stasya-label' : 'booking-olga-label';
         const totalNights = Math.round((endObj - startObj) / (1000 * 60 * 60 * 24));
-        const tooltipText = `${booking.guest} | Менеджер: ${booking.manager} | Заезд: ${booking.startDate} — Выезд: ${booking.endDate} (${totalNights} н.)`;
+        
+        let commText = booking.commission ? ` | Комиссия: ${booking.commission}` : '';
+        const tooltipText = `${booking.guest} | Чья бронь: ${booking.manager} | Заезд: ${booking.startDate} — Выезд: ${booking.endDate} (${totalNights} н.)${commText}`;
 
         let firstCellEl = null;
         let lastCellEl = null;
@@ -1500,7 +1511,7 @@
                     seg.style.left = '0%';
                     seg.style.width = '50%';
                 } else {
-                    seg.style.width = '0%'; // Если заезд и выезд один день (крайний случай)
+                    seg.style.width = '0%'; 
                 }
                 seg.classList.add('end-seg');
             } else if (isLastDay && !isEndReal) {
@@ -1836,6 +1847,15 @@
         document.getElementById('viewGuest').innerText = booking.guest || '-';
         document.getElementById('viewPhone').innerText = booking.phone || '-';
         document.getElementById('viewPrice').innerText = `${booking.price || 0} € (${booking.periodType || 'За день'})`;
+        
+        const commRow = document.getElementById('viewCommissionRow');
+        if (booking.commission && booking.commission.trim() !== '') {
+            document.getElementById('viewCommission').innerText = booking.commission;
+            commRow.style.display = 'flex';
+        } else {
+            commRow.style.display = 'none';
+        }
+
         document.getElementById('viewStart').innerText = booking.startDate || '-';
         document.getElementById('viewEnd').innerText = booking.endDate || '-';
 
@@ -1846,6 +1866,7 @@
         document.getElementById('bookingPhone').value = booking.phone || '';
         document.getElementById('bookingPrice').value = booking.price || '';
         document.getElementById('bookingPeriodType').value = booking.periodType || 'За день';
+        document.getElementById('bookingCommission').value = booking.commission || '';
         document.getElementById('bookingStart').value = booking.startDate;
         document.getElementById('bookingEnd').value = booking.endDate;
 
@@ -1941,6 +1962,7 @@
             phone: document.getElementById('bookingPhone').value,
             price: document.getElementById('bookingPrice').value,
             periodType: document.getElementById('bookingPeriodType').value,
+            commission: document.getElementById('bookingCommission').value.trim(),
             startDate: startDate,
             endDate: endDate
         };
