@@ -978,7 +978,7 @@
         renderMatrix();
     }
 
-    // Проверка свободна ли квартира в выбранный период
+    // Проверка свободна ли квартира с учетом правила выезда/заезда в один день (день выезда считается свободным для нового заезда)
     function isApartmentAvailable(aptId, startDateStr, endDateStr) {
         if (!startDateStr || !endDateStr) return true;
         
@@ -993,8 +993,10 @@
             const bStart = new Date(b.startDate);
             const bEnd = new Date(b.endDate);
             
-            // Проверка пересечения периодов: (StartA <= EndB) and (EndA >= StartB)
-            if (filterStart <= bEnd && filterEnd >= bStart) {
+            // С учетом того, что день выезда (bEnd) свободен для заезда следующего гостя:
+            // Пересечением периодов считаем строгое наложение, исключая дату выезда предыдущего бронирования.
+            // То есть бронь занимает ночи с bStart по день перед bEnd (bEnd - 1 день).
+            if (filterStart < bEnd && filterEnd > bStart) {
                 return false; // пересекается, значит занята
             }
         }
