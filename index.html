@@ -221,7 +221,7 @@
         }
 
         .card-actions button {
-            flex: 1;
+            width: 100%;
             padding: 8px;
             font-size: 13px;
         }
@@ -235,46 +235,53 @@
             align-items: center;
         }
 
-        /* Шахматка */
+        /* Шахматка с динамическим расчетом ячеек без горизонтального скролла */
         .matrix-container {
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 12px;
-            overflow-x: auto;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             margin-bottom: 32px;
             position: relative;
+            overflow: hidden;
+            width: 100%;
         }
 
         .matrix-table {
             width: 100%;
             border-collapse: collapse;
             text-align: center;
-            font-size: 12px;
+            font-size: 11px;
             table-layout: fixed;
         }
 
         .matrix-table th, .matrix-table td {
             border: 1px solid var(--border);
             height: 40px;
-            width: 40px;
             white-space: nowrap;
+            overflow: hidden;
+            padding: 0;
         }
 
         .matrix-table th {
             background-color: #f1f5f9;
             font-weight: 600;
+            font-size: 10px;
         }
 
         .matrix-table td.apt-name {
             text-align: left;
-            padding-left: 12px;
+            padding-left: 8px;
             font-weight: 600;
             background-color: #f8fafc;
             position: sticky;
             left: 0;
             z-index: 2;
-            width: 180px;
+            width: 140px;
+            font-size: 11px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .matrix-table th.apt-header {
@@ -282,7 +289,7 @@
             left: 0;
             z-index: 3;
             background-color: #e2e8f0;
-            width: 180px;
+            width: 140px;
         }
 
         /* Навигация по месяцам */
@@ -307,10 +314,10 @@
             align-items: center;
             justify-content: center;
             font-weight: 600;
-            font-size: 11px;
+            font-size: 10px;
             cursor: pointer;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            padding: 0 6px;
+            padding: 0 4px;
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
@@ -512,6 +519,7 @@
             </div>
 
             <div class="modal-actions">
+                <button type="button" id="deleteAptBtn" class="danger" style="display: none; margin-right: auto;" onclick="deleteCurrentApartment()">Удалить</button>
                 <button type="button" class="secondary" onclick="closeModal('aptModal')">Отмена</button>
                 <button type="submit">Сохранить</button>
             </div>
@@ -605,6 +613,12 @@
         }
     });
 
+    window.addEventListener('resize', () => {
+        if (document.getElementById('tab-matrix').classList.contains('active')) {
+            renderMatrix();
+        }
+    });
+
     function switchTab(tabId, btnElement) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -612,7 +626,6 @@
         document.getElementById('tab-' + tabId).classList.add('active');
         btnElement.classList.add('active');
 
-        // Динамическая смена кнопки в шапке в зависимости от вкладки
         const actionContainer = document.getElementById('tabActionContainer');
         if (tabId === 'apartments') {
             actionContainer.innerHTML = '<button onclick="openAptModal()">+ Добавить апартаменты</button>';
@@ -777,7 +790,6 @@
                         ${pricesHTML}
                         <div class="card-actions">
                             <button class="secondary" onclick="openEditAptModal('${apt.id}')">Редактировать</button>
-                            <button class="danger" onclick="deleteApartment('${apt.id}')">Удалить</button>
                         </div>
                     </div>
                 </div>
@@ -831,8 +843,23 @@
 
         table.innerHTML = headerHTML + bodyHTML;
 
-        const cellWidth = 40; 
-        const offsetLeft = 180; 
+        // Автоматический расчет ширины столбцов под контейнер без скролла
+        const totalWidth = container.clientWidth;
+        const nameColWidth = 140;
+        const availableWidthForDays = totalWidth - nameColWidth;
+        const cellWidth = Math.floor(availableWidthForDays / daysInMonth);
+
+        // Применяем ширину к шапке и колонкам
+        const colHeader = table.querySelector('.apt-header');
+        if (colHeader) colHeader.style.width = nameColWidth + 'px';
+
+        table.querySelectorAll('th:not(.apt-header)').forEach(th => {
+            th.style.width = cellWidth + 'px';
+        });
+
+        table.querySelectorAll('.apt-name').tdElement || table.querySelectorAll('.apt-name').forEach(td => {
+            td.style.width = nameColWidth + 'px';
+        });
 
         if (db.bookings) {
             db.bookings.forEach(b => {
@@ -857,7 +884,7 @@
 
                 const div = document.createElement('div');
                 div.className = `booking-overlay ${b.manager === 'Стася' ? 'booking-stasya' : 'booking-olga'}`;
-                div.style.left = (offsetLeft + (visibleStart - 1) * cellWidth + 2) + 'px';
+                div.style.left = (nameColWidth + (visibleStart - 1) * cellWidth + 2) + 'px';
                 div.style.top = (41 + (aptIndex * 41) + 4) + 'px';
                 div.style.width = (duration * cellWidth - 4) + 'px';
                 
@@ -879,6 +906,7 @@
         document.getElementById('aptForm').reset();
         document.getElementById('aptId').value = '';
         document.getElementById('aptModalTitle').innerText = 'Добавить апартаменты';
+        document.getElementById('deleteAptBtn').style.display = 'none';
         document.getElementById('priceRowsContainer').innerHTML = '';
         addPriceRow('Посуточно (за ночь)', '');
         addPriceRow('За месяц', '');
@@ -894,6 +922,7 @@
         document.getElementById('aptNumber').value = apt.number;
         document.getElementById('aptImage').value = apt.image;
         document.getElementById('aptModalTitle').innerText = 'Редактировать апартаменты';
+        document.getElementById('deleteAptBtn').style.display = 'inline-block';
 
         const container = document.getElementById('priceRowsContainer');
         container.innerHTML = '';
@@ -953,6 +982,16 @@
         closeModal('aptModal');
     }
 
+    function deleteCurrentApartment() {
+        const id = document.getElementById('aptId').value;
+        if (confirm('Удалить апартамент и все связанные с ним брони?')) {
+            db.apartments = db.apartments.filter(a => a.id !== id);
+            db.bookings = db.bookings.filter(b => b.aptId !== id);
+            saveToGitHub();
+            closeModal('aptModal');
+        }
+    }
+
     // Управление модалкой бронирования
     function openBookingModal() {
         if (!db.apartments || db.apartments.length === 0) {
@@ -997,7 +1036,7 @@
             phone: document.getElementById('bookingPhone').value,
             price: document.getElementById('bookingPrice').value,
             periodType: document.getElementById('bookingPeriodType').value,
-            startDate: document.getElementById('bookingStart').value,
+            startDate: document.getElementById('bookingStart'].value,
             endDate: document.getElementById('bookingEnd').value
         };
 
@@ -1019,14 +1058,6 @@
             db.bookings = db.bookings.filter(b => b.id !== id);
             saveToGitHub();
             closeModal('bookingModal');
-        }
-    }
-
-    function deleteApartment(aptId) {
-        if (confirm('Удалить апартамент и все его брони?')) {
-            db.apartments = db.apartments.filter(a => a.id !== aptId);
-            db.bookings = db.bookings.filter(b => b.aptId !== aptId);
-            saveToGitHub();
         }
     }
 </script>
