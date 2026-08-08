@@ -496,7 +496,7 @@
             box-shadow: none;
         }
 
-        /* Точный абсолютный блок бронирования */
+        /* Абсолютный блок бронирования */
         .booking-overlay {
             position: absolute;
             height: 38px;
@@ -505,7 +505,7 @@
             display: flex;
             align-items: center;
             justify-content: flex-start;
-            padding: 0 10px;
+            padding: 0 8px;
             font-weight: 600;
             font-size: 11px;
             cursor: pointer;
@@ -550,7 +550,7 @@
             width: 100%;
             display: flex;
             align-items: center;
-            padding: 0 8px;
+            padding: 0 6px;
             font-size: 9px;
             font-weight: 700;
             white-space: nowrap;
@@ -608,14 +608,46 @@
         }
 
         .modal-content.large {
-            max-width: 960px;
+            max-width: 1100px;
         }
 
-        .modal-content h3 {
-            margin-bottom: 24px;
+        /* Шапка модального окна с кнопкой закрытия сверху */
+        .modal-header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header-top h3 {
+            margin: 0;
             font-size: 20px;
             font-weight: 700;
             color: var(--text);
+        }
+
+        .close-top-btn {
+            background: #f1f5f9;
+            color: var(--text-light);
+            border: 1px solid var(--border);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: none;
+            padding: 0;
+            transition: var(--transition);
+        }
+
+        .close-top-btn:hover {
+            background: #e2e8f0;
+            color: var(--text);
+            transform: none;
+            box-shadow: none;
         }
 
         .form-group {
@@ -737,7 +769,7 @@
             text-align: center;
             font-size: 11px;
             table-layout: fixed;
-            min-width: 900px;
+            min-width: 1100px;
         }
 
         .apt-matrix-table th, .apt-matrix-table td {
@@ -795,12 +827,18 @@
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
-            pointer-events: none;
+            cursor: pointer;
+            transition: filter 0.2s;
+        }
+
+        .apt-booking-overlay:hover {
+            filter: brightness(0.95);
+            z-index: 3;
         }
 
         .apt-view-details img {
             width: 100%;
-            height: 220px;
+            height: 200px;
             object-fit: cover;
             border-radius: var(--radius-md);
             margin-bottom: 20px;
@@ -832,7 +870,7 @@
         </div>
     </header>
 
-    <!-- Навигация по вкладкам и кнопка действия -->
+    <!-- Навигация по вкладкам -->
     <div class="tabs-nav">
         <div class="tabs-left">
             <button class="tab-btn active" onclick="switchTab('apartments', this)">Апартаменты</button>
@@ -891,7 +929,9 @@
 <!-- Модальное окно: Запрос токена -->
 <div id="settingsModal" class="modal">
     <div class="modal-content">
-        <h3>Введите GitHub Токен</h3>
+        <div class="modal-header-top">
+            <h3>Введите GitHub Токен</h3>
+        </div>
         <p style="font-size: 13px; color: var(--text-light); margin-bottom: 20px; line-height: 1.5;">
             Укажите токен доступа один раз. Он безопасно сохранится в вашем браузере для синхронизации данных.
         </p>
@@ -910,12 +950,15 @@
 <!-- Модальное окно: Просмотр квартиры и полугодовой шахматки -->
 <div id="viewAptModal" class="modal">
     <div class="modal-content large">
-        <div class="apt-view-info">
-            <h3 id="viewAptTitle" style="margin:0;">Апартаменты</h3>
-            <span id="viewAptTypeTag" class="apt-type-tag"></span>
+        <div class="modal-header-top">
+            <div>
+                <h3 id="viewAptTitle" style="margin:0;">Апартаменты</h3>
+                <span id="viewAptTypeTag" class="apt-type-tag" style="display: inline-block; margin-top: 6px;"></span>
+            </div>
+            <button type="button" class="close-top-btn" onclick="closeModal('viewAptModal')" title="Закрыть">✕</button>
         </div>
         <div class="apt-view-details">
-            <img id="viewAptImage" src="" alt="" onerror="this.src='https://via.placeholder.com/800x220?text=No+Image'">
+            <img id="viewAptImage" src="" alt="" onerror="this.src='https://via.placeholder.com/800x200?text=No+Image'">
             <div id="viewAptPrices" class="prices-list" style="margin-bottom: 24px;"></div>
             
             <h4 style="font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em;">График бронирования на полгода вперед</h4>
@@ -923,16 +966,16 @@
                 <table class="apt-matrix-table" id="viewAptMatrixTable"></table>
             </div>
         </div>
-        <div class="modal-actions" style="margin-top: 24px;">
-            <button type="button" class="secondary" onclick="closeModal('viewAptModal')">Закрыть</button>
-        </div>
     </div>
 </div>
 
 <!-- Модальное окно: Редактирование апартаментов -->
 <div id="aptModal" class="modal">
     <div class="modal-content">
-        <h3 id="aptModalTitle">Добавить апартаменты</h3>
+        <div class="modal-header-top">
+            <h3 id="aptModalTitle">Добавить апартаменты</h3>
+            <button type="button" class="close-top-btn" onclick="closeModal('aptModal')" title="Закрыть">✕</button>
+        </div>
         <form id="aptForm" onsubmit="handleAptSubmit(event)">
             <input type="hidden" id="aptId">
             <div class="form-row">
@@ -979,7 +1022,10 @@
 <!-- Модальное окно: Карточка бронирования (Просмотр / Редактирование) -->
 <div id="bookingModal" class="modal">
     <div class="modal-content">
-        <h3 id="bookingModalTitle">Информация о бронировании</h3>
+        <div class="modal-header-top">
+            <h3 id="bookingModalTitle">Информация о бронировании</h3>
+            <button type="button" class="close-top-btn" onclick="closeModal('bookingModal')" title="Закрыть">✕</button>
+        </div>
         
         <!-- Режим просмотра (Read-only) -->
         <div id="bookingViewMode">
@@ -1016,7 +1062,6 @@
             
             <div class="modal-actions">
                 <button type="button" class="danger" onclick="deleteCurrentBooking()" style="margin-right: auto;">Удалить бронь</button>
-                <button type="button" class="secondary" onclick="closeModal('bookingModal')">Закрыть</button>
                 <button type="button" onclick="switchToEditBooking()">Редактировать</button>
             </div>
         </div>
@@ -1346,7 +1391,7 @@
         });
     }
 
-    /* Рендер шахматки бронирования */
+    /* Рендер шахматки бронирования (строго по дням: заезд включительно, выезд эксклюзивно) */
     function renderMatrix() {
         const table = document.getElementById('matrixTable');
         const container = document.getElementById('matrixContainer');
@@ -1404,15 +1449,22 @@
             db.apartments.forEach((apt, aptIndex) => {
                 const aptBookings = db.bookings.filter(b => b.aptId === apt.id);
                 
+                // Проверка наложений (день выезда предыдущей равен дню заезда следующей)
                 for (let d = 1; d <= daysInMonth; d++) {
+                    const checkDate = new Date(year, month, d);
+                    
                     const endingBooking = aptBookings.find(b => {
                         const bEnd = new Date(b.endDate);
-                        return bEnd.getFullYear() === year && bEnd.getMonth() === month && bEnd.getDate() === d;
+                        return bEnd.getFullYear() === checkDate.getFullYear() && 
+                               bEnd.getMonth() === checkDate.getMonth() && 
+                               bEnd.getDate() === checkDate.getDate();
                     });
 
                     const startingBooking = aptBookings.find(b => {
                         const bStart = new Date(b.startDate);
-                        return bStart.getFullYear() === year && bStart.getMonth() === month && bStart.getDate() === d;
+                        return bStart.getFullYear() === checkDate.getFullYear() && 
+                               bStart.getMonth() === checkDate.getMonth() && 
+                               bStart.getDate() === checkDate.getDate();
                     });
 
                     if (endingBooking && startingBooking && endingBooking.id !== startingBooking.id) {
@@ -1430,7 +1482,6 @@
                             <div class="booking-overlap-half ${bottomClass}" title="Заезд: ${startingBooking.guest}">⬇ ${startingBooking.guest}</div>
                         `;
                         
-                        // Клик по наложению открывает модальное окно просмотра выезжающего или заезжающего (по умолчанию первый)
                         div.onclick = () => openBookingModalView(endingBooking.id);
                         container.appendChild(div);
                     }
@@ -1441,26 +1492,33 @@
                     const endObj = new Date(b.endDate);
                     
                     const monthStart = new Date(year, month, 1);
-                    const monthEnd = new Date(year, month, daysInMonth);
+                    const monthEnd = new Date(year, month, daysInMonth, 23, 59, 59);
 
-                    if (endObj < monthStart || startObj > monthEnd) {
+                    if (endObj <= monthStart || startObj > monthEnd) {
                         return;
                     }
 
+                    // Начало и конец для текущего месяца (эксклюзивный конец по ночам)
                     const visibleStart = startObj < monthStart ? 1 : startObj.getDate();
-                    const visibleEnd = endObj > monthEnd ? daysInMonth : endObj.getDate();
+                    const visibleEnd = endObj > monthEnd ? daysInMonth + 1 : endObj.getDate();
 
-                    const duration = visibleEnd - visibleStart;
-                    if (duration < 1) return;
+                    const nights = Math.round((endObj - startObj) / (1000 * 60 * 60 * 24));
+                    
+                    // Вычисляем сколько дней охватывает бронь именно в этом месяце
+                    const effectiveStartObj = startObj < monthStart ? monthStart : startObj;
+                    const effectiveEndObj = endObj > monthEnd ? new Date(year, month + 1, 1) : endObj;
+                    const spanNights = Math.round((effectiveEndObj - effectiveStartObj) / (1000 * 60 * 60 * 24));
+
+                    if (spanNights < 1) return;
 
                     const div = document.createElement('div');
                     div.className = `booking-overlay ${b.manager === 'Стася' ? 'booking-stasya' : 'booking-olga'}`;
                     div.style.left = (nameColWidth + (visibleStart - 1) * cellWidth + 2) + 'px';
                     div.style.top = (49 + (aptIndex * 49) + 5) + 'px';
-                    div.style.width = (duration * cellWidth - 4) + 'px';
+                    div.style.width = (spanNights * cellWidth - 4) + 'px';
                     
-                    div.innerText = b.guest;
-                    div.title = `${b.guest} | Менеджер: ${b.manager} | ${b.startDate} — ${b.endDate}`;
+                    div.innerText = `${b.guest} (${nights}н)`;
+                    div.title = `${b.guest} | Менеджер: ${b.manager} | Заезд: ${b.startDate} — Выезд: ${b.endDate} (${nights} ночей)`;
                     div.onclick = () => openBookingModalView(b.id);
                     
                     container.appendChild(div);
@@ -1507,7 +1565,7 @@
             monthsToDisplay.push({ year: d.getFullYear(), month: d.getMonth() });
         }
 
-        let headerHTML = `<tr><th class="month-header">Месяц</th>`;
+        let headerHTML = `<tr><th class="month-header">Месяц / Число</th>`;
         for (let d = 1; d <= 31; d++) {
             headerHTML += `<th>${d}</th>`;
         }
@@ -1541,24 +1599,33 @@
                     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
                     const monthStart = new Date(year, month, 1);
-                    const monthEnd = new Date(year, month, daysInMonth);
+                    const monthEnd = new Date(year, month, daysInMonth, 23, 59, 59);
 
-                    if (endObj < monthStart || startObj > monthEnd) return;
+                    if (endObj <= monthStart || startObj > monthEnd) return;
 
                     const visibleStart = startObj < monthStart ? 1 : startObj.getDate();
-                    const visibleEnd = endObj > monthEnd ? daysInMonth : endObj.getDate();
+                    
+                    const effectiveStartObj = startObj < monthStart ? monthStart : startObj;
+                    const effectiveEndObj = endObj > monthEnd ? new Date(year, month + 1, 1) : endObj;
+                    const spanNights = Math.round((effectiveEndObj - effectiveStartObj) / (1000 * 60 * 60 * 24));
 
-                    const duration = visibleEnd - visibleStart;
-                    if (duration < 1) return;
+                    if (spanNights < 1) return;
 
                     const div = document.createElement('div');
                     div.className = `apt-booking-overlay ${b.manager === 'Стася' ? 'booking-stasya' : 'booking-olga'}`;
                     div.style.left = (nameColWidth + (visibleStart - 1) * cellWidth + 2) + 'px';
                     div.style.top = (41 + (mIndex * 41) + 4) + 'px';
-                    div.style.width = (duration * cellWidth - 4) + 'px';
+                    div.style.width = (spanNights * cellWidth - 4) + 'px';
                     
-                    div.innerText = b.guest;
-                    div.title = `${b.guest} (${b.manager}) | ${b.startDate} — ${b.endDate}`;
+                    const totalNights = Math.round((endObj - startObj) / (1000 * 60 * 60 * 24));
+                    div.innerText = `${b.guest} (${totalNights}н)`;
+                    div.title = `${b.guest} (${b.manager}) | Заезд: ${b.startDate} — Выезд: ${b.endDate} (${totalNights} ночей)`;
+                    
+                    // Клик открывает карточку бронирования прямо из окна квартиры
+                    div.onclick = () => {
+                        closeModal('viewAptModal');
+                        openBookingModalView(b.id);
+                    };
                     
                     container.appendChild(div);
                 });
@@ -1662,13 +1729,11 @@
         }
     }
 
-    /* Логика модального окна бронирования с режимом Просмотра / Редактирования */
     function openBookingModal() {
         if (!db.apartments || db.apartments.length === 0) {
             alert('Сначала добавьте хотя бы один апартамент на вкладке "Апартаменты"!');
             return;
         }
-        // Открытие сразу формы создания новой брони
         document.getElementById('bookingEditForm').reset();
         document.getElementById('bookingId').value = '';
         document.getElementById('bookingModalTitle').innerText = 'Новое бронирование';
@@ -1685,7 +1750,6 @@
         currentSelectedBookingId = bookingId;
         const apt = db.apartments.find(a => a.id === booking.aptId);
 
-        // Заполняем информационные поля режима просмотра
         document.getElementById('bookingModalTitle').innerText = 'Информация о бронировании';
         document.getElementById('viewManager').innerText = booking.manager || '-';
         document.getElementById('viewAptName').innerText = apt ? `${apt.complex}, ${apt.number}` : 'Апартамент удален';
@@ -1695,7 +1759,6 @@
         document.getElementById('viewStart').innerText = booking.startDate || '-';
         document.getElementById('viewEnd').innerText = booking.endDate || '-';
 
-        // Заполняем скрытую форму на случай перехода в режим редактирования
         document.getElementById('bookingId').value = booking.id;
         document.getElementById('bookingApt').value = booking.aptId;
         document.getElementById('bookingManager').value = booking.manager || 'Ольга';
@@ -1706,7 +1769,6 @@
         document.getElementById('bookingStart').value = booking.startDate;
         document.getElementById('bookingEnd').value = booking.endDate;
 
-        // Показываем режим просмотра, скрываем форму
         document.getElementById('bookingViewMode').style.display = 'block';
         document.getElementById('bookingEditForm').style.display = 'none';
 
@@ -1742,6 +1804,7 @@
             endDate: document.getElementById('bookingEnd').value
         };
 
+        if (!db.bookings) db.bookings.push();
         if (!db.bookings) db.bookings = [];
         if (id) {
             const index = db.bookings.findIndex(b => b.id === id);
