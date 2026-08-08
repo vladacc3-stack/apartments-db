@@ -26,5 +26,17 @@
       ]
     }
   ],
-  "bookings": []
+  "bookings": [
+    {
+      "id": "book_1786224443813",
+      "aptId": "apt_1786213835668",
+      "manager": "Ольга",
+      "guest": "Анна ",
+      "phone": "+9495996",
+      "price": "500",
+      "periodType": "За месяц",
+      "startDate": "2026-08-06",
+      "endDate": "2026-08-11"
+    }
+  ]
 }
