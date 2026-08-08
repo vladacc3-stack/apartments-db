@@ -4,49 +4,91 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Управление апартаментами</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --bg-main: #f8fafc;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --primary-light: #e0e7ff;
+            --bg-main: #f1f5f9;
             --surface: #ffffff;
-            --text: #1e293b;
+            --text: #0f172a;
             --text-light: #64748b;
             --border: #e2e8f0;
-            --danger: #ef4444;
-            --danger-hover: #dc2626;
+            --border-subtle: #f1f5f9;
+            --danger: #f43f5e;
+            --danger-hover: #e11d48;
+            --radius-lg: 20px;
+            --radius-md: 14px;
+            --radius-sm: 8px;
+            --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.02);
+            --shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 8px 10px -6px rgba(15, 23, 42, 0.06);
+            --shadow-lg: 0 20px 35px -10px rgba(15, 23, 42, 0.08);
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
         }
 
         body {
             background-color: var(--bg-main);
             color: var(--text);
-            padding: 20px;
+            padding: 32px 20px;
+            min-height: 100vh;
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1500px;
             margin: 0 auto;
         }
 
+        /* Шапка */
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 24px;
+            margin-bottom: 28px;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 16px;
+            background: var(--surface);
+            padding: 20px 28px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+        }
+
+        .header-title-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .header-logo {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--primary), #818cf8);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 20px;
+            box-shadow: 0 8px 16px -4px rgba(99, 102, 241, 0.4);
         }
 
         h1 {
-            font-size: 24px;
+            font-size: 22px;
+            font-weight: 700;
             color: var(--text);
+            letter-spacing: -0.02em;
         }
 
         .actions {
@@ -60,32 +102,51 @@
             background-color: var(--primary);
             color: white;
             border: none;
-            padding: 10px 16px;
-            border-radius: 8px;
+            padding: 11px 20px;
+            border-radius: var(--radius-sm);
             cursor: pointer;
             font-weight: 600;
-            transition: background 0.2s;
+            font-size: 14px;
+            transition: var(--transition);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         button:hover {
             background-color: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
         }
 
         button.secondary {
-            background-color: #e2e8f0;
+            background-color: #f8fafc;
             color: var(--text);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
         }
 
         button.secondary:hover {
-            background-color: #cbd5e1;
+            background-color: #f1f5f9;
+            border-color: #cbd5e1;
+            box-shadow: var(--shadow-sm);
+            transform: translateY(-1px);
         }
 
         button.danger {
             background-color: var(--danger);
+            box-shadow: 0 4px 12px rgba(244, 63, 94, 0.2);
         }
 
         button.danger:hover {
             background-color: var(--danger-hover);
+            box-shadow: 0 6px 16px rgba(244, 63, 94, 0.3);
         }
 
         /* Навигация по вкладкам */
@@ -94,36 +155,45 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 24px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 12px;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 16px;
         }
 
         .tabs-left {
             display: flex;
-            gap: 8px;
+            gap: 6px;
+            background: var(--surface);
+            padding: 6px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
         }
 
         .tab-btn {
-            background-color: #e2e8f0;
+            background-color: transparent;
             color: var(--text-light);
             border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
+            padding: 10px 24px;
+            border-radius: 10px;
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.2s;
+            font-size: 14px;
+            transition: var(--transition);
+            box-shadow: none;
         }
 
         .tab-btn:hover {
-            background-color: #cbd5e1;
             color: var(--text);
+            background-color: #f8fafc;
+            transform: none;
+            box-shadow: none;
         }
 
         .tab-btn.active {
             background-color: var(--primary);
             color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+            transform: none;
         }
 
         .tab-content {
@@ -132,97 +202,130 @@
 
         .tab-content.active {
             display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .status-badge {
-            font-size: 12px;
-            padding: 6px 12px;
-            border-radius: 20px;
+            font-size: 13px;
+            padding: 8px 16px;
+            border-radius: 30px;
             font-weight: 600;
-            background: #e2e8f0;
+            background: #f1f5f9;
             color: var(--text-light);
-            max-width: 300px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid var(--border);
         }
 
         .status-badge.synced {
-            background: #d1fae5;
-            color: #065f46;
+            background: #ecfdf5;
+            color: #047857;
+            border-color: #a7f3d0;
         }
 
         .status-badge.error {
-            background: #fee2e2;
-            color: #991b1b;
+            background: #fff1f2;
+            color: #be123c;
+            border-color: #fecdd3;
         }
 
         /* Панель фильтров */
         .filters-bar {
             display: flex;
             gap: 16px;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             align-items: flex-end;
             flex-wrap: wrap;
             background: var(--surface);
-            padding: 16px;
-            border-radius: 12px;
+            padding: 20px 24px;
+            border-radius: var(--radius-lg);
             border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
         }
 
         .filter-group {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
         }
 
         .filters-bar label {
-            font-size: 13px;
-            font-weight: 600;
+            font-size: 12px;
+            font-weight: 700;
             color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .filters-bar select, .filters-bar input {
-            padding: 8px 12px;
+            padding: 10px 14px;
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: var(--radius-sm);
             font-size: 14px;
             background: var(--surface);
             color: var(--text);
+            outline: none;
+            transition: var(--transition);
         }
 
+        .filters-bar select:focus, .filters-bar input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        /* Карточки апартаментов */
         .grid-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
             margin-bottom: 32px;
         }
 
         .card {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 12px;
+            border-radius: var(--radius-lg);
             overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            box-shadow: var(--shadow-sm);
             display: flex;
             flex-direction: column;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: #cbd5e1;
+        }
+
+        .card-img-container {
+            position: relative;
+            width: 100%;
+            height: 180px;
+            overflow: hidden;
+            background-color: #f1f5f9;
+            cursor: pointer;
         }
 
         .card img {
             width: 100%;
-            height: 160px;
+            height: 100%;
             object-fit: cover;
-            background-color: #cbd5e1;
-            cursor: pointer;
-            transition: opacity 0.2s;
+            transition: transform 0.4s ease;
         }
 
-        .card img:hover {
-            opacity: 0.9;
+        .card:hover .card-img-container img {
+            transform: scale(1.04);
         }
 
         .card-body {
-            padding: 16px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             flex-grow: 1;
@@ -232,14 +335,16 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 8px;
-            gap: 8px;
+            margin-bottom: 12px;
+            gap: 12px;
         }
 
         .card-title {
-            font-size: 16px;
+            font-size: 17px;
             font-weight: 700;
             cursor: pointer;
+            color: var(--text);
+            transition: color 0.2s;
         }
 
         .card-title:hover {
@@ -248,33 +353,40 @@
 
         .apt-type-tag {
             font-size: 11px;
-            padding: 4px 8px;
-            border-radius: 6px;
-            background: #e2e8f0;
-            color: var(--text);
-            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background: var(--primary-light);
+            color: var(--primary);
+            font-weight: 700;
             white-space: nowrap;
+            letter-spacing: 0.02em;
         }
 
         .prices-list {
             font-size: 13px;
             background: #f8fafc;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 8px 12px;
-            margin-bottom: 16px;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            margin-bottom: 20px;
             flex-grow: 1;
         }
 
         .prices-list div {
             display: flex;
             justify-content: space-between;
-            padding: 4px 0;
+            padding: 5px 0;
             border-bottom: 1px dashed var(--border);
+            color: var(--text-light);
         }
 
         .prices-list div:last-child {
             border-bottom: none;
+        }
+
+        .prices-list strong {
+            color: var(--text);
+            font-weight: 600;
         }
 
         .card-actions {
@@ -284,123 +396,179 @@
 
         .card-actions button {
             width: 100%;
-            padding: 8px;
+            padding: 10px;
             font-size: 13px;
         }
 
         .section-title {
             font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 16px;
+            font-weight: 700;
+            margin-bottom: 18px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            color: var(--text);
         }
 
-        /* Шахматка с динамическим расчетом ячеек без горизонтального скролла */
+        /* Шахматка бронирования */
         .matrix-container {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
             margin-bottom: 32px;
             position: relative;
-            overflow: hidden;
-            width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
         }
 
         .matrix-table {
             width: 100%;
             border-collapse: collapse;
             text-align: center;
-            font-size: 11px;
+            font-size: 12px;
             table-layout: fixed;
+            min-width: 1100px;
         }
 
         .matrix-table th, .matrix-table td {
-            border: 1px solid var(--border);
-            height: 40px;
-            white-space: nowrap;
-            overflow: hidden;
+            border-right: 1px solid var(--border-subtle);
+            border-bottom: 1px solid var(--border-subtle);
+            height: 48px;
+            position: relative;
             padding: 0;
         }
 
         .matrix-table th {
-            background-color: #f1f5f9;
-            font-weight: 600;
-            font-size: 10px;
+            background-color: #f8fafc;
+            font-weight: 700;
+            font-size: 11px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--border);
         }
 
         .matrix-table td.apt-name {
             text-align: left;
-            padding-left: 8px;
+            padding-left: 16px;
             font-weight: 600;
-            background-color: #f8fafc;
+            background-color: var(--surface);
             position: sticky;
             left: 0;
-            z-index: 2;
-            width: 140px;
-            font-size: 11px;
+            z-index: 4;
+            width: 180px;
+            font-size: 13px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            border-right: 2px solid var(--border);
+            color: var(--text);
         }
 
         .matrix-table th.apt-header {
             position: sticky;
             left: 0;
-            z-index: 3;
-            background-color: #e2e8f0;
-            width: 140px;
+            z-index: 5;
+            background-color: #f1f5f9;
+            width: 180px;
+            border-right: 2px solid var(--border);
+            text-align: left;
+            padding-left: 16px;
+            color: var(--text);
         }
 
         /* Навигация по месяцам */
         .month-nav {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
+            background: var(--surface);
+            padding: 6px 12px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
         }
 
         .month-nav button {
             padding: 6px 12px;
-            font-size: 14px;
+            font-size: 13px;
+            box-shadow: none;
         }
 
-        /* Цельный блок бронирования */
+        /* Точный абсолютный блок бронирования по границам сетки ячеек */
         .booking-overlay {
             position: absolute;
-            height: 32px;
-            z-index: 1;
-            border-radius: 6px;
+            height: 38px;
+            z-index: 2;
+            border-radius: 8px;
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
+            padding: 0 10px;
             font-weight: 600;
-            font-size: 10px;
+            font-size: 11px;
             cursor: pointer;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            padding: 0 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.06);
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
+            transition: filter 0.2s;
         }
 
-        .booking-olga {
-            background-color: #ffedd5;
-            border: 1px solid #fdba74;
-            color: #9a3412;
+        .booking-overlay:hover {
+            filter: brightness(0.95);
+            z-index: 3;
         }
-        .booking-olga:hover {
-            background-color: #fed7aa;
+
+        /* Стили для броней менеджеров с градиентами */
+        .booking-olga {
+            background: linear-gradient(135deg, #ffedd5, #fed7aa);
+            border: 1px solid #f97316;
+            color: #9a3412;
         }
 
         .booking-stasya {
-            background-color: #ede9fe;
-            border: 1px solid #c4b5fd;
+            background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+            border: 1px solid #8b5cf6;
             color: #5b21b6;
         }
-        .booking-stasya:hover {
-            background-color: #ddd6fe;
+
+        /* Наложение броней друг на друга (стык выезда и заезда в один день) */
+        .booking-overlap-container {
+            position: absolute;
+            height: 38px;
+            z-index: 2;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .booking-overlap-half {
+            height: 19px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            padding: 0 8px;
+            font-size: 9px;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .booking-overlap-half.olga {
+            background-color: #ffedd5;
+            color: #9a3412;
+            border-bottom: 1px solid #fdba74;
+        }
+
+        .booking-overlap-half.stasya {
+            background-color: #ede9fe;
+            color: #5b21b6;
         }
 
         /* Модальные окна */
@@ -411,96 +579,123 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            padding: 20px;
         }
 
         .modal.active {
             display: flex;
+            animation: modalFadeIn 0.25s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.96); }
+            to { opacity: 1; transform: scale(1); }
         }
 
         .modal-content {
             background: var(--surface);
-            padding: 24px;
-            border-radius: 12px;
+            padding: 32px;
+            border-radius: var(--radius-lg);
             width: 100%;
-            max-width: 540px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            max-width: 560px;
+            box-shadow: var(--shadow-lg);
             max-height: 90vh;
             overflow-y: auto;
+            border: 1px solid var(--border);
         }
 
         .modal-content.large {
-            max-width: 900px;
+            max-width: 960px;
         }
 
         .modal-content h3 {
-            margin-bottom: 16px;
+            margin-bottom: 24px;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
         }
 
         .form-group {
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
 
         .form-group label {
             display: block;
             font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 6px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text);
         }
 
         .form-group input, .form-group select {
             width: 100%;
-            padding: 10px;
+            padding: 12px 16px;
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: var(--radius-sm);
             font-size: 14px;
+            background: var(--surface);
+            color: var(--text);
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
         }
 
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            gap: 16px;
         }
 
         .prices-container {
             border: 1px solid var(--border);
-            padding: 12px;
-            border-radius: 8px;
+            padding: 16px;
+            border-radius: var(--radius-sm);
             background: #f8fafc;
-            margin-bottom: 16px;
+            margin-bottom: 24px;
         }
 
         .prices-container h4 {
             font-size: 13px;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
             color: var(--text-light);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .price-row-item {
             display: grid;
-            grid-template-columns: 1fr 120px 36px;
-            gap: 8px;
-            margin-bottom: 8px;
+            grid-template-columns: 1fr 130px 40px;
+            gap: 10px;
+            margin-bottom: 10px;
             align-items: center;
         }
 
         .modal-actions {
             display: flex;
             justify-content: flex-end;
-            gap: 8px;
-            margin-top: 24px;
+            gap: 12px;
+            margin-top: 28px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-subtle);
         }
 
-        /* Полугодовая шахматка по конкретной квартире */
+        /* Полугодовая шахматка в карточке апартамента */
         .apt-matrix-container {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 12px;
+            border-radius: var(--radius-md);
             overflow-x: auto;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            box-shadow: var(--shadow-sm);
             margin-top: 16px;
             position: relative;
         }
@@ -515,51 +710,57 @@
         }
 
         .apt-matrix-table th, .apt-matrix-table td {
-            border: 1px solid var(--border);
-            height: 38px;
-            white-space: nowrap;
-            overflow: hidden;
+            border-right: 1px solid var(--border-subtle);
+            border-bottom: 1px solid var(--border-subtle);
+            height: 40px;
+            position: relative;
             padding: 0;
         }
 
         .apt-matrix-table th {
-            background-color: #f1f5f9;
-            font-weight: 600;
+            background-color: #f8fafc;
+            font-weight: 700;
             font-size: 10px;
+            color: var(--text-light);
         }
 
         .apt-matrix-table td.month-name {
             text-align: left;
-            padding-left: 8px;
+            padding-left: 12px;
             font-weight: 600;
-            background-color: #f8fafc;
+            background-color: var(--surface);
             position: sticky;
             left: 0;
-            z-index: 2;
-            width: 110px;
-            font-size: 11px;
+            z-index: 4;
+            width: 130px;
+            font-size: 12px;
+            border-right: 2px solid var(--border);
+            color: var(--text);
         }
 
         .apt-matrix-table th.month-header {
             position: sticky;
             left: 0;
-            z-index: 3;
-            background-color: #e2e8f0;
-            width: 110px;
+            z-index: 5;
+            background-color: #f1f5f9;
+            width: 130px;
+            border-right: 2px solid var(--border);
+            text-align: left;
+            padding-left: 12px;
         }
 
         .apt-booking-overlay {
             position: absolute;
-            height: 30px;
-            z-index: 1;
+            height: 32px;
+            z-index: 2;
             border-radius: 6px;
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
+            padding: 0 8px;
             font-weight: 600;
             font-size: 10px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            padding: 0 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
@@ -568,17 +769,18 @@
 
         .apt-view-details img {
             width: 100%;
-            height: 200px;
+            height: 220px;
             object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 16px;
+            border-radius: var(--radius-md);
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-sm);
         }
 
         .apt-view-info {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
     </style>
 </head>
@@ -586,7 +788,13 @@
 
 <div class="container">
     <header>
-        <h1>Управление апартаментами</h1>
+        <div class="header-title-wrapper">
+            <div class="header-logo">A</div>
+            <div>
+                <h1>Управление апартаментами</h1>
+                <p style="font-size: 13px; color: var(--text-light); font-weight: 500;">Система бронирования и учета</p>
+            </div>
+        </div>
         <div class="actions">
             <span id="syncStatus" class="status-badge">Подключение...</span>
             <button class="secondary" onclick="loadFromGitHub()">Обновить</button>
@@ -597,7 +805,7 @@
     <div class="tabs-nav">
         <div class="tabs-left">
             <button class="tab-btn active" onclick="switchTab('apartments', this)">Апартаменты</button>
-            <button class="tab-btn" onclick="switchTab('matrix', this)">Шахматка бронирования</button>
+            <button class="tab-btn" onclick="switchTab('matrix', this)">Бронирование</button>
         </div>
         <div id="tabActionContainer">
             <button onclick="openAptModal()">+ Добавить апартаменты</button>
@@ -625,7 +833,7 @@
                 <input type="date" id="filterEndDate" onchange="renderApartments()">
             </div>
             <div class="filter-group">
-                <button class="secondary" onclick="clearFilters()" style="padding: 8px 12px; font-size: 13px;">Сбросить даты</button>
+                <button class="secondary" onclick="clearFilters()" style="padding: 10px 14px; font-size: 13px;">Сбросить даты</button>
             </div>
         </div>
 
@@ -633,13 +841,13 @@
         <div id="apartmentsGrid" class="grid-cards"></div>
     </div>
 
-    <!-- Вкладка: Шахматка -->
+    <!-- Вкладка: Бронирование (Шахматка) -->
     <div id="tab-matrix" class="tab-content">
         <div class="section-title">
             <span>Шахматка бронирования</span>
             <div class="month-nav">
                 <button class="secondary" onclick="changeMonth(-1)">‹ Прошлый</button>
-                <span id="currentMonthLabel" style="font-size: 15px; font-weight: 600; min-width: 140px; text-align: center;"></span>
+                <span id="currentMonthLabel" style="font-size: 14px; font-weight: 700; min-width: 140px; text-align: center; color: var(--text);"></span>
                 <button class="secondary" onclick="changeMonth(1)">Следующий ›</button>
             </div>
         </div>
@@ -653,8 +861,8 @@
 <div id="settingsModal" class="modal">
     <div class="modal-content">
         <h3>Введите GitHub Токен</h3>
-        <p style="font-size: 13px; color: var(--text-light); margin-bottom: 16px;">
-            Укажите токен доступа один раз. Он безопасно сохранится в вашем браузере.
+        <p style="font-size: 13px; color: var(--text-light); margin-bottom: 20px; line-height: 1.5;">
+            Укажите токен доступа один раз. Он безопасно сохранится в вашем браузере для синхронизации данных.
         </p>
         <form onsubmit="saveSettings(event)">
             <div class="form-group">
@@ -676,15 +884,15 @@
             <span id="viewAptTypeTag" class="apt-type-tag"></span>
         </div>
         <div class="apt-view-details">
-            <img id="viewAptImage" src="" alt="" onerror="this.src='https://via.placeholder.com/600x200?text=No+Image'">
-            <div id="viewAptPrices" class="prices-list" style="margin-bottom: 20px;"></div>
+            <img id="viewAptImage" src="" alt="" onerror="this.src='https://via.placeholder.com/800x220?text=No+Image'">
+            <div id="viewAptPrices" class="prices-list" style="margin-bottom: 24px;"></div>
             
-            <h4 style="font-size: 14px; font-weight: 600; color: var(--text-light); margin-bottom: 8px;">График бронирования на полгода вперед</h4>
+            <h4 style="font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em;">График бронирования на полгода вперед</h4>
             <div class="apt-matrix-container" id="viewAptMatrixContainer">
                 <table class="apt-matrix-table" id="viewAptMatrixTable"></table>
             </div>
         </div>
-        <div class="modal-actions" style="margin-top: 20px;">
+        <div class="modal-actions" style="margin-top: 24px;">
             <button type="button" class="secondary" onclick="closeModal('viewAptModal')">Закрыть</button>
         </div>
     </div>
@@ -725,7 +933,7 @@
             <div class="prices-container">
                 <h4>Цены по периодам</h4>
                 <div id="priceRowsContainer"></div>
-                <button type="button" class="secondary" style="width: 100%; padding: 6px; font-size: 13px;" onclick="addPriceRow()">+ Добавить цену</button>
+                <button type="button" class="secondary" style="width: 100%; padding: 8px; font-size: 13px;" onclick="addPriceRow()">+ Добавить цену</button>
             </div>
 
             <div class="modal-actions">
@@ -911,7 +1119,7 @@
             render();
         } catch (error) {
             console.error(error);
-            setSyncStatus('Ошибка: ' + error.message, 'error');
+            setSyncStatus('Ошибка синхронизации', 'error');
             
             let localFallback = localStorage.getItem('db_fallback');
             if (localFallback) {
@@ -961,7 +1169,7 @@
             render();
         } catch (error) {
             console.error(error);
-            setSyncStatus('Ошибка: ' + error.message, 'error');
+            setSyncStatus('Ошибка сохранения', 'error');
             alert('Не удалось сохранить данные на GitHub: ' + error.message);
         }
     }
@@ -978,14 +1186,13 @@
         renderMatrix();
     }
 
-    // Проверка свободна ли квартира с учетом правила выезда/заезда в один день (день выезда считается свободным для нового заезда)
     function isApartmentAvailable(aptId, startDateStr, endDateStr) {
         if (!startDateStr || !endDateStr) return true;
         
         const filterStart = new Date(startDateStr);
         const filterEnd = new Date(endDateStr);
         
-        if (filterStart > filterEnd) return true; // некорректный диапазон дат
+        if (filterStart > filterEnd) return true;
 
         const aptBookings = db.bookings.filter(b => b.aptId === aptId);
         
@@ -993,14 +1200,11 @@
             const bStart = new Date(b.startDate);
             const bEnd = new Date(b.endDate);
             
-            // С учетом того, что день выезда (bEnd) свободен для заезда следующего гостя:
-            // Пересечением периодов считаем строгое наложение, исключая дату выезда предыдущего бронирования.
-            // То есть бронь занимает ночи с bStart по день перед bEnd (bEnd - 1 день).
             if (filterStart < bEnd && filterEnd > bStart) {
-                return false; // пересекается, значит занята
+                return false;
             }
         }
-        return true; // свободна
+        return true;
     }
 
     function renderApartments() {
@@ -1012,11 +1216,9 @@
         const endDateVal = document.getElementById('filterEndDate').value;
 
         const filteredApts = db.apartments.filter(apt => {
-            // Фильтр по типу
             if (filterType !== 'all' && apt.type !== filterType) {
                 return false;
             }
-            // Фильтр по доступности на даты
             if (startDateVal && endDateVal) {
                 if (!isApartmentAvailable(apt.id, startDateVal, endDateVal)) {
                     return false;
@@ -1026,7 +1228,7 @@
         });
 
         if (!filteredApts || filteredApts.length === 0) {
-            grid.innerHTML = '<p style="color: var(--text-light); grid-column: 1/-1;">Нет доступных апартаментов по заданным параметрам и датам.</p>';
+            grid.innerHTML = '<p style="color: var(--text-light); grid-column: 1/-1; padding: 20px; text-align: center;">Нет доступных апартаментов по заданным параметрам.</p>';
             return;
         }
 
@@ -1044,7 +1246,9 @@
 
             grid.innerHTML += `
                 <div class="card">
-                    <img src="${apt.image}" alt="${apt.complex}" onclick="openViewAptModal('${apt.id}')" onerror="this.src='https://via.placeholder.com/300x160?text=No+Image'" title="Нажмите, чтобы открыть квартиру и шахматку">
+                    <div class="card-img-container" onclick="openViewAptModal('${apt.id}')">
+                        <img src="${apt.image}" alt="${apt.complex}" onerror="this.src='https://via.placeholder.com/320x180?text=No+Image'" title="Нажмите, чтобы открыть квартиру и шахматку">
+                    </div>
                     <div class="card-body">
                         <div class="card-header-row">
                             <div class="card-title" onclick="openViewAptModal('${apt.id}')" title="Нажмите, чтобы открыть квартиру">${apt.complex}, ${apt.number}</div>
@@ -1069,12 +1273,13 @@
         });
     }
 
+    /* Рендер основной шахматки с точным расчетом по координатам ячеек сетки */
     function renderMatrix() {
         const table = document.getElementById('matrixTable');
         const container = document.getElementById('matrixContainer');
         const label = document.getElementById('currentMonthLabel');
         
-        container.querySelectorAll('.booking-overlay').forEach(el => el.remove());
+        container.querySelectorAll('.booking-overlay, .booking-overlap-container').forEach(el => el.remove());
 
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth();
@@ -1091,7 +1296,7 @@
         headerHTML += `</tr>`;
 
         if (!db.apartments || db.apartments.length === 0) {
-            table.innerHTML = headerHTML + `<tr><td colspan="${daysInMonth + 1}" style="padding: 20px; color: var(--text-light);">Добавьте апартаменты</td></tr>`;
+            table.innerHTML = headerHTML + `<tr><td colspan="${daysInMonth + 1}" style="padding: 30px; color: var(--text-light); text-align: center;">Добавьте апартаменты для отображения шахматки</td></tr>`;
             return;
         }
 
@@ -1107,9 +1312,9 @@
         table.innerHTML = headerHTML + bodyHTML;
 
         const totalWidth = container.clientWidth;
-        const nameColWidth = 140;
+        const nameColWidth = 180;
         const availableWidthForDays = totalWidth - nameColWidth;
-        const cellWidth = Math.floor(availableWidthForDays / daysInMonth);
+        const cellWidth = Math.max(36, Math.floor(availableWidthForDays / daysInMonth));
 
         const colHeader = table.querySelector('.apt-header');
         if (colHeader) colHeader.style.width = nameColWidth + 'px';
@@ -1123,37 +1328,77 @@
         });
 
         if (db.bookings) {
-            db.bookings.forEach(b => {
-                const aptIndex = db.apartments.findIndex(a => a.id === b.aptId);
-                if (aptIndex === -1) return;
-
-                const startObj = new Date(b.startDate);
-                const endObj = new Date(b.endDate);
+            // Группируем брони по апартаментам
+            db.apartments.forEach((apt, aptIndex) => {
+                const aptBookings = db.bookings.filter(b => b.aptId === apt.id);
                 
-                const monthStart = new Date(year, month, 1);
-                const monthEnd = new Date(year, month, daysInMonth);
+                // Проходим по каждому дню месяца, чтобы выявить совпадение дня выезда и заезда (например, 12-е число)
+                for (let d = 1; d <= daysInMonth; d++) {
+                    const currentDateObj = new Date(year, month, d);
+                    
+                    // Ищем бронь, которая заканчивается в этот день
+                    const endingBooking = aptBookings.find(b => {
+                        const bEnd = new Date(b.endDate);
+                        return bEnd.getFullYear() === year && bEnd.getMonth() === month && bEnd.getDate() === d;
+                    });
 
-                if (endObj < monthStart || startObj > monthEnd) {
-                    return;
+                    // Ищем бронь, которая начинается в этот день
+                    const startingBooking = aptBookings.find(b => {
+                        const bStart = new Date(b.startDate);
+                        return bStart.getFullYear() === year && bStart.getMonth() === month && bStart.getDate() === d;
+                    });
+
+                    // Если в один день кто-то выезжает и кто-то заезжает
+                    if (endingBooking && startingBooking && endingBooking.id !== startingBooking.id) {
+                        const div = document.createElement('div');
+                        div.className = 'booking-overlap-container';
+                        div.style.left = (nameColWidth + (d - 1) * cellWidth + 2) + 'px';
+                        div.style.top = (49 + (aptIndex * 49) + 5) + 'px';
+                        div.style.width = (cellWidth - 4) + 'px';
+
+                        const topClass = endingBooking.manager === 'Стася' ? 'stasya' : 'olga';
+                        const bottomClass = startingBooking.manager === 'Стася' ? 'stasya' : 'olga';
+
+                        div.innerHTML = `
+                            <div class="booking-overlap-half ${topClass}" title="Выезд: ${endingBooking.guest} (${endingBooking.manager})">⬆ ${endingBooking.guest}</div>
+                            <div class="booking-overlap-half ${bottomClass}" title="Заезд: ${startingBooking.guest} (${startingBooking.manager})">⬇ ${startingBooking.guest}</div>
+                        `;
+                        container.appendChild(div);
+                    }
                 }
 
-                const visibleStart = startObj < monthStart ? 1 : startObj.getDate();
-                const visibleEnd = endObj > monthEnd ? daysInMonth : endObj.getDate();
+                // Рендерим обычные многодневные бронирования
+                aptBookings.forEach(b => {
+                    const startObj = new Date(b.startDate);
+                    const endObj = new Date(b.endDate);
+                    
+                    const monthStart = new Date(year, month, 1);
+                    const monthEnd = new Date(year, month, daysInMonth);
 
-                const duration = visibleEnd - visibleStart + 1;
-                if (duration < 1) return;
+                    if (endObj < monthStart || startObj > monthEnd) {
+                        return;
+                    }
 
-                const div = document.createElement('div');
-                div.className = `booking-overlay ${b.manager === 'Стася' ? 'booking-stasya' : 'booking-olga'}`;
-                div.style.left = (nameColWidth + (visibleStart - 1) * cellWidth + 2) + 'px';
-                div.style.top = (41 + (aptIndex * 41) + 4) + 'px';
-                div.style.width = (duration * cellWidth - 4) + 'px';
-                
-                div.innerText = b.guest;
-                div.title = `${b.guest} | Тел: ${b.phone} | Менеджер: ${b.manager} | Цена: ${b.price}€ (${b.periodType})`;
-                div.onclick = () => openEditBooking(b.id);
-                
-                container.appendChild(div);
+                    // Если это день с наложением (выезд/заезд), для него уже отрисован контейнер выше
+                    // Но чтобы не было пересечений блоков, исключаем чистые дни старта/окончания, если они обработаны.
+                    const visibleStart = startObj < monthStart ? 1 : startObj.getDate();
+                    const visibleEnd = endObj > monthEnd ? daysInMonth : endObj.getDate();
+
+                    const duration = visibleEnd - visibleStart; // Строго по размеру ячеек
+                    if (duration < 1) return;
+
+                    const div = document.createElement('div');
+                    div.className = `booking-overlay ${b.manager === 'Стася' ? 'booking-stasya' : 'booking-olga'}`;
+                    div.style.left = (nameColWidth + (visibleStart - 1) * cellWidth + 2) + 'px';
+                    div.style.top = (49 + (aptIndex * 49) + 5) + 'px';
+                    div.style.width = (duration * cellWidth - 4) + 'px';
+                    
+                    div.innerText = b.guest;
+                    div.title = `${b.guest} | Тел: ${b.phone} | Менеджер: ${b.manager} | Цена: ${b.price}€ (${b.periodType}) | ${b.startDate} — ${b.endDate}`;
+                    div.onclick = () => openEditBooking(b.id);
+                    
+                    container.appendChild(div);
+                });
             });
         }
     }
@@ -1214,8 +1459,8 @@
 
         table.innerHTML = headerHTML + bodyHTML;
 
-        const cellWidth = 24; 
-        const nameColWidth = 110;
+        const cellWidth = 32; 
+        const nameColWidth = 130;
 
         if (db.bookings) {
             db.bookings.forEach(b => {
@@ -1237,13 +1482,13 @@
                     const visibleStart = startObj < monthStart ? 1 : startObj.getDate();
                     const visibleEnd = endObj > monthEnd ? daysInMonth : endObj.getDate();
 
-                    const duration = visibleEnd - visibleStart + 1;
+                    const duration = visibleEnd - visibleStart;
                     if (duration < 1) return;
 
                     const div = document.createElement('div');
                     div.className = `apt-booking-overlay ${b.manager === 'Стася' ? 'booking-stasya' : 'booking-olga'}`;
                     div.style.left = (nameColWidth + (visibleStart - 1) * cellWidth + 2) + 'px';
-                    div.style.top = (39 + (mIndex * 39) + 4) + 'px';
+                    div.style.top = (41 + (mIndex * 41) + 4) + 'px';
                     div.style.width = (duration * cellWidth - 4) + 'px';
                     
                     div.innerText = b.guest;
@@ -1299,9 +1544,9 @@
         const div = document.createElement('div');
         div.className = 'price-row-item';
         div.innerHTML = `
-            <input type="text" placeholder="Период (напр. Июль / Посуточно)" value="${periodVal}" class="price-period" required>
+            <input type="text" placeholder="Период (напр. Июль)" value="${periodVal}" class="price-period" required>
             <input type="number" placeholder="Цена (€)" value="${priceVal}" class="price-val" required>
-            <button type="button" class="danger" style="padding: 8px;" onclick="this.parentElement.remove()">✕</button>
+            <button type="button" class="danger" style="padding: 10px;" onclick="this.parentElement.remove()">✕</button>
         `;
         container.appendChild(div);
     }
@@ -1394,9 +1639,11 @@
             phone: document.getElementById('bookingPhone').value,
             price: document.getElementById('bookingPrice').value,
             periodType: document.getElementById('bookingPeriodType').value,
-            startDate: document.getElementById('bookingStart').value,
+            startDate: document.getElementById('bookingStart', 'startDate').value,
             endDate: document.getElementById('bookingEnd').value
         };
+        // Исправление доступа к дате заезда
+        bookingData.startDate = document.getElementById('bookingStart').value;
 
         if (!db.bookings) db.bookings = [];
         if (id) {
