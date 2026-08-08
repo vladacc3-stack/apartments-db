@@ -181,7 +181,6 @@
             margin-bottom: 12px;
         }
 
-        /* Таблица цен в карточке апартамента */
         .prices-table {
             width: 100%;
             border-collapse: collapse;
@@ -260,7 +259,6 @@
             width: 180px;
         }
 
-        /* Навигация по месяцам */
         .month-nav {
             display: flex;
             align-items: center;
@@ -272,7 +270,6 @@
             font-size: 14px;
         }
 
-        /* Блок бронирования */
         .booking-overlay {
             position: absolute;
             height: 32px;
@@ -309,7 +306,6 @@
             background-color: #ddd6fe;
         }
 
-        /* Модальные окна */
         .modal {
             display: none;
             position: fixed;
@@ -383,11 +379,11 @@
         <div class="actions">
             <span id="syncStatus" class="status-badge">Подключение...</span>
             <button class="secondary" onclick="loadFromGitHub()">Обновить</button>
+            <button class="secondary" onclick="openModal('settingsModal')" style="font-size: 13px; padding: 10px 12px;" title="Сменить токен">🔑 Токен</button>
             <button onclick="openModal('bookingModal')">+ Добавить бронь</button>
         </div>
     </header>
 
-    <!-- Вкладки интерфейса -->
     <div class="tabs">
         <button class="tab-btn active" onclick="switchTab('matrixTab', this)">Шахматка бронирования</button>
         <button class="tab-btn" onclick="switchTab('apartmentsTab', this)">Список апартаментов и цены</button>
@@ -421,9 +417,9 @@
 <!-- Модальное окно: Запрос токена -->
 <div id="settingsModal" class="modal">
     <div class="modal-content">
-        <h3>Введите GitHub Токен</h3>
+        <h3>Настройка GitHub Токена</h3>
         <p style="font-size: 13px; color: var(--text-light); margin-bottom: 16px;">
-            Укажите токен доступа один раз. Он безопасно сохранится в вашем браузере.
+            Укажите токен доступа (Personal Access Token), чтобы приложение могло читать и сохранять данные в ваш репозиторий.
         </p>
         <form onsubmit="saveSettings(event)">
             <div class="form-group">
@@ -431,7 +427,8 @@
                 <input type="password" id="settingToken" required placeholder="ghp_...">
             </div>
             <div class="modal-actions">
-                <button type="submit">Сохранить и войти</button>
+                <button type="button" class="secondary" onclick="closeModal('settingsModal')">Отмена</button>
+                <button type="submit">Сохранить</button>
             </div>
         </form>
     </div>
@@ -564,6 +561,7 @@
         if (!token) {
             document.getElementById('settingsModal').classList.add('active');
         } else {
+            document.getElementById('settingToken').value = token;
             loadFromGitHub();
         }
     });
@@ -590,7 +588,7 @@
     }
 
     function base64ToUtf8(base64) {
-        const binString = atob(base64);
+        const binString = atob(base64.replace(/\s/g, ''));
         const bytes = Uint8Array.from(binString, (m) => m.codePointAt(0));
         return new TextDecoder().decode(bytes);
     }
@@ -603,7 +601,10 @@
 
     async function loadFromGitHub() {
         const token = localStorage.getItem('gh_token');
-        if (!token) return;
+        if (!token) {
+            document.getElementById('settingsModal').classList.add('active');
+            return;
+        }
 
         setSyncStatus('Загрузка...', '');
         try {
@@ -616,8 +617,15 @@
             });
 
             if (!response.ok) {
-                const errData = await response.json();
-                throw new Error(errData.message || `HTTP status: ${response.status}`);
+                if (response.status === 401 || response.status === 403) {
+                    throw new Error('Неверный токен или истек срок его действия');
+                } else if (response.status === 404) {
+                    // Если файла еще нет в репозитории — создадим пустой шаблон
+                    await initRemoteFile(token);
+                    return;
+                }
+                const errData = await response.json().catch(() => ({}));
+                throw new Error(errData.message || `Ошибка сети: ${response.status}`);
             }
 
             const data = await response.json();
@@ -645,9 +653,45 @@
         }
     }
 
+    async function initRemoteFile(token) {
+        setSyncStatus('Инициализация базы...', '');
+        try {
+            const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
+            const initialData = { apartments: [], bookings: [] };
+            const jsonString = JSON.stringify(initialData, null, 2);
+
+            const response = await fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${token}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/vnd.github.v3+json'
+                },
+                body: JSON.stringify({
+                    message: "Initialize database file",
+                    content: utf8ToBase64(jsonString)
+                })
+            });
+
+            if (!response.ok) throw new Error('Не удалось создать файл в репозитории');
+
+            const result = await response.json();
+            fileSha = result.content.sha;
+            db = initialData;
+            setSyncStatus('Синхронизировано', 'synced');
+            render();
+        } catch (err) {
+            setSyncStatus('Ошибка инициализации', 'error');
+            render();
+        }
+    }
+
     async function saveToGitHub() {
         const token = localStorage.getItem('gh_token');
-        if (!token) return;
+        if (!token) {
+            document.getElementById('settingsModal').classList.add('active');
+            return;
+        }
 
         setSyncStatus('Сохранение...', '');
         try {
@@ -673,7 +717,12 @@
             });
 
             if (!response.ok) {
-                const errJson = await response.json();
+                const errJson = await response.json().catch(() => ({}));
+                if (response.status === 409 || response.status === 422) {
+                    // Конфликт версий SHA — попробуем подтянуть актуальный SHA и повторить
+                    await loadFromGitHub();
+                    return saveToGitHub();
+                }
                 throw new Error(errJson.message || 'Ошибка сохранения');
             }
 
@@ -850,6 +899,9 @@
             document.getElementById('bookingId').value = '';
             document.getElementById('bookingModalTitle').innerText = 'Добавить бронь';
             document.getElementById('deleteBookingBtn').style.display = 'none';
+        } else if (modalId === 'settingsModal') {
+            const token = localStorage.getItem('gh_token');
+            if (token) document.getElementById('settingToken').value = token;
         }
         document.getElementById(modalId).classList.add('active');
     }
@@ -898,7 +950,6 @@
         document.getElementById('priceMonth3').value = apt.prices?.month3 || '';
 
         document.getElementById('aptModalTitle').innerText = 'Редактировать апартамент и цены';
-        document.getElementById('modal');
         document.getElementById('aptModal').classList.add('active');
     }
 
@@ -950,7 +1001,7 @@
     }
 
     function deleteCurrentBooking() {
-        const id = document.getElementById('bookingId'].value;
+        const id = document.getElementById('bookingId').value;
         if (confirm('Удалить эту бронь?')) {
             db.bookings = db.bookings.filter(b => b.id !== id);
             saveToGitHub();
