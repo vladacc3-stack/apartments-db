@@ -88,6 +88,44 @@
             background-color: var(--danger-hover);
         }
 
+        /* Навигация по вкладкам */
+        .tabs-nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+        }
+
+        .tab-btn {
+            background-color: #e2e8f0;
+            color: var(--text-light);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            background-color: #cbd5e1;
+            color: var(--text);
+        }
+
+        .tab-btn.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
         .status-badge {
             font-size: 12px;
             padding: 6px 12px;
@@ -330,21 +368,31 @@
         </div>
     </header>
 
-    <!-- Сетка карточек апартаментов -->
-    <div class="section-title">Список апартаментов</div>
-    <div id="apartmentsGrid" class="grid-cards"></div>
-
-    <!-- Шахматка бронирования -->
-    <div class="section-title">
-        <span>Шахматка бронирования</span>
-        <div class="month-nav">
-            <button class="secondary" onclick="changeMonth(-1)">‹ Прошлый</button>
-            <span id="currentMonthLabel" style="font-size: 15px; font-weight: 600; min-width: 140px; text-align: center;"></span>
-            <button class="secondary" onclick="changeMonth(1)">Следующий ›</button>
-        </div>
+    <!-- Панель вкладок -->
+    <div class="tabs-nav">
+        <button class="tab-btn active" onclick="switchTab('apartments', this)">Апартаменты</button>
+        <button class="tab-btn" onclick="switchTab('matrix', this)">Шахматка бронирования</button>
     </div>
-    <div class="matrix-container" id="matrixContainer">
-        <table class="matrix-table" id="matrixTable"></table>
+
+    <!-- Вкладка: Апартаменты -->
+    <div id="tab-apartments" class="tab-content active">
+        <div class="section-title">Список апартаментов</div>
+        <div id="apartmentsGrid" class="grid-cards"></div>
+    </div>
+
+    <!-- Вкладка: Шахматка -->
+    <div id="tab-matrix" class="tab-content">
+        <div class="section-title">
+            <span>Шахматка бронирования</span>
+            <div class="month-nav">
+                <button class="secondary" onclick="changeMonth(-1)">‹ Прошлый</button>
+                <span id="currentMonthLabel" style="font-size: 15px; font-weight: 600; min-width: 140px; text-align: center;"></span>
+                <button class="secondary" onclick="changeMonth(1)">Следующий ›</button>
+            </div>
+        </div>
+        <div class="matrix-container" id="matrixContainer">
+            <table class="matrix-table" id="matrixTable"></table>
+        </div>
     </div>
 </div>
 
@@ -482,6 +530,19 @@
             loadFromGitHub();
         }
     });
+
+    function switchTab(tabId, btnElement) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+        document.getElementById('tab-' + tabId).classList.add('active');
+        btnElement.classList.add('active');
+
+        // Если переключились на шахматку, пересчитываем размеры/отображение на случай изменения видимости
+        if (tabId === 'matrix') {
+            renderMatrix();
+        }
+    }
 
     function changeMonth(direction) {
         currentDate.setMonth(currentDate.getMonth() + direction);
