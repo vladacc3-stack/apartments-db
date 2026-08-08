@@ -5,23 +5,9 @@
       "complex": "Pacific 3",
       "number": "51",
       "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuQbBJqW4chT7tdi9aPN7zvhG6lN0o511K4w_hpxiQsUj808JlnI-me2A&s=10"
-    },
-    {
-      "id": "apt_1786213896732",
-      "complex": "Pacific 2",
-      "number": "55",
-      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuQbBJqW4chT7tdi9aPN7zvhG6lN0o511K4w_hpxiQsUj808JlnI-me2A&s=10"
     }
   ],
   "bookings": [
-    {
-      "id": "book_1786213916931",
-      "aptId": "apt_1786213896732",
-      "manager": "Ольга",
-      "guest": "апвпвпп",
-      "startDate": "2026-08-10",
-      "endDate": "2026-08-15"
-    },
     {
       "id": "book_1786215206209",
       "aptId": "apt_1786213835668",
