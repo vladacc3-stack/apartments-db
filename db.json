@@ -338,18 +338,6 @@
       "periodType": "За день",
       "startDate": "2026-08-01",
       "endDate": "2026-08-09"
-    },
-    {
-      "id": "book_1786291121548",
-      "aptId": "apt_1786213835668",
-      "manager": "Стася",
-      "guest": "куукыукук",
-      "phone": "кууккукуук",
-      "price": "40",
-      "periodType": "За день",
-      "commission": "25",
-      "startDate": "2026-08-15",
-      "endDate": "2026-08-20"
     }
   ]
 }
