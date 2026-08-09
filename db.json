@@ -237,7 +237,7 @@
     {
       "id": "apt_1786299901570",
       "complex": "Черное Море ",
-      "number": "11",
+      "number": "5",
       "type": "2+1",
       "image": "https://i.ibb.co/KpYCFQ5v/photo-2026-06-15-17-38-27.jpg",
       "prices": [
@@ -254,8 +254,8 @@
           "price": "500"
         },
         {
-          "period": "Октябрь-Апрель",
-          "price": "380"
+          "period": "Зимой не сдается",
+          "price": "0"
         }
       ]
     },
