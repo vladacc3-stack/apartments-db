@@ -153,7 +153,7 @@
     {
       "id": "apt_1786298226090",
       "complex": "Свит Хом 4",
-      "number": "205",
+      "number": "204",
       "type": "Студия",
       "image": "https://i.ibb.co/XfWf2Z17/photo-2026-08-04-10-58-05.jpg",
       "prices": [
@@ -168,6 +168,10 @@
         {
           "period": "Сентябрь",
           "price": "500"
+        },
+        {
+          "period": "С октября",
+          "price": "250"
         }
       ]
     },
