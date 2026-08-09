@@ -178,7 +178,7 @@
     {
       "id": "apt_1786298786823",
       "complex": "Каскадас 17",
-      "number": "11",
+      "number": "19",
       "type": "Студия",
       "image": "https://i.ibb.co/tphCxMKN/photo-2026-07-21-15-12-36.jpg",
       "prices": [
@@ -193,6 +193,10 @@
         {
           "period": "Сентябрь",
           "price": "650"
+        },
+        {
+          "period": "С октября",
+          "price": "280"
         }
       ]
     },
