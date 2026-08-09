@@ -180,6 +180,23 @@
           "price": "380"
         }
       ]
+    },
+    {
+      "id": "apt_1786299604852",
+      "complex": "Свит Хом 4",
+      "number": "108",
+      "type": "1+1",
+      "image": "https://i.ibb.co/srFcGTG/photo-2026-07-29-16-30-08.jpg",
+      "prices": [
+        {
+          "period": "Сентябрь",
+          "price": "650"
+        },
+        {
+          "period": "Октябрю-Апрель",
+          "price": "350"
+        }
+      ]
     }
   ],
   "bookings": [
