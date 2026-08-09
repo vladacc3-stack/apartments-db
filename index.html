@@ -298,6 +298,7 @@
             border-color: #94a3b8;
         }
 
+        /* Контейнер изображений с фиксированными размерами */
         .card-img-container {
             position: relative;
             width: 100%;
@@ -305,12 +306,12 @@
             overflow: hidden;
             background-color: #f1f5f9;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
-        .card img {
+        .card-img-container img {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -321,21 +322,23 @@
             transform: scale(1.04);
         }
 
-        /* Заглушка домик */
+        /* Изолированная заглушка Домика */
         .placeholder-house {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             background-color: #f1f5f9;
             color: #94a3b8;
         }
 
         .placeholder-house svg {
-            width: 48px;
-            height: 48px;
+            width: 52px;
+            height: 52px;
             fill: #94a3b8;
         }
 
@@ -447,6 +450,7 @@
         .matrix-table tr, .apt-matrix-table tr {
             height: 48px;
             position: relative;
+            transform: none;
         }
 
         .matrix-table th, .matrix-table td,
@@ -461,7 +465,6 @@
             position: relative;
         }
 
-        /* Фиксированная ширина колонок с днями */
         .matrix-table th:not(.col-apt), .matrix-table td:not(.col-apt),
         .apt-matrix-table th:not(.col-month), .apt-matrix-table td:not(.col-month) {
             width: 38px;
@@ -527,7 +530,7 @@
             box-shadow: none;
         }
 
-        /* ПОРАЗДЕЛЬНЫЕ СЕГМЕНТЫ ПЛАШЕК ВНУТРИ ЯЧЕЕК */
+        /* Сегменты плашек бровнирования внутри ячеек */
         .booking-segment {
             position: absolute;
             top: 4px;
@@ -543,7 +546,6 @@
             z-index: 8;
         }
 
-        /* Цвет менеджеров */
         .booking-olga {
             background: #fed7aa;
             border-top: 1.5px solid #f97316;
@@ -556,7 +558,6 @@
             border-bottom: 1.5px solid #8b5cf6;
         }
 
-        /* Форма скруглений и боковых границ сегментов */
         .booking-segment.start-seg {
             border-left: 1.5px solid currentColor;
             border-top-left-radius: 4px;
@@ -574,29 +575,31 @@
         .booking-stasya.start-seg { border-left-color: #8b5cf6; }
         .booking-stasya.end-seg { border-right-color: #8b5cf6; }
 
-        /* ТЕКСТ С ИМЕНЕМ ПОВЕРХ РАЗДЕЛЕННОЙ ПЛАШКИ (Выравнивание строго по центру) */
+        /* Имя брони (точно по центру сегментов) */
         .booking-label-overlay {
             position: absolute;
             top: 4px;
             bottom: 4px;
+            height: calc(100% - 8px);
             z-index: 9;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
             font-size: 11px;
-            pointer-events: none; /* Пропускаем клик на сегменты снизу */
+            pointer-events: none;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             padding: 0 4px;
             box-sizing: border-box;
+            line-height: 1;
         }
 
         .booking-olga-label { color: #9a3412; }
         .booking-stasya-label { color: #5b21b6; }
 
-        /* МОДАЛЬНЫЕ ОКНА */
+        /* Модальные окна */
         .modal {
             display: none;
             position: fixed;
@@ -803,6 +806,7 @@
         }
 
         .apt-view-details-img-wrap {
+            position: relative;
             width: 100%;
             height: 200px;
             border-radius: var(--radius-md);
@@ -810,12 +814,12 @@
             overflow: hidden;
             box-shadow: var(--shadow-sm);
             background-color: #f1f5f9;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         .apt-view-details-img-wrap img {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -1244,7 +1248,7 @@
         if (!imageUrl || imageUrl.trim() === '') {
             return HOUSE_SVG_HTML;
         }
-        return `<img src="${imageUrl}" alt="${altText}" onerror="this.outerHTML='${HOUSE_SVG_HTML.replace(/'/g, "\\'")}'" title="Нажмите, чтобы открыть квартиру">`;
+        return `<img src="${imageUrl}" alt="${altText}" onerror="this.outerHTML=HOUSE_SVG_HTML" title="Нажмите, чтобы открыть квартиру">`;
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -1528,7 +1532,6 @@
         let firstCellEl = null;
         let lastCellEl = null;
 
-        // Создаем сегменты плашки внутри каждой ячейки дня
         for (let d = startDayNum; d <= endDayNum; d++) {
             const selector = isHalfYear ? `td[data-month-day="${d}"]` : `td[data-day="${d}"]`;
             const cell = rowElement.querySelector(selector);
@@ -1579,7 +1582,6 @@
             cell.appendChild(seg);
         }
 
-        // Вычисляем общую ширину для единой надписи с именем гостя поверх сегментов
         if (firstCellEl && lastCellEl) {
             const firstRect = firstCellEl.getBoundingClientRect();
             const lastRect = lastCellEl.getBoundingClientRect();
