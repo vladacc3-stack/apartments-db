@@ -298,7 +298,6 @@
             border-color: #94a3b8;
         }
 
-        /* Контейнер изображений с фиксированными размерами */
         .card-img-container {
             position: relative;
             width: 100%;
@@ -322,7 +321,6 @@
             transform: scale(1.04);
         }
 
-        /* Изолированная заглушка Домика */
         .placeholder-house {
             position: absolute;
             top: 0;
@@ -450,7 +448,6 @@
         .matrix-table tr, .apt-matrix-table tr {
             height: 48px;
             position: relative;
-            transform: none;
         }
 
         .matrix-table th, .matrix-table td,
@@ -530,7 +527,6 @@
             box-shadow: none;
         }
 
-        /* Сегменты плашек бровнирования внутри ячеек */
         .booking-segment {
             position: absolute;
             top: 4px;
@@ -575,7 +571,6 @@
         .booking-stasya.start-seg { border-left-color: #8b5cf6; }
         .booking-stasya.end-seg { border-right-color: #8b5cf6; }
 
-        /* Имя брони (точно по центру сегментов) */
         .booking-label-overlay {
             position: absolute;
             top: 4px;
@@ -599,7 +594,6 @@
         .booking-olga-label { color: #9a3412; }
         .booking-stasya-label { color: #5b21b6; }
 
-        /* Модальные окна */
         .modal {
             display: none;
             position: fixed;
@@ -1511,11 +1505,6 @@
 
         if (endObj <= monthStart || startObj >= monthEnd) return;
 
-        const table = rowElement.closest('table');
-        if (!table) return;
-
-        const tableRect = table.getBoundingClientRect();
-
         let startDayNum = (startObj.getFullYear() === year && startObj.getMonth() === month) ? startObj.getDate() : 1;
         let endDayNum = (endObj.getFullYear() === year && endObj.getMonth() === month) ? endObj.getDate() : totalDaysInMonth;
 
@@ -1583,19 +1572,16 @@
         }
 
         if (firstCellEl && lastCellEl) {
-            const firstRect = firstCellEl.getBoundingClientRect();
-            const lastRect = lastCellEl.getBoundingClientRect();
-
-            let leftPos = (firstRect.left - tableRect.left);
+            let leftPos = firstCellEl.offsetLeft;
             if (isStartReal) {
-                leftPos += (firstRect.width / 2);
+                leftPos += (firstCellEl.offsetWidth / 2);
             }
 
-            let rightPos = (lastRect.left - tableRect.left);
+            let rightPos = lastCellEl.offsetLeft;
             if (isEndReal) {
-                rightPos += (lastRect.width / 2);
+                rightPos += (lastCellEl.offsetWidth / 2);
             } else {
-                rightPos += lastRect.width;
+                rightPos += lastCellEl.offsetWidth;
             }
 
             const labelWidth = rightPos - leftPos;
