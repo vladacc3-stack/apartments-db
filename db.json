@@ -98,6 +98,7 @@
       "phone": "+38559944",
       "price": "500",
       "periodType": "За месяц",
+      "commission": "50",
       "startDate": "2026-08-13",
       "endDate": "2026-08-19"
     },
