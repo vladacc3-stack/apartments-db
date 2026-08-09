@@ -305,6 +305,9 @@
             overflow: hidden;
             background-color: #f1f5f9;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .card img {
@@ -316,6 +319,24 @@
 
         .card:hover .card-img-container img {
             transform: scale(1.04);
+        }
+
+        /* Заглушка домик */
+        .placeholder-house {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            background-color: #f1f5f9;
+            color: #94a3b8;
+        }
+
+        .placeholder-house svg {
+            width: 48px;
+            height: 48px;
+            fill: #94a3b8;
         }
 
         .card-body {
@@ -553,16 +574,15 @@
         .booking-stasya.start-seg { border-left-color: #8b5cf6; }
         .booking-stasya.end-seg { border-right-color: #8b5cf6; }
 
-        /* ТЕКСТ С ИМЕНЕМ ПОВЕРХ РАЗДЕЛЕННОЙ ПЛАШКИ */
+        /* ТЕКСТ С ИМЕНЕМ ПОВЕРХ РАЗДЕЛЕННОЙ ПЛАШКИ (Выравнивание строго по центру) */
         .booking-label-overlay {
             position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            height: 40px;
-            line-height: 40px;
+            top: 4px;
+            bottom: 4px;
             z-index: 9;
-            display: block;
-            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-weight: 700;
             font-size: 11px;
             pointer-events: none; /* Пропускаем клик на сегменты снизу */
@@ -782,13 +802,23 @@
             text-align: right;
         }
 
-        .apt-view-details img {
+        .apt-view-details-img-wrap {
             width: 100%;
             height: 200px;
-            object-fit: cover;
             border-radius: var(--radius-md);
             margin-bottom: 20px;
+            overflow: hidden;
             box-shadow: var(--shadow-sm);
+            background-color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .apt-view-details-img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         @media (max-width: 768px) {
@@ -1009,7 +1039,7 @@
         </div>
         <div class="modal-body-scroll">
             <div class="apt-view-details">
-                <img id="viewAptImage" src="" alt="" onerror="this.src='https://via.placeholder.com/800x200?text=No+Image'">
+                <div class="apt-view-details-img-wrap" id="viewAptImageContainer"></div>
                 <div id="viewAptPrices" class="prices-list" style="margin-bottom: 24px;"></div>
                 
                 <h4 style="font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em;">График бронирования на полгода вперед</h4>
@@ -1052,8 +1082,8 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Ссылка на изображение</label>
-                        <input type="url" id="aptImage" required placeholder="https://example.com/image.jpg">
+                        <label>Ссылка на изображение (необязательно)</label>
+                        <input type="url" id="aptImage" placeholder="https://example.com/image.jpg">
                     </div>
                 </div>
 
@@ -1201,6 +1231,21 @@
     let fileSha = null;
     let currentDate = new Date();
     let currentSelectedBookingId = null;
+
+    const HOUSE_SVG_HTML = `
+        <div class="placeholder-house">
+            <svg viewBox="0 0 24 24">
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+            </svg>
+        </div>
+    `;
+
+    function getAptImageHTML(imageUrl, altText) {
+        if (!imageUrl || imageUrl.trim() === '') {
+            return HOUSE_SVG_HTML;
+        }
+        return `<img src="${imageUrl}" alt="${altText}" onerror="this.outerHTML='${HOUSE_SVG_HTML.replace(/'/g, "\\'")}'" title="Нажмите, чтобы открыть квартиру">`;
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
         const token = localStorage.getItem('gh_token');
@@ -1422,10 +1467,12 @@
                 pricesHTML = '<div class="prices-list" style="color: var(--text-light); text-align: center;">Цены не указаны</div>';
             }
 
+            const imgContent = getAptImageHTML(apt.image, apt.complex);
+
             grid.innerHTML += `
                 <div class="card">
                     <div class="card-img-container" onclick="openViewAptModal('${apt.id}')">
-                        <img src="${apt.image}" alt="${apt.complex}" onerror="this.src='https://via.placeholder.com/320x180?text=No+Image'" title="Нажмите, чтобы открыть квартиру и шахматку">
+                        ${imgContent}
                     </div>
                     <div class="card-body">
                         <div class="card-header-row">
@@ -1640,7 +1687,7 @@
         const typeTag = document.getElementById('viewAptTypeTag');
         typeTag.innerText = apt.type || 'Студия';
         
-        document.getElementById('viewAptImage').src = apt.image;
+        document.getElementById('viewAptImageContainer').innerHTML = getAptImageHTML(apt.image, apt.complex);
 
         let pricesHTML = '';
         if (apt.prices && apt.prices.length > 0) {
@@ -1737,7 +1784,7 @@
         document.getElementById('aptComplex').value = apt.complex;
         document.getElementById('aptNumber').value = apt.number;
         document.getElementById('aptType').value = apt.type || 'Студия';
-        document.getElementById('aptImage').value = apt.image;
+        document.getElementById('aptImage').value = apt.image || '';
         document.getElementById('aptModalTitle').innerText = 'Редактировать апартаменты';
         document.getElementById('deleteAptBtn').style.display = 'inline-block';
 
@@ -1784,7 +1831,7 @@
             complex: document.getElementById('aptComplex').value,
             number: document.getElementById('aptNumber').value,
             type: document.getElementById('aptType').value,
-            image: document.getElementById('aptImage').value,
+            image: document.getElementById('aptImage').value.trim(),
             prices: prices
         };
 
