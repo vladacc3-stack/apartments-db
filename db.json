@@ -300,17 +300,17 @@
     {
       "id": "apt_1786301754043",
       "complex": "Магнолия 7",
-      "number": "7",
+      "number": "11",
       "type": "Студия",
-      "image": "",
+      "image": "https://i.ibb.co/HLtxqJQf/photo-2026-08-09-21-46-39.jpg",
       "prices": [
         {
-          "period": "Посуточно (за ночь)",
-          "price": "70"
+          "period": "Посуточно Сентябрь",
+          "price": "35"
         },
         {
-          "period": "За месяц",
-          "price": "70"
+          "period": "Сентябрь",
+          "price": "500"
         }
       ]
     }
