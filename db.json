@@ -222,6 +222,19 @@
           "price": "380"
         }
       ]
+    },
+    {
+      "id": "apt_1786300189366",
+      "complex": "Нирвана",
+      "number": "11",
+      "type": "Студия",
+      "image": "https://i.ibb.co/tM9V3y4s/photo-2026-07-23-00-37-05.jpg",
+      "prices": [
+        {
+          "period": "Посуточно (за ночь)",
+          "price": "40"
+        }
+      ]
     }
   ],
   "bookings": [
