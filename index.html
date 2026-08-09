@@ -447,7 +447,6 @@
 
         .matrix-table tr, .apt-matrix-table tr {
             height: 48px;
-            position: relative;
         }
 
         .matrix-table th, .matrix-table td,
@@ -571,11 +570,13 @@
         .booking-stasya.start-seg { border-left-color: #8b5cf6; }
         .booking-stasya.end-seg { border-right-color: #8b5cf6; }
 
+        /* Фиксированная плашка с текстом относительно первой ячейки */
         .booking-label-overlay {
             position: absolute;
-            top: 4px;
-            bottom: 4px;
-            height: calc(100% - 8px);
+            top: 0;
+            bottom: 0;
+            left: 0;
+            height: 100%;
             z-index: 9;
             display: flex;
             align-items: center;
@@ -1571,29 +1572,28 @@
             cell.appendChild(seg);
         }
 
+        // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Плашка вставляется прямо в первую ячейку года/месяца
         if (firstCellEl && lastCellEl) {
-            let leftPos = firstCellEl.offsetLeft;
-            if (isStartReal) {
-                leftPos += (firstCellEl.offsetWidth / 2);
-            }
-
-            let rightPos = lastCellEl.offsetLeft;
+            let leftOffset = isStartReal ? (firstCellEl.offsetWidth / 2) : 0;
+            
+            // Считаем дистанцию между первой и последней ячейками
+            let totalWidth = (lastCellEl.offsetLeft - firstCellEl.offsetLeft);
             if (isEndReal) {
-                rightPos += (lastCellEl.offsetWidth / 2);
+                totalWidth += (lastCellEl.offsetWidth / 2);
             } else {
-                rightPos += lastCellEl.offsetWidth;
+                totalWidth += lastCellEl.offsetWidth;
             }
-
-            const labelWidth = rightPos - leftPos;
+            
+            const labelWidth = totalWidth - leftOffset;
 
             if (labelWidth > 10) {
                 const labelOverlay = document.createElement('span');
                 labelOverlay.className = `booking-label-overlay ${labelClass}`;
                 labelOverlay.innerText = booking.guest;
-                labelOverlay.style.left = `${leftPos}px`;
+                labelOverlay.style.left = `${leftOffset}px`;
                 labelOverlay.style.width = `${labelWidth}px`;
                 
-                rowElement.appendChild(labelOverlay);
+                firstCellEl.appendChild(labelOverlay);
             }
         }
     }
@@ -1839,7 +1839,7 @@
         const id = document.getElementById('aptId').value;
         if (confirm('Удалить апартамент и все связанные с ним брони?')) {
             db.apartments = db.apartments.filter(a => a.id !== id);
-            db.bookings = db.bookings.filter(b => b.aptId !== id);
+            db.bookings = db.bookings.filter(b => b.id !== id);
             saveToGitHub();
             closeModal('aptModal');
         }
