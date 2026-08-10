@@ -494,6 +494,24 @@
         }
       ],
       "updatedAt": "2026-08-10T13:06:25.096Z"
+    },
+    {
+      "id": "apt_1786371617074",
+      "complex": "Свит Хом 4",
+      "number": "11",
+      "type": "1+1",
+      "image": "https://i.ibb.co/qMZ6rGR6/photo-2025-04-25-15-58-37.jpg",
+      "prices": [
+        {
+          "period": "Посуточно (за ночь)",
+          "price": "0"
+        },
+        {
+          "period": "За месяц",
+          "price": "0"
+        }
+      ],
+      "updatedAt": "2026-08-10T14:20:17.074Z"
     }
   ],
   "bookings": [
