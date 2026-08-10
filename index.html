@@ -1620,7 +1620,7 @@
 
     function renderBookingSelects() {
         const select = document.getElementById('bookingApt');
-        select.innerHTML = '';
+        select.innerHTML = '<option value="" disabled selected>Выберите апартамент</option>';
         if (!db.apartments) return;
         db.apartments.forEach(apt => {
             select.innerHTML += `<option value="${apt.id}">${apt.complex} - ${apt.number} (${apt.type || 'Студия'})</option>`;
@@ -1996,19 +1996,16 @@
         }
         document.getElementById('bookingEditForm').reset();
         document.getElementById('bookingId').value = '';
+        document.getElementById('bookingApt').value = '';
         document.getElementById('bookingModalTitle').innerText = 'Новое бронирование';
-        document.getElementById('bookingDateError').style.display = 'none';
-        
-        const submitBtn = document.getElementById('bookingSubmitBtn');
-        submitBtn.disabled = false;
-        submitBtn.style.opacity = '1';
-        submitBtn.style.cursor = 'pointer';
         
         document.getElementById('bookingViewMode').style.display = 'none';
         document.getElementById('bookingActionsView').style.display = 'none';
         
         document.getElementById('bookingEditForm').style.display = 'block';
         document.getElementById('bookingActionsEdit').style.display = 'flex';
+        
+        validateBookingDates();
         
         document.getElementById('bookingModal').classList.add('active');
     }
@@ -2073,6 +2070,15 @@
         const errorDiv = document.getElementById('bookingDateError');
         const submitBtn = document.getElementById('bookingSubmitBtn');
 
+        if (!aptId) {
+            errorDiv.innerText = '⚠️ Пожалуйста, выберите апартамент!';
+            errorDiv.style.display = 'block';
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.5';
+            submitBtn.style.cursor = 'not-allowed';
+            return false;
+        }
+
         if (startVal && endVal) {
             const startDate = new Date(startVal);
             const endDate = new Date(endVal);
@@ -2129,7 +2135,6 @@
         const id = document.getElementById('bookingId').value;
 
         if (!validateBookingDates()) {
-            alert('Извините, на эти даты квартира забронирована!');
             return;
         }
 
