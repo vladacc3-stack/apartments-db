@@ -317,6 +317,19 @@
           "price": "280"
         }
       ]
+    },
+    {
+      "id": "apt_1786355740630",
+      "complex": "Каскадас 9",
+      "number": "11",
+      "type": "Студия",
+      "image": "https://i.ibb.co/yBVrYZ2V/photo-2026-05-11-13-20-24.jpg",
+      "prices": [
+        {
+          "period": "Сентябрь",
+          "price": "500"
+        }
+      ]
     }
   ],
   "bookings": [
