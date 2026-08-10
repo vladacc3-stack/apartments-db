@@ -468,6 +468,23 @@
           "price": "0"
         }
       ]
+    },
+    {
+      "id": "apt_1786363440428",
+      "complex": "Даун парк делюкс ",
+      "number": "11",
+      "type": "1+1",
+      "image": "https://i.ibb.co/qYfKxdVq/photo-2025-09-02-12-44-07.jpg",
+      "prices": [
+        {
+          "period": "Посуточно (за ночь)",
+          "price": "0"
+        },
+        {
+          "period": "За месяц",
+          "price": "0"
+        }
+      ]
     }
   ],
   "bookings": [
