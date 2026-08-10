@@ -355,6 +355,18 @@
       "commission": "",
       "startDate": "2026-08-01",
       "endDate": "2026-08-18"
+    },
+    {
+      "id": "book_1786343100227",
+      "aptId": "apt_1786298226090",
+      "manager": "Стася",
+      "guest": "Татьяна",
+      "phone": "+380661200101",
+      "price": "350",
+      "periodType": "За весь период",
+      "commission": "30",
+      "startDate": "2026-08-10",
+      "endDate": "2026-08-16"
     }
   ]
 }
