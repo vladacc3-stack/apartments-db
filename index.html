@@ -435,12 +435,15 @@
             box-shadow: var(--shadow-sm);
             margin-bottom: 32px;
             overflow-x: auto;
+            overflow-y: auto;
+            max-height: 75vh;
             position: relative;
             -webkit-overflow-scrolling: touch;
         }
 
         .matrix-table, .apt-matrix-table {
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0;
             table-layout: fixed;
             width: max-content;
         }
@@ -451,7 +454,8 @@
 
         .matrix-table th, .matrix-table td,
         .apt-matrix-table th, .apt-matrix-table td {
-            border: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
             height: 48px;
             padding: 0;
             margin: 0;
@@ -475,6 +479,9 @@
             color: var(--text-light);
             text-transform: uppercase;
             letter-spacing: 0.05em;
+            position: sticky;
+            top: 0;
+            z-index: 20;
         }
 
         .matrix-table th.col-apt, .apt-matrix-table th.col-month {
@@ -483,7 +490,8 @@
             max-width: 210px;
             position: sticky;
             left: 0;
-            z-index: 10;
+            top: 0;
+            z-index: 30;
             background-color: #e2e8f0;
             text-align: left;
             padding-left: 16px;
@@ -496,7 +504,7 @@
             max-width: 210px;
             position: sticky;
             left: 0;
-            z-index: 9;
+            z-index: 10;
             background-color: var(--surface);
             text-align: left;
             padding-left: 16px;
@@ -570,7 +578,6 @@
         .booking-stasya.start-seg { border-left-color: #8b5cf6; }
         .booking-stasya.end-seg { border-right-color: #8b5cf6; }
 
-        /* Фиксированная плашка с текстом относительно первой ячейки */
         .booking-label-overlay {
             position: absolute;
             top: 0;
@@ -1572,11 +1579,9 @@
             cell.appendChild(seg);
         }
 
-        // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Плашка вставляется прямо в первую ячейку года/месяца
         if (firstCellEl && lastCellEl) {
             let leftOffset = isStartReal ? (firstCellEl.offsetWidth / 2) : 0;
             
-            // Считаем дистанцию между первой и последней ячейками
             let totalWidth = (lastCellEl.offsetLeft - firstCellEl.offsetLeft);
             if (isEndReal) {
                 totalWidth += (lastCellEl.offsetWidth / 2);
