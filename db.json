@@ -385,6 +385,19 @@
           "price": "4800"
         }
       ]
+    },
+    {
+      "id": "apt_1786358817191",
+      "complex": "Свит Хом 4",
+      "number": "11",
+      "type": "2+1",
+      "image": "https://i.ibb.co/xq78Rdj5/photo-2026-07-08-12-37-46.jpg",
+      "prices": [
+        {
+          "period": "Посуточно Август",
+          "price": "90"
+        }
+      ]
     }
   ],
   "bookings": [
