@@ -355,6 +355,23 @@
           "price": "250"
         }
       ]
+    },
+    {
+      "id": "apt_1786358265368",
+      "complex": "Каскадас 4",
+      "number": "11",
+      "type": "1+1",
+      "image": "https://i.ibb.co/gbZyh2FC/photo-2026-05-11-13-17-01.jpg",
+      "prices": [
+        {
+          "period": "Посуточно Сентябрь",
+          "price": "50"
+        },
+        {
+          "period": "Сентябрь",
+          "price": "750"
+        }
+      ]
     }
   ],
   "bookings": [
