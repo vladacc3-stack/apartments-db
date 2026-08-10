@@ -548,6 +548,24 @@
         }
       ],
       "updatedAt": "2026-08-10T14:55:20.967Z"
+    },
+    {
+      "id": "apt_1786376353484",
+      "complex": "Свит Хом 2",
+      "number": "11",
+      "type": "1+1",
+      "image": "https://i.ibb.co/hJ8xqzwb/photo-2025-08-25-20-09-40.jpg",
+      "prices": [
+        {
+          "period": "Посуточно (за ночь)",
+          "price": "0"
+        },
+        {
+          "period": "За месяц",
+          "price": "0"
+        }
+      ],
+      "updatedAt": "2026-08-10T15:39:13.484Z"
     }
   ],
   "bookings": [
