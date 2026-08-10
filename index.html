@@ -769,7 +769,7 @@
             color: var(--text);
         }
 
-        .form-group input, .form-group select {
+        .form-group input, .form-group select, .form-group textarea {
             width: 100%;
             padding: 12px 16px;
             border: 1px solid var(--border);
@@ -781,7 +781,13 @@
             transition: var(--transition);
         }
 
-        .form-group input:focus, .form-group select:focus {
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+            line-height: 1.4;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
             border-color: var(--primary);
             box-shadow: 0 0 0 3px var(--primary-light);
         }
@@ -859,6 +865,12 @@
             border-bottom: none;
         }
 
+        .booking-view-row.vertical-align {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
+        }
+
         .booking-view-label {
             color: var(--text-light);
             font-weight: 500;
@@ -868,6 +880,19 @@
             color: var(--text);
             font-weight: 600;
             text-align: right;
+        }
+
+        .booking-view-value.text-left {
+            text-align: left;
+            white-space: pre-wrap;
+            word-break: break-word;
+            line-height: 1.4;
+            background: #ffffff;
+            padding: 10px 12px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-subtle);
+            width: 100%;
+            font-weight: 400;
         }
 
         .apt-view-details-img-wrap {
@@ -974,7 +999,7 @@
                 gap: 0;
             }
 
-            .form-group input, .form-group select, .price-row-item input {
+            .form-group input, .form-group select, .form-group textarea, .price-row-item input {
                 font-size: 15px;
                 padding: 10px 10px;
             }
@@ -1237,6 +1262,10 @@
                         <span class="booking-view-label">Выезд</span>
                         <span class="booking-view-value" id="viewEnd">-</span>
                     </div>
+                    <div class="booking-view-row vertical-align" id="viewCommentRow" style="display: none;">
+                        <span class="booking-view-label">Комментарий</span>
+                        <div class="booking-view-value text-left" id="viewComment">-</div>
+                    </div>
                 </div>
             </div>
 
@@ -1298,6 +1327,12 @@
                         <input type="date" id="bookingEnd" required onchange="validateBookingDates()">
                     </div>
                 </div>
+
+                <div class="form-group">
+                    <label>Комментарий (необязательно)</label>
+                    <textarea id="bookingComment" rows="3" placeholder="Дополнительная информация, пожелания гостя и т.д."></textarea>
+                </div>
+
                 <div id="bookingDateError" style="color: var(--danger); font-size: 13px; font-weight: 700; margin-top: -8px; margin-bottom: 16px; display: none;"></div>
             </form>
         </div>
@@ -1648,7 +1683,8 @@
         const totalNights = Math.round((endObj - startObj) / (1000 * 60 * 60 * 24));
         
         let commText = booking.commission ? ` | Комиссия: ${booking.commission}` : '';
-        const tooltipText = `${booking.guest} | Чья бронь: ${booking.manager} | Заезд: ${booking.startDate} — Выезд: ${booking.endDate} (${totalNights} н.)${commText}`;
+        let commentText = booking.comment ? ` | Коммент: ${booking.comment}` : '';
+        const tooltipText = `${booking.guest} | Чья бронь: ${booking.manager} | Заезд: ${booking.startDate} — Выезд: ${booking.endDate} (${totalNights} н.)${commText}${commentText}`;
 
         let firstCellEl = null;
         let lastCellEl = null;
@@ -1999,6 +2035,7 @@
         document.getElementById('bookingId').value = '';
         document.getElementById('bookingApt').value = '';
         document.getElementById('bookingManager').value = '';
+        document.getElementById('bookingComment').value = '';
         document.getElementById('bookingModalTitle').innerText = 'Новое бронирование';
         
         document.getElementById('bookingViewMode').style.display = 'none';
@@ -2034,6 +2071,14 @@
             commRow.style.display = 'none';
         }
 
+        const commentRow = document.getElementById('viewCommentRow');
+        if (booking.comment && booking.comment.trim() !== '') {
+            document.getElementById('viewComment').innerText = booking.comment;
+            commentRow.style.display = 'flex';
+        } else {
+            commentRow.style.display = 'none';
+        }
+
         document.getElementById('viewStart').innerText = booking.startDate || '-';
         document.getElementById('viewEnd').innerText = booking.endDate || '-';
 
@@ -2045,6 +2090,7 @@
         document.getElementById('bookingPrice').value = booking.price || '';
         document.getElementById('bookingPeriodType').value = booking.periodType || 'За день';
         document.getElementById('bookingCommission').value = booking.commission || '';
+        document.getElementById('bookingComment').value = booking.comment || '';
         document.getElementById('bookingStart').value = booking.startDate;
         document.getElementById('bookingEnd').value = booking.endDate;
 
@@ -2145,6 +2191,7 @@
             price: document.getElementById('bookingPrice').value,
             periodType: document.getElementById('bookingPeriodType').value,
             commission: document.getElementById('bookingCommission').value.trim(),
+            comment: document.getElementById('bookingComment').value.trim(),
             startDate: startDate,
             endDate: endDate
         };
