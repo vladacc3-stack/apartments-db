@@ -372,6 +372,19 @@
           "price": "750"
         }
       ]
+    },
+    {
+      "id": "apt_1786358462430",
+      "complex": "Санни Дримс",
+      "number": "11",
+      "type": "1+1",
+      "image": "https://i.ibb.co/JwCGyzfh/photo-2026-08-03-15-55-26.jpg",
+      "prices": [
+        {
+          "period": "Годовая аренда",
+          "price": "4800"
+        }
+      ]
     }
   ],
   "bookings": [
