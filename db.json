@@ -722,6 +722,18 @@
       "commission": "",
       "startDate": "2026-06-19",
       "endDate": "2026-08-23"
+    },
+    {
+      "id": "book_1786362162543",
+      "aptId": "apt_1786358265368",
+      "manager": "Ольга",
+      "guest": "Рафал клиент хозяина",
+      "phone": "+359898564616",
+      "price": "0",
+      "periodType": "За день",
+      "commission": "",
+      "startDate": "2026-08-26",
+      "endDate": "2026-08-31"
     }
   ]
 }
