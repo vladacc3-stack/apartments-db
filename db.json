@@ -553,20 +553,20 @@
     {
       "id": "apt_1786376353484",
       "complex": "Свит Хом 2",
-      "number": "11",
+      "number": "А506",
       "type": "1+1",
       "image": "https://i.ibb.co/hJ8xqzwb/photo-2025-08-25-20-09-40.jpg",
       "prices": [
         {
-          "period": "Посуточно (за ночь)",
-          "price": "0"
+          "period": "Посуточно (за ночь) сентябрь",
+          "price": "45"
         },
         {
-          "period": "За месяц",
-          "price": "0"
+          "period": "За месяц Октябрь-апрель",
+          "price": "380"
         }
       ],
-      "updatedAt": "2026-08-10T15:39:13.484Z"
+      "updatedAt": "2026-08-10T15:47:27.608Z"
     }
   ],
   "bookings": [
