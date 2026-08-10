@@ -454,6 +454,43 @@
             gap: 12px;
         }
 
+        .matrix-filter-pills {
+            display: flex;
+            gap: 6px;
+            background: var(--surface);
+            padding: 5px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .matrix-pill-btn {
+            background: transparent;
+            color: var(--text-light);
+            border: none;
+            padding: 6px 14px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: var(--transition);
+            box-shadow: none;
+        }
+
+        .matrix-pill-btn:hover {
+            color: var(--text);
+            background: #f8fafc;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .matrix-pill-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
+            transform: none;
+        }
+
         .matrix-container, .apt-matrix-container {
             background: var(--surface);
             border: 2px solid var(--border);
@@ -908,6 +945,20 @@
                 grid-template-columns: 1fr;
             }
 
+            .section-title {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .matrix-filter-pills {
+                width: 100%;
+            }
+
+            .matrix-pill-btn {
+                flex: 1;
+                text-align: center;
+            }
+
             .month-nav {
                 width: 100%;
                 justify-content: space-between;
@@ -1023,7 +1074,15 @@
     <!-- Вкладка: Бронирование (Шахматка) -->
     <div id="tab-matrix" class="tab-content">
         <div class="section-title">
-            <span>Шахматка бронирования</span>
+            <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                <span>Шахматка бронирования</span>
+                <div class="matrix-filter-pills">
+                    <button class="matrix-pill-btn active" onclick="setMatrixFilter('all', this)">Все</button>
+                    <button class="matrix-pill-btn" onclick="setMatrixFilter('Студия', this)">Студии</button>
+                    <button class="matrix-pill-btn" onclick="setMatrixFilter('1+1', this)">1+1</button>
+                    <button class="matrix-pill-btn" onclick="setMatrixFilter('2+1', this)">2+1</button>
+                </div>
+            </div>
             <div class="month-nav">
                 <button class="secondary" onclick="changeMonth(-1)">‹ Прошлый</button>
                 <span id="currentMonthLabel" style="font-size: 14px; font-weight: 700; min-width: 140px; text-align: center; color: var(--text);"></span>
@@ -1264,6 +1323,7 @@
     let fileSha = null;
     let currentDate = new Date();
     let currentSelectedBookingId = null;
+    let currentMatrixTypeFilter = 'all';
 
     const HOUSE_SVG_HTML = `
         <div class="placeholder-house">
@@ -1334,6 +1394,13 @@
 
     function changeMonth(direction) {
         currentDate.setMonth(currentDate.getMonth() + direction);
+        renderMatrix();
+    }
+
+    function setMatrixFilter(type, btnElement) {
+        currentMatrixTypeFilter = type;
+        document.querySelectorAll('.matrix-pill-btn').forEach(btn => btn.classList.remove('active'));
+        btnElement.classList.add('active');
         renderMatrix();
     }
 
@@ -1669,7 +1736,12 @@
         const month = currentDate.getMonth();
         const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-        db.apartments.forEach(apt => {
+        const filteredApts = db.apartments.filter(apt => {
+            if (currentMatrixTypeFilter === 'all') return true;
+            return (apt.type || 'Студия') === currentMatrixTypeFilter;
+        });
+
+        filteredApts.forEach(apt => {
             const row = table.querySelector(`tr[data-apt-id="${apt.id}"]`);
             if (!row) return;
 
@@ -1706,13 +1778,18 @@
         }
         headerHTML += `</tr></thead>`;
 
-        if (!db.apartments || db.apartments.length === 0) {
-            table.innerHTML = headerHTML + `<tbody><tr><td colspan="${daysInMonth + 1}" style="padding: 30px; color: var(--text-light); text-align: center;">Добавьте апартаменты для отображения шахматки</td></tr></tbody>`;
+        const filteredApts = (db.apartments || []).filter(apt => {
+            if (currentMatrixTypeFilter === 'all') return true;
+            return (apt.type || 'Студия') === currentMatrixTypeFilter;
+        });
+
+        if (filteredApts.length === 0) {
+            table.innerHTML = headerHTML + `<tbody><tr><td colspan="${daysInMonth + 1}" style="padding: 30px; color: var(--text-light); text-align: center;">Нет апартаментов с выбранным типом</td></tr></tbody>`;
             return;
         }
 
         let bodyHTML = '<tbody>';
-        db.apartments.forEach((apt) => {
+        filteredApts.forEach((apt) => {
             bodyHTML += `<tr data-apt-id="${apt.id}"><td class="col-apt">${apt.complex}, ${apt.number}</td>`;
             for (let d = 1; d <= daysInMonth; d++) {
                 bodyHTML += `<td class="day-cell" data-day="${d}"></td>`;
