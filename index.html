@@ -1245,7 +1245,8 @@
                 
                 <div class="form-group">
                     <label>Чья бронь</label>
-                    <select id="bookingManager" required>
+                    <select id="bookingManager" required onchange="validateBookingDates()">
+                        <option value="" disabled selected>Выберите пользователя</option>
                         <option value="Ольга">Ольга (Оранжевый)</option>
                         <option value="Стася">Стася (Фиолетовый)</option>
                     </select>
@@ -1997,6 +1998,7 @@
         document.getElementById('bookingEditForm').reset();
         document.getElementById('bookingId').value = '';
         document.getElementById('bookingApt').value = '';
+        document.getElementById('bookingManager').value = '';
         document.getElementById('bookingModalTitle').innerText = 'Новое бронирование';
         
         document.getElementById('bookingViewMode').style.display = 'none';
@@ -2005,7 +2007,7 @@
         document.getElementById('bookingEditForm').style.display = 'block';
         document.getElementById('bookingActionsEdit').style.display = 'flex';
         
-        validateBookingDates();
+        document.getElementById('bookingDateError').style.display = 'none';
         
         document.getElementById('bookingModal').classList.add('active');
     }
@@ -2037,7 +2039,7 @@
 
         document.getElementById('bookingId').value = booking.id;
         document.getElementById('bookingApt').value = booking.aptId;
-        document.getElementById('bookingManager').value = booking.manager || 'Ольга';
+        document.getElementById('bookingManager').value = booking.manager || '';
         document.getElementById('bookingGuest').value = booking.guest;
         document.getElementById('bookingPhone').value = booking.phone || '';
         document.getElementById('bookingPrice').value = booking.price || '';
@@ -2047,11 +2049,6 @@
         document.getElementById('bookingEnd').value = booking.endDate;
 
         document.getElementById('bookingDateError').style.display = 'none';
-        
-        const submitBtn = document.getElementById('bookingSubmitBtn');
-        submitBtn.disabled = false;
-        submitBtn.style.opacity = '1';
-        submitBtn.style.cursor = 'pointer';
 
         document.getElementById('bookingViewMode').style.display = 'block';
         document.getElementById('bookingActionsView').style.display = 'flex';
@@ -2062,21 +2059,30 @@
         document.getElementById('bookingModal').classList.add('active');
     }
 
-    function validateBookingDates() {
+    function validateBookingDates(isSubmitting = false) {
+        const managerVal = document.getElementById('bookingManager').value;
         const aptId = document.getElementById('bookingApt').value;
         const startVal = document.getElementById('bookingStart').value;
         const endVal = document.getElementById('bookingEnd').value;
         const bookingId = document.getElementById('bookingId').value;
         const errorDiv = document.getElementById('bookingDateError');
-        const submitBtn = document.getElementById('bookingSubmitBtn');
 
-        if (!aptId) {
-            errorDiv.innerText = '⚠️ Пожалуйста, выберите апартамент!';
-            errorDiv.style.display = 'block';
-            submitBtn.disabled = true;
-            submitBtn.style.opacity = '0.5';
-            submitBtn.style.cursor = 'not-allowed';
-            return false;
+        if (isSubmitting) {
+            if (!managerVal) {
+                errorDiv.innerText = '⚠️ Пожалуйста, укажите чья бронь!';
+                errorDiv.style.display = 'block';
+                return false;
+            }
+
+            if (!aptId) {
+                errorDiv.innerText = '⚠️ Пожалуйста, выберите апартамент!';
+                errorDiv.style.display = 'block';
+                return false;
+            }
+        } else {
+            if (!managerVal || !aptId) {
+                errorDiv.style.display = 'none';
+            }
         }
 
         if (startVal && endVal) {
@@ -2086,25 +2092,17 @@
             if (startDate >= endDate) {
                 errorDiv.innerText = '⚠️ Дата выезда должна быть строго позже даты заезда!';
                 errorDiv.style.display = 'block';
-                submitBtn.disabled = true;
-                submitBtn.style.opacity = '0.5';
-                submitBtn.style.cursor = 'not-allowed';
                 return false;
             }
 
-            if (!isApartmentAvailable(aptId, startVal, endVal, bookingId)) {
+            if (aptId && !isApartmentAvailable(aptId, startVal, endVal, bookingId)) {
                 errorDiv.innerText = '⚠️ Извините, на эти даты квартира забронирована! Сначала удалите или измените существующую бронь.';
                 errorDiv.style.display = 'block';
-                submitBtn.disabled = true;
-                submitBtn.style.opacity = '0.5';
-                submitBtn.style.cursor = 'not-allowed';
                 return false;
             }
         }
+
         errorDiv.style.display = 'none';
-        submitBtn.disabled = false;
-        submitBtn.style.opacity = '1';
-        submitBtn.style.cursor = 'pointer';
         return true;
     }
 
@@ -2115,7 +2113,7 @@
 
         document.getElementById('bookingEditForm').style.display = 'block';
         document.getElementById('bookingActionsEdit').style.display = 'flex';
-        validateBookingDates();
+        document.getElementById('bookingDateError').style.display = 'none';
     }
 
     function switchToViewBooking() {
@@ -2129,14 +2127,14 @@
     function handleBookingSubmit(e) {
         e.preventDefault();
         
+        if (!validateBookingDates(true)) {
+            return;
+        }
+
         const aptId = document.getElementById('bookingApt').value;
         const startDate = document.getElementById('bookingStart').value;
         const endDate = document.getElementById('bookingEnd').value;
         const id = document.getElementById('bookingId').value;
-
-        if (!validateBookingDates()) {
-            return;
-        }
 
         const bookingData = {
             id: id ? id : 'book_' + Date.now(),
