@@ -513,15 +513,19 @@
       "image": "https://i.ibb.co/qMZ6rGR6/photo-2025-04-25-15-58-37.jpg",
       "prices": [
         {
-          "period": "Посуточно (за ночь)",
-          "price": "0"
+          "period": "Посуточно сентябрь",
+          "price": "45"
         },
         {
-          "period": "За месяц",
-          "price": "0"
+          "period": "За месяц сентябрь",
+          "price": "850"
+        },
+        {
+          "period": "Октябрь-апрель",
+          "price": "380"
         }
       ],
-      "updatedAt": "2026-08-10T14:21:11.291Z"
+      "updatedAt": "2026-08-10T14:38:38.545Z"
     }
   ],
   "bookings": [
