@@ -487,6 +487,18 @@
       "commission": "",
       "startDate": "2026-07-09",
       "endDate": "2026-08-11"
+    },
+    {
+      "id": "book_1786345242387",
+      "aptId": "apt_1786299604852",
+      "manager": "Ольга",
+      "guest": "Александр",
+      "phone": "+380984090453",
+      "price": "1000",
+      "periodType": "За весь период",
+      "commission": "",
+      "startDate": "2026-08-14",
+      "endDate": "2026-09-21"
     }
   ]
 }
