@@ -51,7 +51,7 @@
       "complex": "Свит Хом 4",
       "number": "506",
       "type": "1+1",
-      "image": "https://i.ibb.co/1G6dZTfb/photo-2026-08-07-11-34-05.jpg",
+      "image": "https://i.ibb.co/WW9tf2Wy/photo-2026-08-09-20-35-47.jpg",
       "prices": [
         {
           "period": "Август посуточно",
@@ -69,7 +69,8 @@
           "period": "Сентябрь сутки",
           "price": "50"
         }
-      ]
+      ],
+      "updatedAt": "2026-08-10T15:41:30.065Z"
     },
     {
       "id": "apt_1786228588223",
