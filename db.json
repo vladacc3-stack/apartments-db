@@ -319,5 +319,18 @@
       ]
     }
   ],
-  "bookings": []
+  "bookings": [
+    {
+      "id": "book_1786342182298",
+      "aptId": "apt_1786224605207",
+      "manager": "Ольга",
+      "guest": "Александр",
+      "phone": "+380984090456",
+      "price": "600",
+      "periodType": "За весь период",
+      "commission": "",
+      "startDate": "2026-08-14",
+      "endDate": "2026-08-31"
+    }
+  ]
 }
