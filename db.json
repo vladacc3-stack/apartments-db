@@ -585,6 +585,24 @@
         }
       ],
       "updatedAt": "2026-08-13T12:18:24.832Z"
+    },
+    {
+      "id": "apt_1786623597896",
+      "complex": "Сан Виладж",
+      "number": "Номер",
+      "type": "1+1",
+      "image": "https://i.ibb.co/qLJhrGqh/photo-2026-08-12-19-36-31.jpg",
+      "prices": [
+        {
+          "period": "Посуточно (за ночь)",
+          "price": "0"
+        },
+        {
+          "period": "За месяц",
+          "price": "0"
+        }
+      ],
+      "updatedAt": "2026-08-13T12:19:57.896Z"
     }
   ],
   "bookings": [
