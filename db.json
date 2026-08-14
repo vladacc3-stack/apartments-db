@@ -8,18 +8,19 @@
       "image": "https://i.ibb.co/G45yqPRL/photo-2026-08-04-10-50-41.jpg",
       "prices": [
         {
-          "period": "Август",
-          "price": "950"
+          "period": "Август сутки",
+          "price": "60"
         },
         {
           "period": "Сентябрь",
-          "price": "650"
+          "price": "600"
         },
         {
           "period": "Аренда на год",
           "price": "4900"
         }
-      ]
+      ],
+      "updatedAt": "2026-08-14T20:59:51.066Z"
     },
     {
       "id": "apt_1786224605207",
