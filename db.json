@@ -824,7 +824,8 @@
       "phone": "+380632989788",
       "price": "65",
       "periodType": "За день",
-      "commission": "",
+      "commission": "35",
+      "comment": "",
       "startDate": "2026-08-11",
       "endDate": "2026-08-18"
     },
