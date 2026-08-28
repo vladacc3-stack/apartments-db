@@ -844,8 +844,9 @@
       "price": "0",
       "periodType": "За день",
       "commission": "",
+      "comment": "",
       "startDate": "2026-08-18",
-      "endDate": "2026-08-28"
+      "endDate": "2026-08-29"
     },
     {
       "id": "book_1786356263250",
