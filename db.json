@@ -698,8 +698,9 @@
       "price": "1000",
       "periodType": "За весь период",
       "commission": "",
+      "comment": "",
       "startDate": "2026-08-05",
-      "endDate": "2026-09-05"
+      "endDate": "2026-09-10"
     },
     {
       "id": "book_1786343793793",
