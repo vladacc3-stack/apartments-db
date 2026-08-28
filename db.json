@@ -1189,6 +1189,19 @@
       "comment": "",
       "startDate": "2026-09-01",
       "endDate": "2026-09-30"
+    },
+    {
+      "id": "book_1787918240283",
+      "aptId": "apt_1786376353484",
+      "manager": "Стася",
+      "guest": "Светлана",
+      "phone": "+380 95 729 3841",
+      "price": "550",
+      "periodType": "За весь период",
+      "commission": "50",
+      "comment": "",
+      "startDate": "2026-09-03",
+      "endDate": "2026-10-03"
     }
   ]
 }
