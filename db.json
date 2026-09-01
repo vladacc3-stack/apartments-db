@@ -1233,6 +1233,19 @@
       "comment": "",
       "startDate": "2026-09-02",
       "endDate": "2026-09-15"
+    },
+    {
+      "id": "book_1788258168563",
+      "aptId": "apt_1786224889016",
+      "manager": "Ольга",
+      "guest": "Сергей",
+      "phone": "+380996482447",
+      "price": "700",
+      "periodType": "За весь период",
+      "commission": "",
+      "comment": "",
+      "startDate": "2026-09-02",
+      "endDate": "2026-11-02"
     }
   ]
 }
