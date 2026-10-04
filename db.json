@@ -877,11 +877,12 @@
       "manager": "Стася",
       "guest": "Евгения",
       "phone": "+380664723723",
-      "price": "1800",
+      "price": "2100",
       "periodType": "За весь период",
       "commission": "150",
+      "comment": "",
       "startDate": "2026-08-01",
-      "endDate": "2026-09-30"
+      "endDate": "2026-10-31"
     },
     {
       "id": "book_1786362637168",
