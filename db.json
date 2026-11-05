@@ -1404,6 +1404,19 @@
       "comment": "",
       "startDate": "2026-11-01",
       "endDate": "2026-11-30"
+    },
+    {
+      "id": "book_1793880274531",
+      "aptId": "apt_1786299077380",
+      "manager": "Стася",
+      "guest": "Слава",
+      "phone": "+380976785887",
+      "price": "330",
+      "periodType": "За весь период",
+      "commission": "20",
+      "comment": "",
+      "startDate": "2026-10-26",
+      "endDate": "2026-11-26"
     }
   ]
 }
